@@ -153,6 +153,49 @@ canvas {
   }
 }
 
+/* ── アプリヘッダー ── */
+#app-header {
+  display: none; /* モバイルでは非表示 */
+}
+
+@media (min-width: 768px) {
+  #app-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0d5c5;
+  }
+}
+
+#app-icon {
+  font-size: 44px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#app-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#app-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #c4735a;
+  font-family: sans-serif;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+#app-sub {
+  font-size: 13px;
+  color: #a08060;
+  font-family: sans-serif;
+  letter-spacing: 0.04em;
+}
+
 /* ── 共通: ラベル ── */
 .ctrl-label {
   color: #8b7355;
