@@ -2,6 +2,7 @@ const { Engine, Render, Runner, Bodies, Body, Composite, Events } = Matter;
 
 const WALL_T = 10;
 const COLORS = ['#e94560', '#f4a261', '#2a9d8f', '#e9c46a', '#a8dadc', '#533483'];
+const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
 
 // 物体サイズ（min〜max px）1=大きな石、5=細かい砂粒
 const BOX_SIZES = {
@@ -24,7 +25,14 @@ let colorIndex = 0;
 let currentCupDims = null;
 
 const canvasEl = document.getElementById('canvas');
-const engine = Engine.create();
+const engine = Engine.create({
+  positionIterations: 20,
+  velocityIterations: 16,
+  constraintIterations: 8,
+});
+
+// 物体同士の許容重複量をゼロに（デフォルト0.05）
+Matter.Resolver._slop = 0;
 
 const render = Render.create({
   canvas: canvasEl,
@@ -103,8 +111,8 @@ function clearDynamicBodies() {
 function spawnBox(x, y, size) {
   const box = Bodies.rectangle(x, y, size, size, {
     restitution: 0,
-    friction: 0.6,
-    frictionAir: 0.001,
+    friction: 0.9,
+    frictionAir: 0.08,
     render: { fillStyle: COLORS[colorIndex % COLORS.length] }
   });
   box.spawnTime = performance.now();
@@ -145,7 +153,7 @@ function startSpawning() {
     const size = min + Math.random() * (max - min);
     const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
     const box = spawnBox(x, topY - 60, size);
-    Body.setVelocity(box, { x: 0, y: 15 });
+    Body.setVelocity(box, { x: 0, y: 8 });
   }, 80);
 }
 
@@ -176,6 +184,49 @@ Events.on(engine, 'afterUpdate', () => {
     .reduce((sum, b) => sum + b.boxSize * b.boxSize, 0);
   const rate = Math.min(100, Math.round(filledArea / cupArea * 100));
   fillRateEl.textContent = `充填率: ${rate}%`;
+});
+
+// 鉢上部の直径をキャンバスに描画
+Events.on(render, 'afterRender', () => {
+  if (!currentCupDims) return;
+  const { topInnerW, topY, cx } = currentCupDims;
+  const ctx = render.context;
+  const diameter = POT_DIAMETERS[currentSize];
+
+  const lineY   = topY - 20;
+  const tickH   = 6;
+  const leftX   = cx - topInnerW / 2;
+  const rightX  = cx + topInnerW / 2;
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+  ctx.lineWidth = 1.5;
+
+  // 水平線
+  ctx.beginPath();
+  ctx.moveTo(leftX, lineY);
+  ctx.lineTo(rightX, lineY);
+  ctx.stroke();
+
+  // 左端の縦ティック
+  ctx.beginPath();
+  ctx.moveTo(leftX, lineY - tickH);
+  ctx.lineTo(leftX, lineY + tickH);
+  ctx.stroke();
+
+  // 右端の縦ティック
+  ctx.beginPath();
+  ctx.moveTo(rightX, lineY - tickH);
+  ctx.lineTo(rightX, lineY + tickH);
+  ctx.stroke();
+
+  // ラベル
+  ctx.font = 'bold 14px sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(`直径 ${diameter}cm`, cx, lineY - tickH - 4);
+  ctx.restore();
 });
 
 // 初期化
