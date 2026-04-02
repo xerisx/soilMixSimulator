@@ -7,11 +7,13 @@ const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
 // 物体は1cm固定（±25%の不規則性）
 // px/cm = topInnerW / 直径cm で号数ごとに算出
 const IRREGULARITY = 0.05; // ±5%
+const OBJECT_SIZE_CM = { S: 0.5, M: 1.0, L: 2.0 };
+let currentObjectSize = 'M';
 
 function getObjectSizePx() {
   const { topInnerW } = getCupDimensions();
   const pxPerCm = topInnerW / POT_DIAMETERS[currentSize];
-  const base = pxPerCm * 1; // 1cm
+  const base = pxPerCm * OBJECT_SIZE_CM[currentObjectSize];
   return base * (1 - IRREGULARITY + Math.random() * IRREGULARITY * 2);
 }
 
@@ -126,9 +128,14 @@ function spawnBox(x, y, size) {
   return box;
 }
 
+function setObjBtnsDisabled(disabled) {
+  document.querySelectorAll('.obj-btn').forEach(b => b.disabled = disabled);
+}
+
 function startSpawning() {
   if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
   colorIndex = 0;
+  setObjBtnsDisabled(true);
 
   const { topInnerW, topY, cx } = getCupDimensions();
   const spawnXMin = cx - topInnerW / 2 + 20;
@@ -148,6 +155,7 @@ function startSpawning() {
     if (overflowed) {
       clearInterval(spawnInterval);
       spawnInterval = null;
+      setObjBtnsDisabled(false);
       return;
     }
 
@@ -160,6 +168,7 @@ function startSpawning() {
 
 function reset() {
   if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
+  setObjBtnsDisabled(false);
   cupBodies.forEach(b => Composite.remove(engine.world, b));
   cupBodies = [];
   clearDynamicBodies();
@@ -278,6 +287,15 @@ document.getElementById('addBtn').addEventListener('click', () => {
 document.getElementById('startBtn').addEventListener('click', () => {
   document.getElementById('startBtn').disabled = true;
   startSpawning();
+});
+
+// 物体サイズボタン
+document.querySelectorAll('.obj-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.obj-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentObjectSize = btn.dataset.obj;
+  });
 });
 
 // リセットボタン
