@@ -114,6 +114,15 @@ canvas {
   height: 24px;
   background: rgba(255,255,255,0.2);
 }
+#shapeRatio {
+  width: 80px;
+  accent-color: #7ec8e3;
+  cursor: pointer;
+}
+#shapeRatio:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 #fillRate {
   position: fixed;
   top: 20px;

@@ -9,6 +9,7 @@ const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
 const IRREGULARITY = 0.05; // ±5%
 const OBJECT_SIZE_CM = { S: 0.5, M: 1.0, L: 2.0 };
 let currentObjectSize = 'M';
+let circleRatio = 50; // 0〜100 (丸の割合%)
 
 function getObjectSizePx() {
   const { topInnerW } = getCupDimensions();
@@ -120,7 +121,8 @@ function spawnBox(x, y, size) {
     render: { fillStyle: COLORS[colorIndex % COLORS.length] }
   });
   box.spawnTime = performance.now();
-  box.boxSize = size;
+  box.isParticle = true;
+  box.shapeArea = size * size;
   colorIndex++;
   Composite.add(engine.world, box);
   Body.setAngle(box, Math.random() * Math.PI * 2);
@@ -128,8 +130,32 @@ function spawnBox(x, y, size) {
   return box;
 }
 
+function spawnCircle(x, y, size) {
+  const r = size / 2;
+  const circle = Bodies.circle(x, y, r, {
+    restitution: 0,
+    friction: 0.9,
+    frictionAir: 0.08,
+    render: { fillStyle: COLORS[colorIndex % COLORS.length] }
+  });
+  circle.spawnTime = performance.now();
+  circle.isParticle = true;
+  circle.shapeArea = Math.PI * r * r;
+  colorIndex++;
+  Composite.add(engine.world, circle);
+  return circle;
+}
+
+function spawnShape(x, y, size) {
+  if (Math.random() * 100 < circleRatio) {
+    return spawnCircle(x, y, size);
+  }
+  return spawnBox(x, y, size);
+}
+
 function setObjBtnsDisabled(disabled) {
   document.querySelectorAll('.obj-btn').forEach(b => b.disabled = disabled);
+  document.getElementById('shapeRatio').disabled = disabled;
 }
 
 function startSpawning() {
@@ -161,8 +187,8 @@ function startSpawning() {
 
     const size = getObjectSizePx();
     const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
-    const box = spawnBox(x, topY - 60, size);
-    Body.setVelocity(box, { x: 0, y: 8 });
+    const body = spawnShape(x, topY - 60, size);
+    Body.setVelocity(body, { x: 0, y: 8 });
   }, 80);
 }
 
@@ -173,7 +199,6 @@ function reset() {
   cupBodies = [];
   clearDynamicBodies();
   buildCup();
-  document.getElementById('startBtn').disabled = false;
 }
 
 function applyCanvasSize() {
@@ -190,8 +215,8 @@ Events.on(engine, 'afterUpdate', () => {
   const { topInnerW, botInnerW, cupHeight, topY, bottomY } = currentCupDims;
   const cupArea = (topInnerW + botInnerW) / 2 * cupHeight;
   const filledArea = Composite.allBodies(engine.world)
-    .filter(b => !b.isStatic && b.boxSize && b.position.y > topY && b.position.y < bottomY)
-    .reduce((sum, b) => sum + b.boxSize * b.boxSize, 0);
+    .filter(b => b.isParticle && b.position.y > topY && b.position.y < bottomY)
+    .reduce((sum, b) => sum + b.shapeArea, 0);
   const rate = Math.min(100, Math.round(filledArea / cupArea * 100));
   fillRateEl.textContent = `充填率: ${rate}%`;
 });
@@ -279,13 +304,13 @@ document.getElementById('addBtn').addEventListener('click', () => {
     const size = getObjectSizePx();
     const x = spawnXMin + colW * col + colW * (0.2 + Math.random() * 0.6);
     const y = topY - baseSize - row * (baseSize * 1.3);
-    spawnBox(x, y, size);
+    spawnShape(x, y, size);
   }
 });
 
 // スタートボタン
 document.getElementById('startBtn').addEventListener('click', () => {
-  document.getElementById('startBtn').disabled = true;
+  reset();
   startSpawning();
 });
 
@@ -296,6 +321,15 @@ document.querySelectorAll('.obj-btn').forEach(btn => {
     btn.classList.add('active');
     currentObjectSize = btn.dataset.obj;
   });
+});
+
+// 形状スライダー
+const shapeRatioEl = document.getElementById('shapeRatio');
+const ratioDisplayEl = document.getElementById('ratioDisplay');
+shapeRatioEl.addEventListener('input', () => {
+  circleRatio = Number(shapeRatioEl.value);
+  const sq = 100 - circleRatio;
+  ratioDisplayEl.textContent = `${sq}:${circleRatio}`;
 });
 
 // リセットボタン
