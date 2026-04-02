@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>物理演算シミュレータ</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    canvas { border: 2px solid #444; background: #0f0f23; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <script>
+    const { Engine, Render, Runner, Bodies, Composite } = Matter;
+
+    const WIDTH  = 800;
+    const HEIGHT = 600;
+
+    const engine = Engine.create();
+    const render = Render.create({
+      canvas: document.getElementById('canvas'),
+      engine,
+      options: {
+        width: WIDTH,
+        height: HEIGHT,
+        wireframes: false,
+        background: '#0f0f23',
+      }
+    });
+
+    // ---- コップの寸法（台形：上が広い） ----
+    const CUP_CX      = WIDTH / 2;
+    const CUP_TOP_Y   = 150;
+    const TOP_INNER_W = 280;   // 上辺の内側幅（広い）
+    const BOT_INNER_W = 180;   // 下辺の内側幅（狭い）
+    const CUP_HEIGHT  = 300;
+    const WALL_T      = 10;
+
+    const cupBottom_Y = CUP_TOP_Y + CUP_HEIGHT;
+
+    // 台形壁を fromVertices で作成するヘルパー
+    function makeTrapezoidWall(absVerts) {
+      const cx = absVerts.reduce((s, v) => s + v.x, 0) / absVerts.length;
+      const cy = absVerts.reduce((s, v) => s + v.y, 0) / absVerts.length;
+      const rel = absVerts.map(v => ({ x: v.x - cx, y: v.y - cy }));
+      return Bodies.fromVertices(cx, cy, rel, {
+        isStatic: true,
+        render: { fillStyle: '#7ec8e3' }
+      });
+    }
+
+    // コップ左壁（台形）
+    const cupWallL = makeTrapezoidWall([
+      { x: CUP_CX - TOP_INNER_W / 2 - WALL_T, y: CUP_TOP_Y },
+      { x: CUP_CX - TOP_INNER_W / 2,           y: CUP_TOP_Y },
+      { x: CUP_CX - BOT_INNER_W / 2,           y: cupBottom_Y },
+      { x: CUP_CX - BOT_INNER_W / 2 - WALL_T,  y: cupBottom_Y },
+    ]);
+
+    // コップ右壁（台形）
+    const cupWallR = makeTrapezoidWall([
+      { x: CUP_CX + TOP_INNER_W / 2,           y: CUP_TOP_Y },
+      { x: CUP_CX + TOP_INNER_W / 2 + WALL_T,  y: CUP_TOP_Y },
+      { x: CUP_CX + BOT_INNER_W / 2 + WALL_T,  y: cupBottom_Y },
+      { x: CUP_CX + BOT_INNER_W / 2,           y: cupBottom_Y },
+    ]);
+
+    // コップ底面
+    const cupBottom = Bodies.rectangle(
+      CUP_CX,
+      cupBottom_Y + WALL_T / 2,
+      BOT_INNER_W + WALL_T * 2,
+      WALL_T,
+      { isStatic: true, render: { fillStyle: '#7ec8e3' } }
+    );
+
+    Composite.add(engine.world, [cupBottom, cupWallL, cupWallR]);
+
+    // ---- 物体を落とす ----
+    const COLORS = ['#e94560', '#f4a261', '#2a9d8f', '#e9c46a', '#a8dadc', '#533483'];
+    let colorIndex = 0;
+
+    // 落下範囲は上辺の内側
+    const spawnXMin = CUP_CX - TOP_INNER_W / 2 + 30;
+    const spawnXMax = CUP_CX + TOP_INNER_W / 2 - 30;
+
+    const spawnInterval = setInterval(spawnBatch, 80);
+
+    function spawnBatch() {
+      // コップ内の物体がコップ上端を超えていたら終了
+      const bodies = Composite.allBodies(engine.world);
+      const overflowed = bodies.some(b =>
+        !b.isStatic &&
+        b.position.y < CUP_TOP_Y &&
+        Math.abs(b.velocity.y) < 1
+      );
+      if (overflowed) {
+        clearInterval(spawnInterval);
+        return;
+      }
+
+      const size = 18 + Math.random() * 24;
+      const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
+      const box = Bodies.rectangle(x, CUP_TOP_Y - 60, size, size, {
+        restitution: 0.2,
+        friction: 0.6,
+        frictionAir: 0.001,
+        render: { fillStyle: COLORS[colorIndex % COLORS.length] }
+      });
+      colorIndex++;
+      Composite.add(engine.world, box);
+    }
+
+    Render.run(render);
+    Runner.run(Runner.create(), engine);
+  </script>
+</body>
+</html>
