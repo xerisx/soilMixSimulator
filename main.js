@@ -1,33 +1,24 @@
 const { Engine, Render, Runner, Bodies, Body, Composite, Events } = Matter;
 
 const WALL_T = 10;
-const COLORS = ['#e94560', '#f4a261', '#2a9d8f', '#e9c46a', '#a8dadc', '#533483'];
+const COLORS = ['#c4735a', '#d4a84b', '#8ba04e', '#5e9e7a', '#6a9bb5', '#a07a9e'];
 const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
-
-// 物体は1cm固定（±25%の不規則性）
-// px/cm = topInnerW / 直径cm で号数ごとに算出
 const IRREGULARITY = 0.05; // ±5%
 const OBJECT_SIZE_CM = { S: 0.5, M: 1.0, L: 2.0 };
-let currentObjectSize = 'M';
-let circleRatio = 50; // 0〜100 (丸の割合%)
-
-function getObjectSizePx() {
-  const { topInnerW } = getCupDimensions();
-  const pxPerCm = topInnerW / POT_DIAMETERS[currentSize];
-  const base = pxPerCm * OBJECT_SIZE_CM[currentObjectSize];
-  return base * (1 - IRREGULARITY + Math.random() * IRREGULARITY * 2);
-}
-
 const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100 };
-
-// 鉢は固定サイズ（画面基準）
 const CUP_RATIO = { topW: 0.50, botW: 0.33, hToW: 1.1 };
+const SHAPE_ICONS = { square: '■', circle: '●' };
 
 let currentSize = '3';
+let objectTypes = [
+  { shape: 'square', size: 'M', weight: 1 },
+  { shape: 'circle', size: 'M', weight: 1 },
+];
 let cupBodies = [];
 let spawnInterval = null;
 let colorIndex = 0;
 let currentCupDims = null;
+let shakeOffsetX = 0;
 
 const canvasEl = document.getElementById('canvas');
 const engine = Engine.create({
@@ -35,8 +26,6 @@ const engine = Engine.create({
   velocityIterations: 16,
   constraintIterations: 8,
 });
-
-// 物体同士の許容重複量をゼロに（デフォルト0.05）
 Matter.Resolver._slop = 0;
 
 const render = Render.create({
@@ -46,19 +35,33 @@ const render = Render.create({
     width: window.innerWidth,
     height: window.innerHeight,
     wireframes: false,
-    background: '#0f0f23',
+    background: '#f2ede4',
   }
 });
+
+const DESKTOP_BREAKPOINT = 768;
 
 function getCupDimensions() {
   const W = render.options.width;
   const H = render.options.height;
-  const refDim = Math.min(W, H);
+  const isDesktop = window.innerWidth >= DESKTOP_BREAKPOINT;
+
+  const leftOffset   = isDesktop ? Math.round(W * 0.4) : 0;
+  const bottomOffset = isDesktop ? 0 : (() => {
+    const panel = document.getElementById('panel');
+    return panel ? (panel.offsetHeight || 150) + 12 : 162;
+  })();
+
+  const availW = W - leftOffset;
+  const availH = H - bottomOffset;
+  const cx = leftOffset + availW / 2;
+
+  const refDim = Math.min(availW, availH);
   let topInnerW = refDim * CUP_RATIO.topW;
   let botInnerW = refDim * CUP_RATIO.botW;
   let cupHeight  = topInnerW * CUP_RATIO.hToW;
 
-  const maxHeight = H * 0.84;
+  const maxHeight = availH * 0.88;
   if (cupHeight > maxHeight) {
     const scale = maxHeight / cupHeight;
     topInnerW *= scale;
@@ -66,8 +69,8 @@ function getCupDimensions() {
     cupHeight  = maxHeight;
   }
 
-  const topY = (H - cupHeight) / 2 - H * 0.04;
-  return { topInnerW, botInnerW, cupHeight, topY, cx: W / 2 };
+  const topY = (availH - cupHeight) / 2;
+  return { topInnerW, botInnerW, cupHeight, topY, cx };
 }
 
 function makeTrapezoidWall(absVerts) {
@@ -76,7 +79,7 @@ function makeTrapezoidWall(absVerts) {
   const rel = absVerts.map(v => ({ x: v.x - cx, y: v.y - cy }));
   return Bodies.fromVertices(cx, cy, rel, {
     isStatic: true,
-    render: { fillStyle: '#7ec8e3' }
+    render: { fillStyle: '#c4815e' }
   });
 }
 
@@ -99,7 +102,7 @@ function buildCup() {
   const bottom = Bodies.rectangle(
     cx, bottomY + WALL_T / 2,
     botInnerW + WALL_T * 2, WALL_T,
-    { isStatic: true, render: { fillStyle: '#7ec8e3' } }
+    { isStatic: true, render: { fillStyle: '#c4815e' } }
   );
 
   currentCupDims = { topInnerW, botInnerW, cupHeight, topY, bottomY, cx };
@@ -111,6 +114,24 @@ function clearDynamicBodies() {
   Composite.allBodies(engine.world)
     .filter(b => !b.isStatic)
     .forEach(b => Composite.remove(engine.world, b));
+}
+
+function getObjectSizePx(sizeName) {
+  const { topInnerW } = getCupDimensions();
+  const pxPerCm = topInnerW / POT_DIAMETERS[currentSize];
+  const base = pxPerCm * OBJECT_SIZE_CM[sizeName];
+  return base * (1 - IRREGULARITY + Math.random() * IRREGULARITY * 2);
+}
+
+function pickObjectType() {
+  const total = objectTypes.reduce((s, t) => s + t.weight, 0);
+  if (total === 0) return null;
+  let r = Math.random() * total;
+  for (const t of objectTypes) {
+    r -= t.weight;
+    if (r <= 0) return t;
+  }
+  return objectTypes[objectTypes.length - 1];
 }
 
 function spawnBox(x, y, size) {
@@ -146,22 +167,25 @@ function spawnCircle(x, y, size) {
   return circle;
 }
 
-function spawnShape(x, y, size) {
-  if (Math.random() * 100 < circleRatio) {
-    return spawnCircle(x, y, size);
-  }
+function spawnShape(x, y) {
+  const type = pickObjectType();
+  if (!type) return null;
+  const size = getObjectSizePx(type.size);
+  if (type.shape === 'circle') return spawnCircle(x, y, size);
   return spawnBox(x, y, size);
 }
 
-function setObjBtnsDisabled(disabled) {
-  document.querySelectorAll('.obj-btn').forEach(b => b.disabled = disabled);
-  document.getElementById('shapeRatio').disabled = disabled;
+// 落下中はカード内コントロールを無効化
+function setParticleControlsDisabled(disabled) {
+  document.querySelectorAll('.obj-size-btn, .ratio-slider').forEach(el => {
+    el.disabled = disabled;
+  });
 }
 
 function startSpawning() {
   if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
   colorIndex = 0;
-  setObjBtnsDisabled(true);
+  setParticleControlsDisabled(true);
 
   const { topInnerW, topY, cx } = getCupDimensions();
   const spawnXMin = cx - topInnerW / 2 + 20;
@@ -181,20 +205,19 @@ function startSpawning() {
     if (overflowed) {
       clearInterval(spawnInterval);
       spawnInterval = null;
-      setObjBtnsDisabled(false);
+      setParticleControlsDisabled(false);
       return;
     }
 
-    const size = getObjectSizePx();
     const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
-    const body = spawnShape(x, topY - 60, size);
-    Body.setVelocity(body, { x: 0, y: 8 });
+    const body = spawnShape(x, topY - 60);
+    if (body) Body.setVelocity(body, { x: 0, y: 8 });
   }, 80);
 }
 
 function reset() {
   if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
-  setObjBtnsDisabled(false);
+  setParticleControlsDisabled(false);
   cupBodies.forEach(b => Composite.remove(engine.world, b));
   cupBodies = [];
   clearDynamicBodies();
@@ -208,7 +231,7 @@ function applyCanvasSize() {
   render.canvas.height  = window.innerHeight;
 }
 
-// 充填率の計算・表示
+// ── 充填率の計算・表示 ──
 const fillRateEl = document.getElementById('fillRate');
 Events.on(engine, 'afterUpdate', () => {
   if (!currentCupDims) return;
@@ -221,54 +244,84 @@ Events.on(engine, 'afterUpdate', () => {
   fillRateEl.textContent = `充填率: ${rate}%`;
 });
 
-// 鉢上部の直径をキャンバスに描画
+// ── 鉢上部の直径をキャンバスに描画 ──
 Events.on(render, 'afterRender', () => {
   if (!currentCupDims) return;
   const { topInnerW, topY, cx } = currentCupDims;
   const ctx = render.context;
   const diameter = POT_DIAMETERS[currentSize];
 
-  const lineY   = topY - 20;
-  const tickH   = 6;
-  const leftX   = cx - topInnerW / 2;
-  const rightX  = cx + topInnerW / 2;
+  const lineY  = topY - 20;
+  const tickH  = 6;
+  const leftX  = cx - topInnerW / 2;
+  const rightX = cx + topInnerW / 2;
 
   ctx.save();
-  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+  ctx.strokeStyle = 'rgba(90,60,40,0.5)';
   ctx.lineWidth = 1.5;
 
-  // 水平線
-  ctx.beginPath();
-  ctx.moveTo(leftX, lineY);
-  ctx.lineTo(rightX, lineY);
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(leftX, lineY); ctx.lineTo(rightX, lineY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(leftX,  lineY - tickH); ctx.lineTo(leftX,  lineY + tickH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rightX, lineY - tickH); ctx.lineTo(rightX, lineY + tickH); ctx.stroke();
 
-  // 左端の縦ティック
-  ctx.beginPath();
-  ctx.moveTo(leftX, lineY - tickH);
-  ctx.lineTo(leftX, lineY + tickH);
-  ctx.stroke();
-
-  // 右端の縦ティック
-  ctx.beginPath();
-  ctx.moveTo(rightX, lineY - tickH);
-  ctx.lineTo(rightX, lineY + tickH);
-  ctx.stroke();
-
-  // ラベル
   ctx.font = 'bold 14px sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillStyle = 'rgba(90,60,40,0.7)';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
   ctx.fillText(`直径 ${diameter}cm`, cx, lineY - tickH - 4);
   ctx.restore();
 });
 
-// 初期化
+// ── 物体リスト UI ──
+function renderObjList() {
+  const list = document.getElementById('obj-list');
+  list.innerHTML = '';
+
+  objectTypes.forEach((type, i) => {
+    const card = document.createElement('div');
+    card.className = 'obj-card';
+    card.innerHTML = `
+      <div class="obj-icon">${SHAPE_ICONS[type.shape]}</div>
+      <div class="obj-sizes">
+        ${['S', 'M', 'L'].map(s =>
+          `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
+        ).join('')}
+      </div>
+      <div class="ratio-row">
+        <input type="range" class="ratio-slider" min="0" max="10" step="0.1" value="${type.weight}" data-idx="${i}">
+        <span class="ratio-val" data-idx="${i}">${type.weight.toFixed(1)}</span>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  list.querySelectorAll('.obj-size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.idx);
+      objectTypes[idx].size = btn.dataset.size;
+      btn.closest('.obj-sizes').querySelectorAll('.obj-size-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  list.querySelectorAll('.ratio-slider').forEach(slider => {
+    slider.addEventListener('input', () => {
+      const idx = Number(slider.dataset.idx);
+      objectTypes[idx].weight = Number(slider.value);
+      slider.closest('.ratio-row').querySelector('.ratio-val').textContent = Number(slider.value).toFixed(1);
+    });
+  });
+}
+
+// ── 初期化 ──
 applyCanvasSize();
+renderObjList();
 buildCup();
 
-// リサイズ対応
+Render.run(render);
+Runner.run(Runner.create(), engine);
+
+// ── リサイズ対応 ──
 let resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
@@ -278,7 +331,7 @@ window.addEventListener('resize', () => {
   }, 200);
 });
 
-// 物体サイズボタン
+// ── 鉢サイズボタン ──
 document.querySelectorAll('.size-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
@@ -288,50 +341,37 @@ document.querySelectorAll('.size-btn').forEach(btn => {
   });
 });
 
-// 追加ボタン
+// ── スタートボタン ──
+document.getElementById('startBtn').addEventListener('click', () => {
+  reset();
+  startSpawning();
+});
+
+// ── 追加ボタン ──
 document.getElementById('addBtn').addEventListener('click', () => {
   const count = ADD_COUNTS[currentSize];
   const { topInnerW, topY, cx } = getCupDimensions();
   const spawnXMin = cx - topInnerW / 2 + 20;
   const spawnXMax = cx + topInnerW / 2 - 20;
-  const baseSize = getObjectSizePx();
+  const baseSize = getObjectSizePx('M');
   const cols = Math.ceil(Math.sqrt(count * (spawnXMax - spawnXMin) / (baseSize * 1.2)));
   const colW  = (spawnXMax - spawnXMin) / cols;
 
   for (let i = 0; i < count; i++) {
     const col = i % cols;
     const row = Math.floor(i / cols);
-    const size = getObjectSizePx();
     const x = spawnXMin + colW * col + colW * (0.2 + Math.random() * 0.6);
     const y = topY - baseSize - row * (baseSize * 1.3);
-    spawnShape(x, y, size);
+    spawnShape(x, y);
   }
 });
 
-// スタートボタン
-document.getElementById('startBtn').addEventListener('click', () => {
-  reset();
-  startSpawning();
-});
-
-// 物体サイズボタン
-document.querySelectorAll('.obj-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.obj-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentObjectSize = btn.dataset.obj;
-  });
-});
-
-// トントン
-let shakeOffsetX = 0;
-
+// ── トントンボタン ──
 document.getElementById('tontonBtn').addEventListener('click', () => {
   const steps = 8;
   const vx = 5;
   const amp = 8;
   let step = 0;
-
   const origPositions = cupBodies.map(b => ({ x: b.position.x, y: b.position.y }));
 
   const id = setInterval(() => {
@@ -356,17 +396,5 @@ document.getElementById('tontonBtn').addEventListener('click', () => {
   }, 60);
 });
 
-// 形状スライダー
-const shapeRatioEl = document.getElementById('shapeRatio');
-const ratioDisplayEl = document.getElementById('ratioDisplay');
-shapeRatioEl.addEventListener('input', () => {
-  circleRatio = Number(shapeRatioEl.value);
-  const sq = 100 - circleRatio;
-  ratioDisplayEl.textContent = `${sq}:${circleRatio}`;
-});
-
-// リセットボタン
+// ── リセットボタン ──
 document.getElementById('resetBtn').addEventListener('click', reset);
-
-Render.run(render);
-Runner.run(Runner.create(), engine);

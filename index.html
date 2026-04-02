@@ -10,29 +10,26 @@
   <canvas id="canvas"></canvas>
   <div id="fillRate"></div>
 
-  <div id="controls">
-    <span class="label">鉢のサイズ：</span>
-    <button class="size-btn" data-size="1">1号</button>
-    <button class="size-btn" data-size="2">2号</button>
-    <button class="size-btn active" data-size="3">3号</button>
-    <button class="size-btn" data-size="4">4号</button>
-    <button class="size-btn" data-size="5">5号</button>
-    <span class="separator"></span>
-    <span class="label">物体サイズ：</span>
-    <button class="obj-btn" data-obj="S">S</button>
-    <button class="obj-btn active" data-obj="M">M</button>
-    <button class="obj-btn" data-obj="L">L</button>
-    <span class="separator"></span>
-    <span class="label">形状：</span>
-    <span class="label">■</span>
-    <input type="range" id="shapeRatio" min="0" max="100" value="50" step="10">
-    <span class="label">●</span>
-    <span id="ratioDisplay" class="label">50:50</span>
-    <span class="separator"></span>
-    <button id="startBtn">スタート</button>
-    <button id="addBtn">追加</button>
-    <button id="tontonBtn">トントン</button>
-    <button id="resetBtn">リセット</button>
+  <div id="panel">
+    <section id="sec-pot">
+      <span class="ctrl-label">鉢のサイズ</span>
+      <div class="btn-group">
+        <button class="size-btn" data-size="1">1号</button>
+        <button class="size-btn" data-size="2">2号</button>
+        <button class="size-btn active" data-size="3">3号</button>
+        <button class="size-btn" data-size="4">4号</button>
+        <button class="size-btn" data-size="5">5号</button>
+      </div>
+    </section>
+
+    <div id="obj-list"><!-- JS で描画 --></div>
+
+    <section id="sec-actions">
+      <button id="startBtn"  class="act-btn act-start">▶ スタート</button>
+      <button id="addBtn"    class="act-btn act-add">＋ 追加</button>
+      <button id="tontonBtn" class="act-btn act-tonton">トントン</button>
+      <button id="resetBtn"  class="act-btn act-reset">リセット</button>
+    </section>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
