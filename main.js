@@ -323,6 +323,39 @@ document.querySelectorAll('.obj-btn').forEach(btn => {
   });
 });
 
+// トントン
+let shakeOffsetX = 0;
+
+document.getElementById('tontonBtn').addEventListener('click', () => {
+  const steps = 8;
+  const vx = 5;
+  const amp = 8;
+  let step = 0;
+
+  const origPositions = cupBodies.map(b => ({ x: b.position.x, y: b.position.y }));
+
+  const id = setInterval(() => {
+    const dir = step % 2 === 0 ? 1 : -1;
+    const decay = 1 - step / steps;
+    shakeOffsetX = dir * amp * decay;
+
+    cupBodies.forEach((b, i) => {
+      Body.setPosition(b, { x: origPositions[i].x + shakeOffsetX, y: origPositions[i].y });
+    });
+
+    Composite.allBodies(engine.world)
+      .filter(b => b.isParticle)
+      .forEach(b => Body.setVelocity(b, { x: dir * vx * decay, y: b.velocity.y }));
+
+    step++;
+    if (step >= steps) {
+      cupBodies.forEach((b, i) => Body.setPosition(b, origPositions[i]));
+      shakeOffsetX = 0;
+      clearInterval(id);
+    }
+  }, 60);
+});
+
 // 形状スライダー
 const shapeRatioEl = document.getElementById('shapeRatio');
 const ratioDisplayEl = document.getElementById('ratioDisplay');
