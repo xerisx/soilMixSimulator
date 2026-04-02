@@ -4,14 +4,16 @@ const WALL_T = 10;
 const COLORS = ['#e94560', '#f4a261', '#2a9d8f', '#e9c46a', '#a8dadc', '#533483'];
 const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
 
-// 物体サイズ（min〜max px）1=大きな石、5=細かい砂粒
-const BOX_SIZES = {
-  1: { min: 70, max: 100 },
-  2: { min: 45, max:  70 },
-  3: { min: 28, max:  45 },
-  4: { min: 16, max:  28 },
-  5: { min:  8, max:  16 },
-};
+// 物体は1cm固定（±25%の不規則性）
+// px/cm = topInnerW / 直径cm で号数ごとに算出
+const IRREGULARITY = 0.05; // ±5%
+
+function getObjectSizePx() {
+  const { topInnerW } = getCupDimensions();
+  const pxPerCm = topInnerW / POT_DIAMETERS[currentSize];
+  const base = pxPerCm * 1; // 1cm
+  return base * (1 - IRREGULARITY + Math.random() * IRREGULARITY * 2);
+}
 
 const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100 };
 
@@ -131,7 +133,6 @@ function startSpawning() {
   const { topInnerW, topY, cx } = getCupDimensions();
   const spawnXMin = cx - topInnerW / 2 + 20;
   const spawnXMax = cx + topInnerW / 2 - 20;
-  const { min, max } = BOX_SIZES[currentSize];
 
   spawnInterval = setInterval(() => {
     const now = performance.now();
@@ -150,7 +151,7 @@ function startSpawning() {
       return;
     }
 
-    const size = min + Math.random() * (max - min);
+    const size = getObjectSizePx();
     const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
     const box = spawnBox(x, topY - 60, size);
     Body.setVelocity(box, { x: 0, y: 8 });
@@ -259,16 +260,16 @@ document.getElementById('addBtn').addEventListener('click', () => {
   const { topInnerW, topY, cx } = getCupDimensions();
   const spawnXMin = cx - topInnerW / 2 + 20;
   const spawnXMax = cx + topInnerW / 2 - 20;
-  const { min, max } = BOX_SIZES[currentSize];
-  const cols = Math.ceil(Math.sqrt(count * (spawnXMax - spawnXMin) / (max * 1.2)));
+  const baseSize = getObjectSizePx();
+  const cols = Math.ceil(Math.sqrt(count * (spawnXMax - spawnXMin) / (baseSize * 1.2)));
   const colW  = (spawnXMax - spawnXMin) / cols;
 
   for (let i = 0; i < count; i++) {
     const col = i % cols;
     const row = Math.floor(i / cols);
-    const size = min + Math.random() * (max - min);
+    const size = getObjectSizePx();
     const x = spawnXMin + colW * col + colW * (0.2 + Math.random() * 0.6);
-    const y = topY - max - row * (max * 1.3);
+    const y = topY - baseSize - row * (baseSize * 1.3);
     spawnBox(x, y, size);
   }
 });
