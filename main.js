@@ -803,25 +803,22 @@ document.getElementById('addBtn').addEventListener('click', () => {
 });
 
 // ── トントンボタン ──
-// 横方向に鋭くスナップ×3回（振り子ではなく衝撃）
 document.getElementById('tontonBtn').addEventListener('click', () => {
-  const TAPS       = 2;   // 叩く回数
-  const JOLT_PX    = 2;   // 瞬間移動量(px)
-  const SNAP_MS    = 30;  // 元に戻るまでの時間(ms)
-  const INTERVAL   = 100; // 次の叩きまでの間隔(ms)
+  const TAPS     = 2;   // 叩く回数
+  const JOLT_PX  = 2;   // 瞬間移動量(px)
+  const SNAP_MS  = 30;  // 元に戻るまでの時間(ms)
+  const INTERVAL = 100; // 次の叩きまでの間隔(ms)
   let tapsDone = 0;
 
   function doTap() {
     if (cupBodies.length === 0) return;
     const orig = cupBodies.map(b => ({ x: b.position.x, y: b.position.y }));
-    const dir = tapsDone % 2 === 0 ? 1 : -1; // 左右交互
+    const dir = tapsDone % 2 === 0 ? 1 : -1;
 
-    // 鉢を瞬間的に横移動
     cupBodies.forEach((b, i) => {
       Body.setPosition(b, { x: orig[i].x + dir * JOLT_PX, y: orig[i].y });
     });
 
-    // 粒子に横方向の衝撃
     Composite.allBodies(engine.world)
       .filter(b => b.isParticle)
       .forEach(b => {
@@ -831,7 +828,6 @@ document.getElementById('tontonBtn').addEventListener('click', () => {
         });
       });
 
-    // SNAP_MS後に元の位置へ戻す
     setTimeout(() => {
       cupBodies.forEach((b, i) => Body.setPosition(b, orig[i]));
       tapsDone++;
