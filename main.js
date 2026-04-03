@@ -3,6 +3,29 @@ const { Engine, Render, Runner, Bodies, Body, Composite, Events } = Matter;
 const WALL_T = 10;
 const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15, 6: 18, 7: 21 }; // cm
 const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100, 6: 120, 7: 140 };
+
+// ── プリセット配合（resource ID → weight） ──
+const PRESETS = {
+  balance:  { akadama: 3, hyuga: 2, pumice: 1.5, berabon: 1 },
+  drainage: { hyuga: 3, pumice: 3, perlite: 2, berabon: 1 },
+  water:    { akadama: 3, vermiculite: 2, peatmoss: 2, berabon: 1 },
+  nutrient: { zeolite: 3, vermiculite: 2, akadama: 2, humus: 1 },
+};
+
+// ── 資材タグ（params から自動生成） ──
+function getMaterialTags(type) {
+  const p = type.params;
+  const tags = [p.organic ? '有機' : '無機'];
+  if (p.drainage          >= 70) tags.push('排水');
+  if (p.aeration          >= 78) tags.push('通気');
+  if (p.waterRetention    >= 70) tags.push('保水');
+  if (p.nutrientRetention >= 65) tags.push('保肥');
+  if (tags.length === 1) tags.push('バランス');
+  return tags.slice(0, 3);
+}
+
+// ── S/M/L サイズ意味テキスト ──
+const SIZE_HINTS = { S: '保水寄り・密な充填', M: 'バランス', L: '排水・通気寄り' };
 const CUP_RATIO = { topW: 0.50, botW: 0.33, hToW: 1.1 };
 
 let currentSize = '3';
@@ -731,16 +754,21 @@ function renderObjList() {
       ? `<span class="tip-icon" data-tip="${type.tooltip}">?</span>`
       : '';
     const favActive = isFavorite('material', type.id) ? ' active' : '';
+    const tags = getMaterialTags(type);
+    const tagsHtml = `<div class="mat-tags">${tags.map(t => `<span class="mat-tag" data-tag="${t}">${t}</span>`).join('')}</div>`;
+    const sizeHint = SIZE_HINTS[type.size] ?? '';
     card.innerHTML = `
       <div class="obj-name-row">
         <span class="obj-name">${type.name}${tipAttr}</span>
         <button class="fav-btn${favActive}" data-fav-type="material" data-fav-id="${type.id}" aria-label="お気に入り">★</button>
       </div>
+      ${tagsHtml}
       <div class="obj-sizes">
         ${['S', 'M', 'L'].map(s =>
           `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
         ).join('')}
       </div>
+      <span class="size-hint">${sizeHint}</span>
       <div class="ratio-row">
         <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
         <span class="ratio-val" data-idx="${i}">${type.weight.toFixed(1)}</span>
@@ -755,6 +783,8 @@ function renderObjList() {
       objectTypes[idx].size = btn.dataset.size;
       btn.closest('.obj-sizes').querySelectorAll('.obj-size-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      const hintEl = btn.closest('.obj-card').querySelector('.size-hint');
+      if (hintEl) hintEl.textContent = SIZE_HINTS[btn.dataset.size] ?? '';
     });
   });
 
@@ -764,6 +794,8 @@ function renderObjList() {
       objectTypes[idx].weight = Number(slider.value);
       slider.closest('.ratio-row').querySelector('.ratio-val').textContent = Number(slider.value).toFixed(1);
       selectedCommercialSoil = null; // 手動変更でベースをクリア
+      activePreset = null;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
       updateBaseLabel();
       updateGraphs();
     });
@@ -785,6 +817,7 @@ renderObjList();
 renderCommercialList();
 buildCup();
 updateGraphs();
+updatePotHint();
 setupTooltips(document.getElementById('right-panel'));
 
 // ── タブボタン ──
@@ -820,13 +853,39 @@ window.addEventListener('resize', () => {
 });
 
 // ── 鉢サイズボタン ──
+function updatePotHint() {
+  const el = document.getElementById('pot-hint');
+  if (el) el.textContent = `直径 ${POT_DIAMETERS[currentSize]}cm`;
+}
+
 document.querySelectorAll('.size-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentSize = btn.dataset.size;
+    updatePotHint();
     reset();
   });
+});
+
+// ── プリセット ──
+let activePreset = null;
+
+function applyPreset(key) {
+  const weights = PRESETS[key];
+  objectTypes.forEach(t => { t.weight = weights[t.id] ?? 0; });
+  activePreset = key;
+  selectedCommercialSoil = null;
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.preset === key);
+  });
+  renderObjList();
+  updateGraphs();
+  updateBaseLabel();
+}
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
 });
 
 // ── スタートボタン ──
