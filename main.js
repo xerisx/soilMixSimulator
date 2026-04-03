@@ -1,13 +1,9 @@
 const { Engine, Render, Runner, Bodies, Body, Composite, Events } = Matter;
 
 const WALL_T = 10;
-const COLORS = ['#16A34A', '#0284C7', '#B45309', '#D97706', '#64748B', '#7C3AED'];
 const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
-// サイズはmm単位で資材ごとに定義（min〜maxのランダム値）
 const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100 };
 const CUP_RATIO = { topW: 0.50, botW: 0.33, hToW: 1.1 };
-const SHAPE_ICONS  = { square: '■', circle: '●' };
-const SHAPE_LABELS = { square: 'ベラボン', circle: '日向土' };
 
 let currentSize = '3';
 // MATERIALS（materials.js）からシミュレーション用の状態を初期化
@@ -19,8 +15,6 @@ let objectTypes = MATERIALS.map(m => ({
 let cupBodies = [];
 let spawnInterval = null;
 let currentCupDims = null;
-let shakeOffsetX = 0;
-let activeTab = 'materials';
 let selectedCommercialSoil = null;
 
 // ── お気に入り ──
@@ -487,7 +481,6 @@ function updateAdvanced() {
 
 // ── タブ ──
 function switchTab(tabId) {
-  activeTab = tabId;
   document.querySelectorAll('.tab-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tabId);
   });
@@ -807,7 +800,6 @@ document.getElementById('tontonBtn').addEventListener('click', () => {
     // SNAP_MS後に元の位置へ戻す
     setTimeout(() => {
       cupBodies.forEach((b, i) => Body.setPosition(b, orig[i]));
-      shakeOffsetX = 0;
       tapsDone++;
       if (tapsDone < TAPS) setTimeout(doTap, INTERVAL);
     }, SNAP_MS);
