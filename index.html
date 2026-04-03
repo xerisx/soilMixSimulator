@@ -42,6 +42,8 @@
           <button class="size-btn active" data-size="3">3号</button>
           <button class="size-btn" data-size="4">4号</button>
           <button class="size-btn" data-size="5">5号</button>
+          <button class="size-btn" data-size="6">6号</button>
+          <button class="size-btn" data-size="7">7号</button>
         </div>
       </section>
     </div>
@@ -61,10 +63,10 @@
     </div>
 
     <section id="sec-actions">
-      <button id="startBtn" class="act-btn act-start">▶ スタート</button>
+      <button id="startBtn" class="act-btn act-start">▶ 投入して開始</button>
       <div class="act-group act-group-ops">
-        <button id="addBtn"    class="act-btn act-add">＋ 追加</button>
-        <button id="tontonBtn" class="act-btn act-tonton">トントン</button>
+        <button id="addBtn"    class="act-btn act-add">＋ 追加投入</button>
+        <button id="tontonBtn" class="act-btn act-tonton">トントン<span class="act-btn-sub">ならして再配置</span></button>
       </div>
       <div class="act-group act-group-reset">
         <button id="resetBtn" class="act-btn act-reset">鉢を空にする</button>
@@ -73,11 +75,26 @@
     </section>
   </div>
 
+  <!-- キャンバス初期ガイド（初回のみ表示） -->
+  <div id="canvas-guide">
+    <div id="canvas-guide-inner">
+      <p class="cg-title">用土の充填をシミュレート</p>
+      <ol class="cg-steps">
+        <li>左パネルで資材と割合を設定</li>
+        <li>「投入して開始」で充填を確認</li>
+        <li>「トントン」で振動させて再配置</li>
+      </ol>
+    </div>
+  </div>
+
   <!-- 右パネル: グラフ -->
   <div id="right-panel">
     <header class="rp-header">
       <h2 class="rp-title">配合分析</h2>
     </header>
+
+    <!-- 配合サマリーチップ -->
+    <div id="mix-summary" hidden></div>
 
     <!-- 評価ラベル -->
     <div id="eval-block">
@@ -142,6 +159,9 @@
         <span class="bar-pct" id="pct-nutrient">--</span>
       </div>
     </div>
+
+    <!-- 影響資材ブロック -->
+    <div id="influence-block" hidden></div>
 
     <!-- 詳細パラメータ（アコーディオン） -->
     <button id="detail-toggle" class="detail-toggle-btn" aria-expanded="false">

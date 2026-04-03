@@ -1,17 +1,19 @@
 const { Engine, Render, Runner, Bodies, Body, Composite, Events } = Matter;
 
 const WALL_T = 10;
-const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
-const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100 };
+const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15, 6: 18, 7: 21 }; // cm
+const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100, 6: 120, 7: 140 };
 const CUP_RATIO = { topW: 0.50, botW: 0.33, hToW: 1.1 };
 
 let currentSize = '3';
 // MATERIALS（materials.js）からシミュレーション用の状態を初期化
-let objectTypes = MATERIALS.map(m => ({
-  ...m,
-  size:   'M',
-  weight: 1,
-}));
+let objectTypes = MATERIALS
+  .filter(m => m.id !== 'sphagnum')
+  .map(m => ({
+    ...m,
+    size:   'M',
+    weight: 1,
+  }));
 let cupBodies = [];
 let spawnInterval = null;
 let currentCupDims = null;
@@ -423,6 +425,54 @@ function animatePct(el, toValue, duration = 300) {
   _pctAnimFrames[id] = requestAnimationFrame(step);
 }
 
+// ── 配合サマリーチップ ──
+function updateMixSummary() {
+  const el = document.getElementById('mix-summary');
+  if (!el) return;
+  const active = objectTypes.filter(t => t.weight > 0);
+  const total  = active.reduce((s, t) => s + t.weight, 0);
+  if (active.length === 0 || total === 0) { el.hidden = true; return; }
+  el.hidden = false;
+  el.innerHTML = [...active]
+    .sort((a, b) => b.weight - a.weight)
+    .map(t => {
+      const pct = Math.round(t.weight / total * 100);
+      return `<span class="mix-chip"><span class="mix-chip-dot" style="background:${t.color}"></span>${t.name}&nbsp;${pct}%</span>`;
+    })
+    .join('');
+}
+
+// ── 影響資材表示 ──
+function updateInfluence() {
+  const el = document.getElementById('influence-block');
+  if (!el) return;
+  const active = objectTypes.filter(t => t.weight > 0);
+  if (active.length === 0) { el.hidden = true; return; }
+
+  const PARAMS = [
+    { key: 'drainage',          label: '排水性', icon: '↓' },
+    { key: 'waterRetention',    label: '保水性', icon: '●' },
+    { key: 'aeration',          label: '通気性', icon: '〜' },
+    { key: 'nutrientRetention', label: '保肥力', icon: '✦' },
+  ];
+
+  const rows = PARAMS.map(p => {
+    const tops = [...active]
+      .sort((a, b) => (b.params[p.key] ?? 0) - (a.params[p.key] ?? 0))
+      .slice(0, 2)
+      .filter(t => (t.params[p.key] ?? 0) >= 60);
+    if (tops.length === 0) return null;
+    const names = tops
+      .map(t => `<span class="inf-mat" style="color:${t.color}">${t.name}</span>`)
+      .join('<span class="inf-dot">·</span>');
+    return `<div class="inf-row"><span class="inf-param">${p.icon}&nbsp;${p.label}</span><span class="inf-arrow">→</span>${names}</div>`;
+  }).filter(Boolean);
+
+  if (rows.length === 0) { el.hidden = true; return; }
+  el.hidden = false;
+  el.innerHTML = `<p class="inf-title">各特性への貢献が大きい資材</p>` + rows.join('');
+}
+
 function updateGraphs() {
   const comp = calcComposite();
 
@@ -474,6 +524,9 @@ function updateGraphs() {
       splitLbl.textContent  = '--';
     }
   }
+
+  updateMixSummary();
+  updateInfluence();
 }
 
 // ── 詳細パラメータ ──
@@ -779,6 +832,7 @@ document.querySelectorAll('.size-btn').forEach(btn => {
 // ── スタートボタン ──
 document.getElementById('startBtn').addEventListener('click', () => {
   if (isAllZero()) { showEmptyState(); return; }
+  document.getElementById('canvas-guide')?.setAttribute('hidden', '');
   reset();
   startSpawning();
 });
@@ -786,6 +840,7 @@ document.getElementById('startBtn').addEventListener('click', () => {
 // ── 追加ボタン ──
 document.getElementById('addBtn').addEventListener('click', () => {
   if (isAllZero()) { showEmptyState(); return; }
+  document.getElementById('canvas-guide')?.setAttribute('hidden', '');
   const count = ADD_COUNTS[currentSize];
   const { topInnerW, topY, cx } = getCupDimensions();
   const spawnXMin = cx - topInnerW / 2 + 20;
