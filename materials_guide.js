@@ -55,8 +55,9 @@ function sizeRow(sizes) {
   return chips ? `<div class="mat-sizes">${chips}</div>` : '';
 }
 
-function renderCard(mat) {
-  const badge = mat.params.organic
+function renderCard(mat, favIds = new Set()) {
+  const isFav  = favIds.has(mat.id);
+  const badge  = mat.params.organic
     ? `<span class="mat-badge mat-badge-organic">🌿 有機</span>`
     : `<span class="mat-badge mat-badge-inorganic">🪨 無機</span>`;
 
@@ -102,7 +103,10 @@ function renderCard(mat) {
           <h2 class="mat-card-name">${mat.name}</h2>
           <span class="mat-summary">${summary}</span>
         </div>
-        ${badge}
+        <div class="mat-card-header-right">
+          ${badge}
+          <button class="fav-btn${isFav ? ' active' : ''}" data-fav-id="${mat.id}" aria-label="お気に入り">★</button>
+        </div>
       </div>
 
       <p class="mat-desc">${mat.tooltip}</p>
@@ -123,6 +127,32 @@ function renderCard(mat) {
   </article>`;
 }
 
+// ── お気に入り（main.js と同じキー・同じ形式を参照）──
+const FAVORITES_KEY = 'qsoil_favorites';
+
+function getFavoriteMaterialIds() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(FAVORITES_KEY));
+    return new Set(
+      Array.isArray(parsed)
+        ? parsed.filter(f => f.type === 'material').map(f => f.id)
+        : []
+    );
+  } catch { return new Set(); }
+}
+
+function toggleFavoriteMaterial(id) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(FAVORITES_KEY));
+    let favs = Array.isArray(parsed) ? parsed : [];
+    const exists = favs.some(f => f.type === 'material' && f.id === id);
+    favs = exists
+      ? favs.filter(f => !(f.type === 'material' && f.id === id))
+      : [...favs, { type: 'material', id }];
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+  } catch {}
+}
+
 // ── 描画 & コントロール ──
 const grid      = document.getElementById('card-grid');
 const emptyMsg  = document.getElementById('guide-empty');
@@ -130,11 +160,22 @@ const countEl   = document.getElementById('guide-count');
 const searchEl  = document.getElementById('guide-search');
 const sortEl    = document.getElementById('guide-sort');
 
-// 全カードを一度だけ生成
-grid.innerHTML = MATERIALS.map(renderCard).join('');
+// 全カードを一度だけ生成（初期お気に入り状態を反映）
+grid.innerHTML = MATERIALS.map(mat => renderCard(mat, getFavoriteMaterialIds())).join('');
 
-// アコーディオンのイベント（一括登録）
+// カードグリッドのクリックイベント（お気に入り + アコーディオン）
 grid.addEventListener('click', e => {
+  // お気に入りボタン
+  const favBtn = e.target.closest('.fav-btn');
+  if (favBtn) {
+    const id = favBtn.dataset.favId;
+    toggleFavoriteMaterial(id);
+    favBtn.classList.toggle('active');
+    applyControls(); // 並び順を再計算
+    return;
+  }
+
+  // アコーディオン
   const btn = e.target.closest('.mat-adv-toggle, .mat-detail-toggle');
   if (!btn) return;
   const wrap = btn.nextElementSibling; // .mat-acc-wrap
@@ -171,16 +212,20 @@ function applyControls() {
     if (show) visible++;
   });
 
-  // ソート（表示中のカードを並び替え）
-  if (currentSort) {
-    const visibleCards = cards.filter(c => !c.hidden);
-    visibleCards.sort((a, b) => {
-      const matA = MATERIALS.find(m => m.id === a.dataset.id);
-      const matB = MATERIALS.find(m => m.id === b.dataset.id);
-      return (matB.params[currentSort] ?? 0) - (matA.params[currentSort] ?? 0);
-    });
-    visibleCards.forEach(c => grid.appendChild(c));
-  }
+  // 並び替え: お気に入り優先、次に currentSort 条件
+  // お気に入りが変わる可能性があるため毎回読み込む
+  const favIds = getFavoriteMaterialIds();
+  const visibleCards = cards.filter(c => !c.hidden);
+  visibleCards.sort((a, b) => {
+    const favA = favIds.has(a.dataset.id) ? 1 : 0;
+    const favB = favIds.has(b.dataset.id) ? 1 : 0;
+    if (favB !== favA) return favB - favA; // お気に入りを先頭グループへ
+    if (!currentSort) return 0;            // ソート未指定なら同グループ内の順序を維持
+    const matA = MATERIALS.find(m => m.id === a.dataset.id);
+    const matB = MATERIALS.find(m => m.id === b.dataset.id);
+    return (matB.params[currentSort] ?? 0) - (matA.params[currentSort] ?? 0);
+  });
+  visibleCards.forEach(c => grid.appendChild(c));
 
   countEl.textContent = `${visible} 件`;
   emptyMsg.hidden = visible > 0;

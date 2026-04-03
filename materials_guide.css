@@ -76,6 +76,8 @@ body.guide-page {
 .guide-filter-group {
   display: flex;
   gap: 4px;
+  padding-right: 6px;
+  border-right: 1px solid #E5E7EB;
 }
 
 .guide-filter-btn {
@@ -115,6 +117,7 @@ body.guide-page {
 #guide-sort.is-sorting {
   border-color: #93C5FD;
   color: #1D4ED8;
+  font-weight: 500;
 }
 
 .guide-count {
@@ -163,10 +166,10 @@ body.guide-page {
 .mat-card-accent { height: 5px; }
 
 .mat-card-body {
-  padding: 16px 18px 18px;
+  padding: 16px 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* ── カードヘッダー ── */
@@ -196,11 +199,31 @@ body.guide-page {
   font-weight: 600;
   color: #374151;
   background: #F3F4F6;
+  border: 1px solid #D1D5DB;
   border-radius: 6px;
   padding: 3px 8px;
   display: inline-block;
   width: fit-content;
   letter-spacing: 0.01em;
+}
+
+/* ヘッダー右側（バッジ + 星） */
+.mat-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* カード内の星ボタンは標準より少し大きく */
+.mat-card .fav-btn {
+  font-size: 16px;
+  padding: 3px 5px;
+  border-radius: 6px;
+  transition: background 150ms, color 150ms;
+}
+.mat-card .fav-btn.active {
+  background: #FEF3C7;
 }
 
 /* 有機/無機バッジ */
@@ -213,7 +236,6 @@ body.guide-page {
   padding: 4px 10px;
   border-radius: 9999px;
   flex-shrink: 0;
-  margin-top: 1px;
   letter-spacing: 0.01em;
 }
 .mat-badge-organic   { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
@@ -223,7 +245,7 @@ body.guide-page {
 .mat-desc {
   font-size: 13px;
   color: #6B7280;
-  line-height: 1.55;
+  line-height: 1.6;
   margin: 0;
 }
 
@@ -341,16 +363,24 @@ body.guide-page {
 .mat-detail-toggle {
   background: none;
   border: none;
-  padding: 0;
+  padding: 2px 0;
   font-size: 12px;
   font-weight: 500;
-  color: #9CA3AF;
+  color: #6B7280;
   cursor: pointer;
   font-family: sans-serif;
   text-align: left;
   width: fit-content;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: #D1D5DB;
+  text-underline-offset: 3px;
 }
-.mat-detail-toggle:hover { color: #6B7280; }
+.mat-detail-toggle:hover {
+  color: #374151;
+  text-decoration-style: solid;
+  text-decoration-color: #9CA3AF;
+}
 
 .mat-detail-text {
   font-size: 13px;
