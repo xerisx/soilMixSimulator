@@ -20,6 +20,45 @@ let cupBodies = [];
 let spawnInterval = null;
 let currentCupDims = null;
 let shakeOffsetX = 0;
+let activeTab = 'materials';
+let selectedCommercialSoil = null;
+
+// ── お気に入り ──
+const FAVORITES_KEY = 'qsoil_favorites';
+
+function loadFavorites() {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch { return []; }
+}
+
+function saveFavorites() {
+  try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); } catch {}
+}
+
+function isFavorite(type, id) {
+  return favorites.some(f => f.type === type && f.id === id);
+}
+
+function toggleFavorite(type, id) {
+  if (isFavorite(type, id)) {
+    favorites = favorites.filter(f => !(f.type === type && f.id === id));
+  } else {
+    favorites.push({ type, id });
+  }
+  saveFavorites();
+}
+
+// お気に入りを先頭に安定ソート
+function sortedByFavorite(items, type) {
+  const favs = items.filter(item => isFavorite(type, item.id));
+  const rest = items.filter(item => !isFavorite(type, item.id));
+  return [...favs, ...rest];
+}
+
+let favorites = loadFavorites();
 
 const canvasEl = document.getElementById('canvas');
 const engine = Engine.create({
@@ -423,6 +462,88 @@ function updateAdvanced() {
   }
 }
 
+// ── タブ ──
+function switchTab(tabId) {
+  activeTab = tabId;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tabId);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.toggle('active', c.id === `tab-${tabId}`);
+  });
+}
+
+// ── ベースラベル ──
+function updateBaseLabel() {
+  const el = document.getElementById('base-label');
+  if (!el) return;
+  if (selectedCommercialSoil) {
+    el.textContent = `ベース: ${selectedCommercialSoil.name}`;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ── 市販の用土リスト描画 ──
+function renderCommercialList() {
+  const list = document.getElementById('commercial-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  const sorted = sortedByFavorite(COMMERCIAL_SOILS, 'commercial_soil');
+
+  sorted.forEach(soil => {
+    const item = document.createElement('div');
+    item.className = 'commercial-item' +
+      (selectedCommercialSoil?.id === soil.id ? ' selected' : '');
+    item.dataset.id = soil.id;
+    const favActive = isFavorite('commercial_soil', soil.id) ? ' active' : '';
+    item.innerHTML = `
+      <div class="commercial-header">
+        <div class="commercial-name">${soil.name}</div>
+        <button class="fav-btn${favActive}" data-fav-type="commercial_soil" data-fav-id="${soil.id}" aria-label="お気に入り">★</button>
+      </div>
+      <div class="commercial-meta">
+        <span class="commercial-category">${soil.category}</span>
+        <span class="commercial-desc">${soil.description}</span>
+      </div>
+    `;
+    // 用土を適用（星ボタン以外のクリック）
+    item.addEventListener('click', e => {
+      if (!e.target.closest('.fav-btn')) applyCommercialSoil(soil.id);
+    });
+    // 星ボタン
+    item.querySelector('.fav-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      toggleFavorite('commercial_soil', soil.id);
+      renderCommercialList();
+    });
+    list.appendChild(item);
+  });
+}
+
+// ── 市販の用土を適用 ──
+function applyCommercialSoil(soilId) {
+  const soil = COMMERCIAL_SOILS.find(s => s.id === soilId);
+  if (!soil) return;
+
+  // 全資材をいったんゼロに
+  objectTypes.forEach(t => { t.weight = 0; });
+
+  // プリセット値を適用
+  soil.materials.forEach(({ id, weight, size }) => {
+    const type = objectTypes.find(t => t.id === id);
+    if (type) { type.weight = weight; type.size = size; }
+  });
+
+  selectedCommercialSoil = soil;
+  renderCommercialList();   // selected クラスを更新
+  renderObjList();
+  updateGraphs();
+  updateBaseLabel();
+}
+
 // ── ツールチップ ──
 const tooltipEl = document.getElementById('tooltip');
 let tipHideTimer = null;
@@ -493,14 +614,23 @@ function renderObjList() {
   const list = document.getElementById('obj-list');
   list.innerHTML = '';
 
-  objectTypes.forEach((type, i) => {
+  // お気に入りを先頭に並べた配列（objectTypesの並び自体は変えない）
+  const sorted = sortedByFavorite(objectTypes, 'material');
+
+  sorted.forEach((type) => {
+    // objectTypes内のインデックスはIDで引く（ソート後も正しく操作するため）
+    const i = objectTypes.findIndex(t => t.id === type.id);
     const card = document.createElement('div');
     card.className = 'obj-card';
     const tipAttr = type.tooltip
       ? `<span class="tip-icon" data-tip="${type.tooltip}">?</span>`
       : '';
+    const favActive = isFavorite('material', type.id) ? ' active' : '';
     card.innerHTML = `
-      <div class="obj-name">${SHAPE_LABELS[type.shape]}${tipAttr}</div>
+      <div class="obj-name-row">
+        <span class="obj-name">${type.name}${tipAttr}</span>
+        <button class="fav-btn${favActive}" data-fav-type="material" data-fav-id="${type.id}" aria-label="お気に入り">★</button>
+      </div>
       <div class="obj-sizes">
         ${['S', 'M', 'L'].map(s =>
           `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
@@ -528,7 +658,16 @@ function renderObjList() {
       const idx = Number(slider.dataset.idx);
       objectTypes[idx].weight = Number(slider.value);
       slider.closest('.ratio-row').querySelector('.ratio-val').textContent = Number(slider.value).toFixed(1);
+      selectedCommercialSoil = null; // 手動変更でベースをクリア
+      updateBaseLabel();
       updateGraphs();
+    });
+  });
+
+  list.querySelectorAll('.fav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleFavorite(btn.dataset.favType, btn.dataset.favId);
+      renderObjList();
     });
   });
 
@@ -538,9 +677,15 @@ function renderObjList() {
 // ── 初期化 ──
 applyCanvasSize();
 renderObjList();
+renderCommercialList();
 buildCup();
 updateGraphs();
 setupTooltips(document.getElementById('right-panel'));
+
+// ── タブボタン ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
 
 // ── 詳細パラメータ トグル ──
 const detailToggle = document.getElementById('detail-toggle');
@@ -606,33 +751,44 @@ document.getElementById('addBtn').addEventListener('click', () => {
 });
 
 // ── トントンボタン ──
+// 横方向に鋭くスナップ×3回（振り子ではなく衝撃）
 document.getElementById('tontonBtn').addEventListener('click', () => {
-  const steps = 8;
-  const vx = 5;
-  const amp = 8;
-  let step = 0;
-  const origPositions = cupBodies.map(b => ({ x: b.position.x, y: b.position.y }));
+  const TAPS       = 2;   // 叩く回数
+  const JOLT_PX    = 2;   // 瞬間移動量(px)
+  const SNAP_MS    = 30;  // 元に戻るまでの時間(ms)
+  const INTERVAL   = 100; // 次の叩きまでの間隔(ms)
+  let tapsDone = 0;
 
-  const id = setInterval(() => {
-    const dir = step % 2 === 0 ? 1 : -1;
-    const decay = 1 - step / steps;
-    shakeOffsetX = dir * amp * decay;
+  function doTap() {
+    if (cupBodies.length === 0) return;
+    const orig = cupBodies.map(b => ({ x: b.position.x, y: b.position.y }));
+    const dir = tapsDone % 2 === 0 ? 1 : -1; // 左右交互
 
+    // 鉢を瞬間的に横移動
     cupBodies.forEach((b, i) => {
-      Body.setPosition(b, { x: origPositions[i].x + shakeOffsetX, y: origPositions[i].y });
+      Body.setPosition(b, { x: orig[i].x + dir * JOLT_PX, y: orig[i].y });
     });
 
+    // 粒子に横方向の衝撃
     Composite.allBodies(engine.world)
       .filter(b => b.isParticle)
-      .forEach(b => Body.setVelocity(b, { x: dir * vx * decay, y: b.velocity.y }));
+      .forEach(b => {
+        Body.setVelocity(b, {
+          x: dir * 5 + (Math.random() - 0.5) * 1,
+          y: b.velocity.y,
+        });
+      });
 
-    step++;
-    if (step >= steps) {
-      cupBodies.forEach((b, i) => Body.setPosition(b, origPositions[i]));
+    // SNAP_MS後に元の位置へ戻す
+    setTimeout(() => {
+      cupBodies.forEach((b, i) => Body.setPosition(b, orig[i]));
       shakeOffsetX = 0;
-      clearInterval(id);
-    }
-  }, 60);
+      tapsDone++;
+      if (tapsDone < TAPS) setTimeout(doTap, INTERVAL);
+    }, SNAP_MS);
+  }
+
+  doTap();
 });
 
 // ── リセットボタン ──

@@ -146,6 +146,13 @@ canvas {
   background: #F5F3FF;
 }
 
+.commercial-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .commercial-name {
   font-size: 13px;
   font-weight: 600;
@@ -363,7 +370,33 @@ canvas {
 .act-reset        { background: #FFFFFF; color: #374151; border: 1.5px solid #E5E7EB; }
 .act-reset:hover  { background: #F9FAFB; border-color: #D1D5DB; }
 
+/* ── お気に入りボタン ── */
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #D1D5DB;
+  padding: 2px 3px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  touch-action: manipulation;
+}
+
+.fav-btn:hover       { color: #D97706; }
+.fav-btn.active      { color: #D97706; }
+.fav-btn.active:hover{ color: #B45309; }
+
 /* ── 物体カード ── */
+.obj-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+}
+
 .obj-name {
   font-size: 14px;
   font-family: sans-serif;
@@ -721,6 +754,16 @@ canvas {
 
 .gran-coarse { background: #7C3AED; }
 .gran-fine   { background: #C4B5FD; }
+
+/* ── 免責文言 ── */
+#disclaimer {
+  font-size: 11px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  line-height: 1.7;
+  padding: 10px 0 4px;
+  border-top: 1px solid #F3F4F6;
+}
 
 /* ── フィードバックリンク ── */
 #feedback-link {
