@@ -379,6 +379,71 @@ function updateGraphs() {
   }
 }
 
+// ── ツールチップ ──
+const tooltipEl = document.getElementById('tooltip');
+let tipHideTimer = null;
+let activeTipIcon = null;
+
+function showTip(icon) {
+  clearTimeout(tipHideTimer);
+  if (activeTipIcon && activeTipIcon !== icon) {
+    activeTipIcon.classList.remove('tip-active');
+  }
+  activeTipIcon = icon;
+  icon.classList.add('tip-active');
+
+  tooltipEl.textContent = icon.dataset.tip;
+  tooltipEl.style.display = 'block';
+  tooltipEl.style.visibility = 'hidden';
+
+  // 位置計算（表示後に幅を取る）
+  requestAnimationFrame(() => {
+    const ir = icon.getBoundingClientRect();
+    const tw = tooltipEl.offsetWidth;
+    const th = tooltipEl.offsetHeight;
+
+    let left = ir.left + ir.width / 2 - tw / 2;
+    let top  = ir.top - th - 8;
+
+    // 上が足りなければ下に表示
+    if (top < 8) top = ir.bottom + 8;
+    // 左右クランプ
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+
+    tooltipEl.style.left = `${left}px`;
+    tooltipEl.style.top  = `${top}px`;
+    tooltipEl.style.visibility = 'visible';
+  });
+}
+
+function hideTip() {
+  tipHideTimer = setTimeout(() => {
+    tooltipEl.style.display = 'none';
+    if (activeTipIcon) {
+      activeTipIcon.classList.remove('tip-active');
+      activeTipIcon = null;
+    }
+  }, 120);
+}
+
+function setupTooltips(root = document) {
+  root.querySelectorAll('.tip-icon').forEach(icon => {
+    // PC: hover
+    icon.addEventListener('mouseenter', () => showTip(icon));
+    icon.addEventListener('mouseleave', hideTip);
+    // スマホ: タップでトグル
+    icon.addEventListener('touchstart', e => {
+      e.preventDefault();
+      if (activeTipIcon === icon) { hideTip(); } else { showTip(icon); }
+    }, { passive: false });
+  });
+}
+
+// 他の場所をタップしたら閉じる
+document.addEventListener('touchstart', e => {
+  if (activeTipIcon && !e.target.classList.contains('tip-icon')) hideTip();
+});
+
 // ── 物体リスト UI ──
 function renderObjList() {
   const list = document.getElementById('obj-list');
@@ -387,8 +452,11 @@ function renderObjList() {
   objectTypes.forEach((type, i) => {
     const card = document.createElement('div');
     card.className = 'obj-card';
+    const tipAttr = type.tooltip
+      ? `<span class="tip-icon" data-tip="${type.tooltip}">?</span>`
+      : '';
     card.innerHTML = `
-      <div class="obj-name">${SHAPE_LABELS[type.shape]}</div>
+      <div class="obj-name">${SHAPE_LABELS[type.shape]}${tipAttr}</div>
       <div class="obj-sizes">
         ${['S', 'M', 'L'].map(s =>
           `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
@@ -419,6 +487,8 @@ function renderObjList() {
       updateGraphs();
     });
   });
+
+  setupTooltips(list);
 }
 
 // ── 初期化 ──
@@ -426,6 +496,7 @@ applyCanvasSize();
 renderObjList();
 buildCup();
 updateGraphs();
+setupTooltips(document.getElementById('right-panel'));
 
 Render.run(render);
 Runner.run(Runner.create(), engine);

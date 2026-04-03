@@ -9,6 +9,7 @@
 <body>
   <canvas id="canvas"></canvas>
   <div id="fillRate"></div>
+  <div id="tooltip" role="tooltip"></div>
 
   <!-- 左パネル: メニュー -->
   <div id="panel">
@@ -57,7 +58,7 @@
     <div class="bars-block">
       <div class="bar-row">
         <span class="bar-icon">↓</span>
-        <span class="bar-label">排水性</span>
+        <span class="bar-label">排水性<span class="tip-icon" data-tip="水がどれくらい早く下に抜けるかを表します。高いほど水が溜まりにくくなります。">?</span></span>
         <div class="bar-track">
           <div class="bar-fill bar-drainage" id="bar-drainage"></div>
         </div>
@@ -65,7 +66,7 @@
       </div>
       <div class="bar-row">
         <span class="bar-icon">●</span>
-        <span class="bar-label">保水性</span>
+        <span class="bar-label">保水性<span class="tip-icon" data-tip="水をどれくらい保持するかを表します。高いほど乾きにくくなります。">?</span></span>
         <div class="bar-track">
           <div class="bar-fill bar-water" id="bar-water"></div>
         </div>
@@ -73,7 +74,7 @@
       </div>
       <div class="bar-row">
         <span class="bar-icon">〜</span>
-        <span class="bar-label">通気性</span>
+        <span class="bar-label">通気性<span class="tip-icon" data-tip="用土の中に空気が通りやすいかを表します。高いほど根が呼吸しやすくなります。">?</span></span>
         <div class="bar-track">
           <div class="bar-fill bar-aeration" id="bar-aeration"></div>
         </div>
@@ -89,8 +90,8 @@
           <div class="split-bar-organic" id="split-bar-organic"></div>
         </div>
         <div class="split-bar-ends">
-          <span class="split-end-label" style="color:#16A34A">有機</span>
-          <span class="split-end-label" style="color:#94A3B8">無機</span>
+          <span class="split-end-label" style="color:#16A34A">有機<span class="tip-icon" data-tip="バークやベラボンなど、植物由来の素材の割合です。多いほど柔らかく軽い傾向があります。">?</span></span>
+          <span class="split-end-label" style="color:#94A3B8">無機<span class="tip-icon" data-tip="日向石や軽石など、鉱物系素材の割合です。多いほど構造が安定しやすくなります。">?</span></span>
         </div>
       </div>
       <div class="split-bar-footer">

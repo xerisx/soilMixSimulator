@@ -5,6 +5,7 @@ const MATERIALS = [
   {
     id: 'berabon',
     name: 'ベラボン',
+    tooltip: 'ヤシ殻由来の軽い素材です。通気性が高く、根が伸びやすい環境を作ります。',
     shape: 'square',
     color: '#92400E',
     sizes: {
@@ -28,6 +29,7 @@ const MATERIALS = [
   {
     id: 'hyuga',
     name: '日向土',
+    tooltip: '硬くて崩れにくい石です。排水性が高く、用土の骨格を保ちます。',
     shape: 'circle',
     color: '#A8A29E',
     sizes: {
