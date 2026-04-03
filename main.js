@@ -290,7 +290,6 @@ Events.on(render, 'afterRender', () => {
 });
 
 // ── グラフ計算・更新 ──
-const GAUGE_ARC  = 141.37; // π × r(45) = 半円弧長
 const DONUT_CIRC = 238.76; // 2π × r(38) = ドーナツ周長
 
 function calcComposite() {
@@ -306,30 +305,68 @@ function calcComposite() {
   };
 }
 
+function getEvalLabel(comp) {
+  if (!comp) return null;
+  const diff = comp.drainage - comp.waterRetention;
+  if (diff > 30) return { main: '→ 排水寄り',   sub: 'かなり抜けやすい配合です' };
+  if (diff > 15) return { main: '→ 排水寄り',   sub: 'やや排水性が高めの配合です' };
+  if (diff < -30) return { main: '→ 保水寄り',  sub: 'かなり水を残す配合です' };
+  if (diff < -15) return { main: '→ 保水寄り',  sub: 'やや保水性が高めの配合です' };
+  if (comp.aeration > 75) return { main: '→ 通気重視型', sub: '空気を多く含む軽い配合です' };
+  return { main: '→ バランス型', sub: '排水・保水がよく取れた配合です' };
+}
+
+// 数値をカウントアップアニメーション
+const _pctAnimFrames = {};
+function animatePct(el, toValue, duration = 300) {
+  const id = el.id;
+  if (_pctAnimFrames[id]) cancelAnimationFrame(_pctAnimFrames[id]);
+  const fromText = el.textContent;
+  const from = (fromText === '--' || fromText === '') ? 0 : parseInt(fromText);
+  const start = performance.now();
+  const step = (now) => {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = `${Math.round(from + (toValue - from) * ease)}%`;
+    if (t < 1) _pctAnimFrames[id] = requestAnimationFrame(step);
+  };
+  _pctAnimFrames[id] = requestAnimationFrame(step);
+}
+
 function updateGraphs() {
   const comp = calcComposite();
 
-  const setGauge = (fillId, valId, value) => {
-    const fill = document.getElementById(fillId);
-    const val  = document.getElementById(valId);
-    if (!fill || !val) return;
+  const setBar = (barId, pctId, value) => {
+    const bar = document.getElementById(barId);
+    const pct = document.getElementById(pctId);
+    if (!bar || !pct) return;
     if (value === null) {
-      fill.setAttribute('stroke-dasharray', `0 ${GAUGE_ARC}`);
-      val.textContent = '--';
+      bar.style.width = '0%';
+      pct.textContent = '--';
     } else {
-      fill.setAttribute('stroke-dasharray', `${value / 100 * GAUGE_ARC} ${GAUGE_ARC}`);
-      val.textContent = String(value);
+      bar.style.width = `${value}%`;
+      animatePct(pct, value);
     }
   };
 
-  setGauge('gauge-drainage-fill',  'gauge-drainage-val',  comp?.drainage       ?? null);
-  setGauge('gauge-water-fill',     'gauge-water-val',     comp?.waterRetention ?? null);
-  setGauge('gauge-aeration-fill',  'gauge-aeration-val',  comp?.aeration       ?? null);
+  setBar('bar-drainage', 'pct-drainage', comp?.drainage       ?? null);
+  setBar('bar-water',    'pct-water',    comp?.waterRetention ?? null);
+  setBar('bar-aeration', 'pct-aeration', comp?.aeration       ?? null);
 
-  const oFill = document.getElementById('donut-organic-fill');
-  const iFill = document.getElementById('donut-inorganic-fill');
-  const cVal  = document.getElementById('donut-center-val');
-  const lOrg  = document.getElementById('legend-organic-val');
+  // 評価ラベル
+  const evalMain = document.getElementById('eval-main');
+  const evalSub  = document.getElementById('eval-sub');
+  const label = getEvalLabel(comp);
+  if (evalMain && evalSub) {
+    evalMain.textContent = label ? label.main : '--';
+    evalSub.textContent  = label ? label.sub  : 'スライダーで配合を調整';
+  }
+
+  // ドーナツ（有機/無機）
+  const oFill  = document.getElementById('donut-organic-fill');
+  const iFill  = document.getElementById('donut-inorganic-fill');
+  const cVal   = document.getElementById('donut-center-val');
+  const lOrg   = document.getElementById('legend-organic-val');
   const lInorg = document.getElementById('legend-inorganic-val');
   if (oFill && iFill && cVal) {
     const o = comp?.organic ?? 0;
@@ -338,7 +375,7 @@ function updateGraphs() {
     iFill.setAttribute('stroke-dasharray',  `${i / 100 * DONUT_CIRC} ${DONUT_CIRC}`);
     iFill.setAttribute('stroke-dashoffset', String(-o / 100 * DONUT_CIRC));
     cVal.textContent = comp ? `${o}%` : '--';
-    if (lOrg)  lOrg.textContent  = comp ? `${o}%` : '--%';
+    if (lOrg)   lOrg.textContent  = comp ? `${o}%` : '--%';
     if (lInorg) lInorg.textContent = comp ? `${i}%` : '--%';
   }
 }

@@ -107,11 +107,9 @@ canvas {
   #panel::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 2px; }
 
   #right-panel {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-content: start;
-    column-gap: 12px;
-    row-gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     position: fixed;
     top: 0; bottom: 0;
     right: 0;
@@ -262,7 +260,6 @@ canvas {
    右パネル: グラフ
    ════════════════════════════ */
 .rp-header {
-  grid-column: 1 / -1;
   padding-bottom: 12px;
   border-bottom: 1px solid #E5E7EB;
 }
@@ -275,6 +272,94 @@ canvas {
   letter-spacing: -0.01em;
 }
 
+/* ── 評価ラベル ── */
+#eval-block {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+#eval-main {
+  font-size: 17px;
+  font-weight: 800;
+  color: #15803D;
+  font-family: sans-serif;
+  line-height: 1.2;
+}
+
+#eval-sub {
+  font-size: 12px;
+  color: #6B7280;
+  font-family: sans-serif;
+  margin-top: 4px;
+}
+
+/* ── バーグラフ ── */
+.bars-block {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar-icon {
+  font-size: 12px;
+  width: 14px;
+  text-align: center;
+  color: #9CA3AF;
+  flex-shrink: 0;
+}
+
+.bar-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6B7280;
+  font-family: sans-serif;
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 14px;
+  background: #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 8px;
+  transition: width 300ms ease-out;
+}
+
+.bar-drainage { background: #0284C7; }
+.bar-water    { background: #16A34A; }
+.bar-aeration { background: #64748B; }
+
+.bar-pct {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  font-family: sans-serif;
+  min-width: 38px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── 有機/無機ドーナツ ── */
 .chart-block {
   display: flex;
   flex-direction: column;
@@ -293,8 +378,6 @@ canvas {
   font-family: sans-serif;
   letter-spacing: 0.02em;
 }
-
-.gauge-svg { width: 100%; height: auto; display: block; }
 
 .donut-svg {
   width: 75%;
