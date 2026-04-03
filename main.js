@@ -258,6 +258,29 @@ function reset() {
   buildCup();
 }
 
+function isAllZero() {
+  return objectTypes.every(t => t.weight === 0);
+}
+
+let emptyStateTimer = null;
+function showEmptyState() {
+  const el = document.getElementById('empty-state');
+  if (!el) return;
+  el.hidden = false;
+  clearTimeout(emptyStateTimer);
+  emptyStateTimer = setTimeout(() => { el.hidden = true; }, 3000);
+}
+
+function clearAllWeights() {
+  objectTypes.forEach(t => { t.weight = 0; });
+  selectedCommercialSoil = null;
+  if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
+  setParticleControlsDisabled(false);
+  renderObjList();
+  updateGraphs();
+  updateBaseLabel();
+}
+
 function applyCanvasSize() {
   render.options.width  = window.innerWidth;
   render.options.height = window.innerHeight;
@@ -726,12 +749,14 @@ document.querySelectorAll('.size-btn').forEach(btn => {
 
 // ── スタートボタン ──
 document.getElementById('startBtn').addEventListener('click', () => {
+  if (isAllZero()) { showEmptyState(); return; }
   reset();
   startSpawning();
 });
 
 // ── 追加ボタン ──
 document.getElementById('addBtn').addEventListener('click', () => {
+  if (isAllZero()) { showEmptyState(); return; }
   const count = ADD_COUNTS[currentSize];
   const { topInnerW, topY, cx } = getCupDimensions();
   const spawnXMin = cx - topInnerW / 2 + 20;
@@ -793,3 +818,6 @@ document.getElementById('tontonBtn').addEventListener('click', () => {
 
 // ── リセットボタン ──
 document.getElementById('resetBtn').addEventListener('click', reset);
+
+// ── 全て0ボタン ──
+document.getElementById('clearBtn').addEventListener('click', clearAllWeights);

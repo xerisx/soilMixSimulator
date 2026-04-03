@@ -190,8 +190,23 @@ canvas {
 
 #sec-actions {
   display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.act-group {
+  display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+.act-group-main {
+  padding-bottom: 10px;
+}
+
+.act-group-reset {
+  padding-top: 10px;
+  border-top: 1px solid #F3F4F6;
 }
 
 #obj-list {
@@ -284,7 +299,7 @@ canvas {
   .obj-card    { flex: none; width: 100%; min-width: unset; align-items: stretch; }
   .obj-icon    { text-align: center; }
   .obj-sizes   { justify-content: center; }
-  #sec-actions { flex-direction: column; gap: 8px; }
+  .act-group   { gap: 8px; }
   .act-btn     { width: 100%; text-align: center; }
 }
 
@@ -367,8 +382,53 @@ canvas {
 .act-add:hover    { background: #0369A1; }
 .act-tonton       { background: #D97706; color: #FFFFFF; }
 .act-tonton:hover { background: #B45309; }
-.act-reset        { background: #FFFFFF; color: #374151; border: 1.5px solid #E5E7EB; }
-.act-reset:hover  { background: #F9FAFB; border-color: #D1D5DB; }
+.act-reset        { background: #FFF7ED; color: #92400E; border: 1.5px solid #FED7AA; font-size: 13px; padding: 7px 14px; font-weight: 400; }
+.act-reset:hover  { background: #FFEDD5; border-color: #FDBA74; color: #78350F; }
+.act-clear        { background: #F9FAFB; color: #9CA3AF; border: 1.5px solid #E5E7EB; font-size: 13px; padding: 7px 14px; font-weight: 400; }
+.act-clear:hover  { background: #F3F4F6; color: #6B7280; border-color: #D1D5DB; }
+
+/* ── 全て0 空状態オーバーレイ ── */
+#empty-state {
+  position: fixed;
+  top: 0;
+  left: 30%;
+  width: 40%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+#empty-state:not([hidden]) {
+  display: flex;
+}
+#empty-state-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(4px);
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 28px 36px;
+}
+#empty-state-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+#empty-state-msg {
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+#empty-state-sub {
+  font-size: 12px;
+  color: #9CA3AF;
+  margin: 0;
+  text-align: center;
+}
 
 /* ── お気に入りボタン ── */
 .fav-btn {

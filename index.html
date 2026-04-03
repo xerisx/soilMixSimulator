@@ -9,6 +9,13 @@
 <body>
   <canvas id="canvas"></canvas>
   <div id="fillRate"></div>
+  <div id="empty-state" hidden>
+    <div id="empty-state-inner">
+      <span id="empty-state-icon">🪴</span>
+      <p id="empty-state-msg">用土が設定されていません</p>
+      <p id="empty-state-sub">資材のスライダーを動かして配合を作ってください</p>
+    </div>
+  </div>
   <div id="tooltip" role="tooltip"></div>
 
   <!-- 左パネル: メニュー -->
@@ -51,10 +58,15 @@
     </div>
 
     <section id="sec-actions">
-      <button id="startBtn"  class="act-btn act-start">▶ スタート</button>
-      <button id="addBtn"    class="act-btn act-add">＋ 追加</button>
-      <button id="tontonBtn" class="act-btn act-tonton">トントン</button>
-      <button id="resetBtn"  class="act-btn act-reset">リセット</button>
+      <div class="act-group act-group-main">
+        <button id="startBtn"  class="act-btn act-start">▶ スタート</button>
+        <button id="addBtn"    class="act-btn act-add">＋ 追加</button>
+        <button id="tontonBtn" class="act-btn act-tonton">トントン</button>
+      </div>
+      <div class="act-group act-group-reset">
+        <button id="resetBtn"  class="act-btn act-reset">鉢を空にする</button>
+        <button id="clearBtn"  class="act-btn act-clear">全て0</button>
+      </div>
     </section>
   </div>
 
