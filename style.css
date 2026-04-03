@@ -203,16 +203,24 @@ canvas {
 
 .act-group {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.act-group-main {
-  padding-bottom: 10px;
+.act-group .act-btn {
+  flex: 1;
+}
+
+#sec-actions .act-start {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.act-group-ops {
+  margin-bottom: 16px;
 }
 
 .act-group-reset {
-  padding-top: 10px;
+  padding-top: 14px;
   border-top: 1px solid #F3F4F6;
 }
 
