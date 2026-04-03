@@ -359,15 +359,15 @@ canvas {
   flex-shrink: 0;
 }
 
-/* ── 有機/無機ドーナツ ── */
+/* ── 有機/無機スプリットバー ── */
 .chart-block {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   background: #FFFFFF;
   border: 1px solid #E5E7EB;
   border-radius: 12px;
-  padding: 12px 10px 10px;
+  padding: 12px 14px 12px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
@@ -379,31 +379,57 @@ canvas {
   letter-spacing: 0.02em;
 }
 
-.donut-svg {
-  width: 75%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-.donut-legend {
+.split-bar-wrap {
   display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 5px;
-  font-family: sans-serif;
-  font-size: 13px;
-  color: #6B7280;
 }
 
-.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.legend-text strong { color: #111827; }
+.split-bar-track {
+  width: 100%;
+  height: 12px;
+  background: #94A3B8;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.split-bar-organic {
+  height: 100%;
+  width: 50%;
+  background: #16A34A;
+  border-radius: 9999px;
+  transition: width 300ms ease-out;
+}
+
+.split-bar-ends {
+  display: flex;
+  justify-content: space-between;
+}
+
+.split-end-label {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: sans-serif;
+}
+
+.split-bar-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.split-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  font-family: sans-serif;
+}
+
+.split-vals {
+  font-size: 12px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+}
 
 /* ── モバイル細調整 ── */
 @media (max-width: 767px) {

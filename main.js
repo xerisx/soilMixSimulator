@@ -290,7 +290,6 @@ Events.on(render, 'afterRender', () => {
 });
 
 // ── グラフ計算・更新 ──
-const DONUT_CIRC = 238.76; // 2π × r(38) = ドーナツ周長
 
 function calcComposite() {
   const total = objectTypes.reduce((s, t) => s + t.weight, 0);
@@ -362,21 +361,21 @@ function updateGraphs() {
     evalSub.textContent  = label ? label.sub  : 'スライダーで配合を調整';
   }
 
-  // ドーナツ（有機/無機）
-  const oFill  = document.getElementById('donut-organic-fill');
-  const iFill  = document.getElementById('donut-inorganic-fill');
-  const cVal   = document.getElementById('donut-center-val');
-  const lOrg   = document.getElementById('legend-organic-val');
-  const lInorg = document.getElementById('legend-inorganic-val');
-  if (oFill && iFill && cVal) {
-    const o = comp?.organic ?? 0;
-    const i = 100 - o;
-    oFill.setAttribute('stroke-dasharray',  `${o / 100 * DONUT_CIRC} ${DONUT_CIRC}`);
-    iFill.setAttribute('stroke-dasharray',  `${i / 100 * DONUT_CIRC} ${DONUT_CIRC}`);
-    iFill.setAttribute('stroke-dashoffset', String(-o / 100 * DONUT_CIRC));
-    cVal.textContent = comp ? `${o}%` : '--';
-    if (lOrg)   lOrg.textContent  = comp ? `${o}%` : '--%';
-    if (lInorg) lInorg.textContent = comp ? `${i}%` : '--%';
+  // スプリットバー（有機/無機）
+  const splitBar   = document.getElementById('split-bar-organic');
+  const splitLbl   = document.getElementById('split-label');
+  const splitVals  = document.getElementById('split-vals');
+  if (splitBar && splitLbl && splitVals) {
+    const o = comp?.organic ?? 50;
+    splitBar.style.width = comp ? `${o}%` : '50%';
+    if (comp) {
+      const i = 100 - o;
+      splitVals.textContent = `有機 ${o}% / 無機 ${i}%`;
+      splitLbl.textContent  = o > 60 ? '有機質寄り' : i > 60 ? '無機質寄り' : 'バランス型';
+    } else {
+      splitVals.textContent = '--';
+      splitLbl.textContent  = '--';
+    }
   }
 }
 
