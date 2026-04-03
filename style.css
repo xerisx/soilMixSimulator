@@ -412,7 +412,6 @@ canvas {
 .act-reset:hover  { background: #FFEDD5; border-color: #FDBA74; color: #78350F; }
 .act-clear        { background: #F9FAFB; color: #9CA3AF; border: 1.5px solid #E5E7EB; font-size: 13px; padding: 7px 14px; font-weight: 400; }
 .act-clear:hover  { background: #F3F4F6; color: #6B7280; border-color: #D1D5DB; }
-
 /* ── 全て0 空状態オーバーレイ ── */
 #empty-state {
   position: fixed;
