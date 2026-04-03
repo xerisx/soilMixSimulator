@@ -25,6 +25,12 @@ const MATERIALS = [
       aeration:       80,
       organic:        true,
     },
+    advanced: {
+      porosity:        85, // 空隙率
+      coarseRatio:     55, // 粗粒比率（細粒 = 100 - coarseRatio）
+      compressibility: 40, // 圧縮率
+      infiltration:    70, // 浸透速度
+    },
   },
   {
     id: 'hyuga',
@@ -48,6 +54,12 @@ const MATERIALS = [
       waterRetention: 30,
       aeration:       85,
       organic:        false,
+    },
+    advanced: {
+      porosity:        55, // 空隙率
+      coarseRatio:     75, // 粗粒比率
+      compressibility: 15, // 圧縮率
+      infiltration:    85, // 浸透速度
     },
   },
 ];

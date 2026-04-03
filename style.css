@@ -476,6 +476,105 @@ canvas {
   background: #E5E7EB;
 }
 
+/* ── 詳細パラメータ アコーディオン ── */
+.detail-toggle-btn {
+  width: 100%;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6B7280;
+  font-family: sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.detail-toggle-btn:hover {
+  background: #F9FAFB;
+  color: #374151;
+}
+
+.detail-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 280ms ease-out;
+}
+
+.detail-panel.open {
+  max-height: 600px;
+}
+
+.detail-inner {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.detail-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.detail-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  font-family: sans-serif;
+  width: 62px;
+  flex-shrink: 0;
+}
+
+.detail-fill { background: #7C3AED; }
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-label-row {
+  display: flex;
+  align-items: center;
+}
+
+.gran-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 8px;
+}
+
+.gran-label {
+  font-size: 12px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.gran-coarse { background: #7C3AED; }
+.gran-fine   { background: #C4B5FD; }
+
 /* ── フィードバックリンク ── */
 #feedback-link {
   margin-top: auto;

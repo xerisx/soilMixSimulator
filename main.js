@@ -361,6 +361,11 @@ function updateGraphs() {
     evalSub.textContent  = label ? label.sub  : 'スライダーで配合を調整';
   }
 
+  // 詳細パラメータ（展開中なら更新）
+  if (document.getElementById('detail-panel')?.classList.contains('open')) {
+    updateAdvanced();
+  }
+
   // スプリットバー（有機/無機）
   const splitBar   = document.getElementById('split-bar-organic');
   const splitLbl   = document.getElementById('split-label');
@@ -376,6 +381,45 @@ function updateGraphs() {
       splitVals.textContent = '--';
       splitLbl.textContent  = '--';
     }
+  }
+}
+
+// ── 詳細パラメータ ──
+function calcAdvanced() {
+  const total = objectTypes.reduce((s, t) => s + t.weight, 0);
+  if (total === 0) return null;
+  const avg = key => objectTypes.reduce((s, t) => s + (t.advanced?.[key] ?? 0) * t.weight, 0) / total;
+  return {
+    porosity:        Math.round(avg('porosity')),
+    coarseRatio:     Math.round(avg('coarseRatio')),
+    compressibility: Math.round(avg('compressibility')),
+    infiltration:    Math.round(avg('infiltration')),
+  };
+}
+
+function updateAdvanced() {
+  const adv = calcAdvanced();
+
+  const setDetBar = (barId, pctId, value) => {
+    const bar = document.getElementById(barId);
+    const pct = document.getElementById(pctId);
+    if (!bar || !pct) return;
+    if (value === null) { bar.style.width = '0%'; pct.textContent = '--'; return; }
+    bar.style.width = `${value}%`;
+    animatePct(pct, value);
+  };
+
+  setDetBar('det-porosity',    'dpct-porosity',    adv?.porosity        ?? null);
+  setDetBar('det-coarse',      'dpct-coarse',      adv?.coarseRatio     ?? null);
+  setDetBar('det-compress',    'dpct-compress',    adv?.compressibility ?? null);
+  setDetBar('det-infiltration','dpct-infiltration',adv?.infiltration    ?? null);
+
+  if (adv) {
+    const fine = 100 - adv.coarseRatio;
+    const fineBar = document.getElementById('det-fine');
+    const finePct = document.getElementById('dpct-fine');
+    if (fineBar) fineBar.style.width = `${fine}%`;
+    if (finePct) animatePct(finePct, fine);
   }
 }
 
@@ -497,6 +541,20 @@ renderObjList();
 buildCup();
 updateGraphs();
 setupTooltips(document.getElementById('right-panel'));
+
+// ── 詳細パラメータ トグル ──
+const detailToggle = document.getElementById('detail-toggle');
+const detailPanel  = document.getElementById('detail-panel');
+detailToggle.addEventListener('click', () => {
+  const isOpen = detailPanel.classList.toggle('open');
+  detailToggle.textContent = isOpen ? '詳細を隠す ▲' : '詳細を見る ▼';
+  detailToggle.setAttribute('aria-expanded', String(isOpen));
+  detailPanel.setAttribute('aria-hidden', String(!isOpen));
+  if (isOpen) {
+    updateAdvanced();
+    setupTooltips(detailPanel);
+  }
+});
 
 Render.run(render);
 Runner.run(Runner.create(), engine);

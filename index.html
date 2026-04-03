@@ -100,6 +100,52 @@
       </div>
     </div>
 
+    <!-- 詳細パラメータ（アコーディオン） -->
+    <button id="detail-toggle" class="detail-toggle-btn" aria-expanded="false">
+      詳細を見る ▼
+    </button>
+    <div id="detail-panel" class="detail-panel" aria-hidden="true">
+      <div class="detail-inner">
+        <h3 class="detail-title">詳細パラメータ</h3>
+
+        <div class="detail-bar-row">
+          <span class="detail-label">空隙率<span class="tip-icon" data-tip="用土の中の隙間の多さです。高いほど空気や水が通りやすくなります。">?</span></span>
+          <div class="bar-track"><div class="bar-fill detail-fill" id="det-porosity"></div></div>
+          <span class="bar-pct" id="dpct-porosity">--</span>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-label-row">
+            <span class="detail-label">粒度分布<span class="tip-icon" data-tip="粒の大きさのバランスです。細かい粒が多いと詰まりやすくなります。">?</span></span>
+          </div>
+          <div class="gran-rows">
+            <div class="detail-bar-row gran-row">
+              <span class="gran-label">粗粒</span>
+              <div class="bar-track"><div class="bar-fill gran-coarse" id="det-coarse"></div></div>
+              <span class="bar-pct" id="dpct-coarse">--</span>
+            </div>
+            <div class="detail-bar-row gran-row">
+              <span class="gran-label">細粒</span>
+              <div class="bar-track"><div class="bar-fill gran-fine" id="det-fine"></div></div>
+              <span class="bar-pct" id="dpct-fine">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-bar-row">
+          <span class="detail-label">圧縮率<span class="tip-icon" data-tip="振動や水やりでどれくらい詰まりやすいかを表します。低いほど形が崩れにくくなります。">?</span></span>
+          <div class="bar-track"><div class="bar-fill detail-fill" id="det-compress"></div></div>
+          <span class="bar-pct" id="dpct-compress">--</span>
+        </div>
+
+        <div class="detail-bar-row">
+          <span class="detail-label">浸透速度<span class="tip-icon" data-tip="水が用土にどれくらい速く染み込むかを表します。高いほど素早く浸透します。">?</span></span>
+          <div class="bar-track"><div class="bar-fill detail-fill" id="det-infiltration"></div></div>
+          <span class="bar-pct" id="dpct-infiltration">--</span>
+        </div>
+      </div>
+    </div>
+
     <!-- フィードバック -->
     <div id="feedback-link">
       ご意見・ご要望は
