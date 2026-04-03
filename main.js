@@ -1,18 +1,25 @@
 const { Engine, Render, Runner, Bodies, Body, Composite, Events } = Matter;
 
 const WALL_T = 10;
-const COLORS = ['#c4735a', '#d4a84b', '#8ba04e', '#5e9e7a', '#6a9bb5', '#a07a9e'];
+const COLORS = ['#16A34A', '#0284C7', '#B45309', '#D97706', '#64748B', '#7C3AED'];
 const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
 const IRREGULARITY = 0.05; // ±5%
 const OBJECT_SIZE_CM = { S: 0.5, M: 1.0, L: 2.0 };
 const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100 };
 const CUP_RATIO = { topW: 0.50, botW: 0.33, hToW: 1.1 };
-const SHAPE_ICONS = { square: '■', circle: '●' };
+const SHAPE_ICONS  = { square: '■', circle: '●' };
+const SHAPE_LABELS = { square: 'ベラボン', circle: '日向土' };
 
 let currentSize = '3';
 let objectTypes = [
-  { shape: 'square', size: 'M', weight: 1 },
-  { shape: 'circle', size: 'M', weight: 1 },
+  {
+    shape: 'square', size: 'M', weight: 1,
+    params: { drainage: 70, waterRetention: 60, aeration: 80, organic: true },
+  },
+  {
+    shape: 'circle', size: 'M', weight: 1,
+    params: { drainage: 85, waterRetention: 30, aeration: 85, organic: false },
+  },
 ];
 let cupBodies = [];
 let spawnInterval = null;
@@ -35,7 +42,7 @@ const render = Render.create({
     width: window.innerWidth,
     height: window.innerHeight,
     wireframes: false,
-    background: '#f2ede4',
+    background: '#F1F5F9',
   }
 });
 
@@ -46,13 +53,14 @@ function getCupDimensions() {
   const H = render.options.height;
   const isDesktop = window.innerWidth >= DESKTOP_BREAKPOINT;
 
-  const leftOffset   = isDesktop ? Math.round(W * 0.4) : 0;
+  const leftOffset   = isDesktop ? Math.round(W * 0.3) : 0;
+  const rightOffset  = isDesktop ? Math.round(W * 0.3) : 0;
   const bottomOffset = isDesktop ? 0 : (() => {
     const panel = document.getElementById('panel');
     return panel ? (panel.offsetHeight || 150) + 12 : 162;
   })();
 
-  const availW = W - leftOffset;
+  const availW = W - leftOffset - rightOffset;
   const availH = H - bottomOffset;
   const cx = leftOffset + availW / 2;
 
@@ -79,7 +87,7 @@ function makeTrapezoidWall(absVerts) {
   const rel = absVerts.map(v => ({ x: v.x - cx, y: v.y - cy }));
   return Bodies.fromVertices(cx, cy, rel, {
     isStatic: true,
-    render: { fillStyle: '#c4815e' }
+    render: { fillStyle: '#B45309' }
   });
 }
 
@@ -102,7 +110,7 @@ function buildCup() {
   const bottom = Bodies.rectangle(
     cx, bottomY + WALL_T / 2,
     botInnerW + WALL_T * 2, WALL_T,
-    { isStatic: true, render: { fillStyle: '#c4815e' } }
+    { isStatic: true, render: { fillStyle: '#B45309' } }
   );
 
   currentCupDims = { topInnerW, botInnerW, cupHeight, topY, bottomY, cx };
@@ -257,7 +265,7 @@ Events.on(render, 'afterRender', () => {
   const rightX = cx + topInnerW / 2;
 
   ctx.save();
-  ctx.strokeStyle = 'rgba(90,60,40,0.5)';
+  ctx.strokeStyle = 'rgba(107,114,128,0.6)';
   ctx.lineWidth = 1.5;
 
   ctx.beginPath(); ctx.moveTo(leftX, lineY); ctx.lineTo(rightX, lineY); ctx.stroke();
@@ -265,12 +273,66 @@ Events.on(render, 'afterRender', () => {
   ctx.beginPath(); ctx.moveTo(rightX, lineY - tickH); ctx.lineTo(rightX, lineY + tickH); ctx.stroke();
 
   ctx.font = 'bold 14px sans-serif';
-  ctx.fillStyle = 'rgba(90,60,40,0.7)';
+  ctx.fillStyle = 'rgba(17,24,39,0.7)';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
   ctx.fillText(`直径 ${diameter}cm`, cx, lineY - tickH - 4);
   ctx.restore();
 });
+
+// ── グラフ計算・更新 ──
+const GAUGE_ARC  = 141.37; // π × r(45) = 半円弧長
+const DONUT_CIRC = 238.76; // 2π × r(38) = ドーナツ周長
+
+function calcComposite() {
+  const total = objectTypes.reduce((s, t) => s + t.weight, 0);
+  if (total === 0) return null;
+  const avg = key => objectTypes.reduce((s, t) => s + t.params[key] * t.weight, 0) / total;
+  const organicWeight = objectTypes.reduce((s, t) => s + (t.params.organic ? t.weight : 0), 0);
+  return {
+    drainage:       Math.round(avg('drainage')),
+    waterRetention: Math.round(avg('waterRetention')),
+    aeration:       Math.round(avg('aeration')),
+    organic:        Math.round(organicWeight / total * 100),
+  };
+}
+
+function updateGraphs() {
+  const comp = calcComposite();
+
+  const setGauge = (fillId, valId, value) => {
+    const fill = document.getElementById(fillId);
+    const val  = document.getElementById(valId);
+    if (!fill || !val) return;
+    if (value === null) {
+      fill.setAttribute('stroke-dasharray', `0 ${GAUGE_ARC}`);
+      val.textContent = '--';
+    } else {
+      fill.setAttribute('stroke-dasharray', `${value / 100 * GAUGE_ARC} ${GAUGE_ARC}`);
+      val.textContent = String(value);
+    }
+  };
+
+  setGauge('gauge-drainage-fill',  'gauge-drainage-val',  comp?.drainage       ?? null);
+  setGauge('gauge-water-fill',     'gauge-water-val',     comp?.waterRetention ?? null);
+  setGauge('gauge-aeration-fill',  'gauge-aeration-val',  comp?.aeration       ?? null);
+
+  const oFill = document.getElementById('donut-organic-fill');
+  const iFill = document.getElementById('donut-inorganic-fill');
+  const cVal  = document.getElementById('donut-center-val');
+  const lOrg  = document.getElementById('legend-organic-val');
+  const lInorg = document.getElementById('legend-inorganic-val');
+  if (oFill && iFill && cVal) {
+    const o = comp?.organic ?? 0;
+    const i = 100 - o;
+    oFill.setAttribute('stroke-dasharray',  `${o / 100 * DONUT_CIRC} ${DONUT_CIRC}`);
+    iFill.setAttribute('stroke-dasharray',  `${i / 100 * DONUT_CIRC} ${DONUT_CIRC}`);
+    iFill.setAttribute('stroke-dashoffset', String(-o / 100 * DONUT_CIRC));
+    cVal.textContent = comp ? `${o}%` : '--';
+    if (lOrg)  lOrg.textContent  = comp ? `${o}%` : '--%';
+    if (lInorg) lInorg.textContent = comp ? `${i}%` : '--%';
+  }
+}
 
 // ── 物体リスト UI ──
 function renderObjList() {
@@ -281,14 +343,14 @@ function renderObjList() {
     const card = document.createElement('div');
     card.className = 'obj-card';
     card.innerHTML = `
-      <div class="obj-icon">${SHAPE_ICONS[type.shape]}</div>
+      <div class="obj-name">${SHAPE_LABELS[type.shape]}</div>
       <div class="obj-sizes">
         ${['S', 'M', 'L'].map(s =>
           `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
         ).join('')}
       </div>
       <div class="ratio-row">
-        <input type="range" class="ratio-slider" min="0" max="10" step="0.1" value="${type.weight}" data-idx="${i}">
+        <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
         <span class="ratio-val" data-idx="${i}">${type.weight.toFixed(1)}</span>
       </div>
     `;
@@ -309,6 +371,7 @@ function renderObjList() {
       const idx = Number(slider.dataset.idx);
       objectTypes[idx].weight = Number(slider.value);
       slider.closest('.ratio-row').querySelector('.ratio-val').textContent = Number(slider.value).toFixed(1);
+      updateGraphs();
     });
   });
 }
@@ -317,6 +380,7 @@ function renderObjList() {
 applyCanvasSize();
 renderObjList();
 buildCup();
+updateGraphs();
 
 Render.run(render);
 Runner.run(Runner.create(), engine);
