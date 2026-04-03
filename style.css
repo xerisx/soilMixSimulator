@@ -17,20 +17,37 @@ canvas {
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  color: #111827;
-  font-size: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
   font-family: sans-serif;
-  font-weight: bold;
   background: rgba(255,255,255,0.92);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  padding: 7px 22px;
+  padding: 7px 20px;
   border-radius: 10px;
   border: 1px solid #E5E7EB;
   pointer-events: none;
   white-space: nowrap;
   z-index: 200;
   box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+
+#fill-state {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9CA3AF;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+#fill-pct {
+  font-size: 22px;
+  font-weight: bold;
+  color: #111827;
+  line-height: 1.1;
+  min-height: 1.1em; /* 未投入時にレイアウトが縮まないよう */
 }
 
 /* ════════════════════════════
@@ -841,15 +858,53 @@ canvas {
 .gran-coarse { background: #7C3AED; }
 .gran-fine   { background: #C4B5FD; }
 
-/* ── 免責文言 ── */
+/* ── 免責文言（折りたたみ） ── */
+#disclaimer-wrap {
+  border-top: 1px solid #F3F4F6;
+  padding-top: 10px;
+  font-family: sans-serif;
+}
+
+#disclaimer-summary {
+  font-size: 11px;
+  font-weight: 600;
+  color: #C4C9D4;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+#disclaimer-summary::-webkit-details-marker { display: none; }
+#disclaimer-summary::before { content: 'ⓘ'; }
+#disclaimer-summary:hover { color: #9CA3AF; }
+#disclaimer-wrap[open] #disclaimer-summary { margin-bottom: 4px; }
+
 #disclaimer {
   font-size: 11px;
   color: #9CA3AF;
   font-family: sans-serif;
   line-height: 1.7;
-  padding: 10px 0 4px;
-  border-top: 1px solid #F3F4F6;
+  padding: 0;
+  margin: 0;
 }
+
+/* ── 左パネル内 資材ガイドリンク ── */
+#guide-link-panel {
+  display: block;
+  font-size: 12px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  text-align: center;
+  padding: 10px 0 4px;
+  text-decoration: none;
+  border-top: 1px solid #F3F4F6;
+  margin-top: 4px;
+  transition: color 0.15s;
+}
+#guide-link-panel:hover { color: #0284C7; }
 
 /* ── 資材ガイドリンク ── */
 #guide-link {
@@ -988,7 +1043,8 @@ canvas {
   .size-btn     { padding: 6px 12px; font-size: 14px; }
   .ctrl-label   { font-size: 14px; }
   .ratio-val    { font-size: 13px; }
-  #fillRate     { font-size: 17px; padding: 5px 14px; }
+  #fillRate     { padding: 5px 14px; }
+  #fill-pct     { font-size: 17px; }
   #canvas-guide { display: none; }
 }
 

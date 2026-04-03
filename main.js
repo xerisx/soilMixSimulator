@@ -296,9 +296,11 @@ function startSpawning() {
       return;
     }
 
-    const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
-    const body = spawnShape(x, topY - 60);
-    if (body) Body.setVelocity(body, { x: 0, y: 8 });
+    for (let n = 0; n < 4; n++) {
+      const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
+      const body = spawnShape(x, topY - 60 - n * 18);
+      if (body) Body.setVelocity(body, { x: 0, y: 14 });
+    }
   }, 80);
 }
 
@@ -342,7 +344,17 @@ function applyCanvasSize() {
 }
 
 // ── 充填率の計算・表示 ──
-const fillRateEl = document.getElementById('fillRate');
+const fillStateEl = document.getElementById('fill-state');
+const fillPctEl   = document.getElementById('fill-pct');
+
+function getFillStateLabel(rate) {
+  if (rate === 0)  return '未投入';
+  if (rate <= 40)  return '充填中';
+  if (rate <= 75)  return '積もっています';
+  return 'ほぼ満タン';
+}
+
+let lastFillRate = -1;
 Events.on(engine, 'afterUpdate', () => {
   if (!currentCupDims) return;
   const { topInnerW, botInnerW, cupHeight, topY, bottomY } = currentCupDims;
@@ -351,7 +363,10 @@ Events.on(engine, 'afterUpdate', () => {
     .filter(b => b.isParticle && b.position.y > topY && b.position.y < bottomY)
     .reduce((sum, b) => sum + b.shapeArea, 0);
   const rate = Math.min(100, Math.round(filledArea / cupArea * 100));
-  fillRateEl.textContent = `充填率: ${rate}%`;
+  if (rate === lastFillRate) return;
+  lastFillRate = rate;
+  if (fillStateEl) fillStateEl.textContent = getFillStateLabel(rate);
+  if (fillPctEl)   fillPctEl.textContent   = rate === 0 ? '' : `${rate}%`;
 });
 
 // ── デバッグ用1cm格子 ──

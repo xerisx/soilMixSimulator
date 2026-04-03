@@ -8,7 +8,10 @@
 </head>
 <body>
   <canvas id="canvas"></canvas>
-  <div id="fillRate"></div>
+  <div id="fillRate">
+    <span id="fill-state">未投入</span>
+    <span id="fill-pct"></span>
+  </div>
   <div id="empty-state" hidden>
     <div id="empty-state-inner">
       <span id="empty-state-icon">🪴</span>
@@ -66,6 +69,7 @@
       <div id="tab-materials" class="tab-content active">
         <div id="base-label"></div>
         <div id="obj-list"><!-- JS で描画 --></div>
+        <a href="materials_guide.html" id="guide-link-panel" target="_blank" rel="noopener noreferrer">📖 各資材の詳細は資材ガイドへ</a>
       </div>
 
       <!-- 市販の用土タブ -->
@@ -221,8 +225,11 @@
       </div>
     </div>
 
-    <!-- 免責文言 -->
-    <p id="disclaimer">※本ツールは用土の挙動を分かりやすくするための簡易シミュレーションです。実際の環境や資材、管理方法によって結果は異なる場合があります。</p>
+    <!-- 免責文言（折りたたみ） -->
+    <details id="disclaimer-wrap">
+      <summary id="disclaimer-summary">本ツールについて</summary>
+      <p id="disclaimer">本ツールは用土の挙動を分かりやすくするための簡易シミュレーションです。実際の環境や資材、管理方法によって結果は異なる場合があります。</p>
+    </details>
 
     <!-- 資材ガイドリンク -->
     <div id="guide-link">
