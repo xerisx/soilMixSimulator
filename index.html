@@ -28,25 +28,28 @@
       </div>
     </header>
 
-    <div id="panel-scroll">
-      <!-- タブナビ -->
+    <!-- 上部固定エリア: タブ + 鉢サイズ -->
+    <div id="panel-fixed-top">
       <div id="tab-nav">
         <button class="tab-btn active" data-tab="materials">資材</button>
         <button class="tab-btn" data-tab="commercial">市販の用土</button>
       </div>
+      <section id="sec-pot">
+        <span class="ctrl-label">鉢のサイズ</span>
+        <div class="btn-group">
+          <button class="size-btn" data-size="1">1号</button>
+          <button class="size-btn" data-size="2">2号</button>
+          <button class="size-btn active" data-size="3">3号</button>
+          <button class="size-btn" data-size="4">4号</button>
+          <button class="size-btn" data-size="5">5号</button>
+        </div>
+      </section>
+    </div>
 
+    <!-- 中央スクロールエリア -->
+    <div id="panel-scroll">
       <!-- 資材タブ -->
       <div id="tab-materials" class="tab-content active">
-        <section id="sec-pot">
-          <span class="ctrl-label">鉢のサイズ</span>
-          <div class="btn-group">
-            <button class="size-btn" data-size="1">1号</button>
-            <button class="size-btn" data-size="2">2号</button>
-            <button class="size-btn active" data-size="3">3号</button>
-            <button class="size-btn" data-size="4">4号</button>
-            <button class="size-btn" data-size="5">5号</button>
-          </div>
-        </section>
         <div id="base-label"></div>
         <div id="obj-list"><!-- JS で描画 --></div>
       </div>
