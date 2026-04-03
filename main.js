@@ -3,27 +3,21 @@ const { Engine, Render, Runner, Bodies, Body, Composite, Events } = Matter;
 const WALL_T = 10;
 const COLORS = ['#16A34A', '#0284C7', '#B45309', '#D97706', '#64748B', '#7C3AED'];
 const POT_DIAMETERS = { 1: 3, 2: 6, 3: 9, 4: 12, 5: 15 }; // cm
-const IRREGULARITY = 0.05; // ±5%
-const OBJECT_SIZE_CM = { S: 0.5, M: 1.0, L: 2.0 };
+// サイズはmm単位で資材ごとに定義（min〜maxのランダム値）
 const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100 };
 const CUP_RATIO = { topW: 0.50, botW: 0.33, hToW: 1.1 };
 const SHAPE_ICONS  = { square: '■', circle: '●' };
 const SHAPE_LABELS = { square: 'ベラボン', circle: '日向土' };
 
 let currentSize = '3';
-let objectTypes = [
-  {
-    shape: 'square', size: 'M', weight: 1,
-    params: { drainage: 70, waterRetention: 60, aeration: 80, organic: true },
-  },
-  {
-    shape: 'circle', size: 'M', weight: 1,
-    params: { drainage: 85, waterRetention: 30, aeration: 85, organic: false },
-  },
-];
+// MATERIALS（materials.js）からシミュレーション用の状態を初期化
+let objectTypes = MATERIALS.map(m => ({
+  ...m,
+  size:   'M',
+  weight: 1,
+}));
 let cupBodies = [];
 let spawnInterval = null;
-let colorIndex = 0;
 let currentCupDims = null;
 let shakeOffsetX = 0;
 
@@ -124,11 +118,11 @@ function clearDynamicBodies() {
     .forEach(b => Composite.remove(engine.world, b));
 }
 
-function getObjectSizePx(sizeName) {
+function getObjectSizePx(type) {
   const { topInnerW } = getCupDimensions();
-  const pxPerCm = topInnerW / POT_DIAMETERS[currentSize];
-  const base = pxPerCm * OBJECT_SIZE_CM[sizeName];
-  return base * (1 - IRREGULARITY + Math.random() * IRREGULARITY * 2);
+  const pxPerMm = topInnerW / POT_DIAMETERS[currentSize] / 10;
+  const { min, max } = type.sizes[type.size];
+  return (min + Math.random() * (max - min)) * pxPerMm;
 }
 
 function pickObjectType() {
@@ -142,35 +136,29 @@ function pickObjectType() {
   return objectTypes[objectTypes.length - 1];
 }
 
-function spawnBox(x, y, size) {
+function spawnBox(x, y, size, color, physics) {
   const box = Bodies.rectangle(x, y, size, size, {
-    restitution: 0,
-    friction: 0.9,
-    frictionAir: 0.08,
-    render: { fillStyle: COLORS[colorIndex % COLORS.length] }
+    ...physics,
+    render: { fillStyle: color }
   });
   box.spawnTime = performance.now();
   box.isParticle = true;
   box.shapeArea = size * size;
-  colorIndex++;
   Composite.add(engine.world, box);
   Body.setAngle(box, Math.random() * Math.PI * 2);
   Body.setAngularVelocity(box, (Math.random() - 0.5) * 0.3);
   return box;
 }
 
-function spawnCircle(x, y, size) {
+function spawnCircle(x, y, size, color, physics) {
   const r = size / 2;
   const circle = Bodies.circle(x, y, r, {
-    restitution: 0,
-    friction: 0.9,
-    frictionAir: 0.08,
-    render: { fillStyle: COLORS[colorIndex % COLORS.length] }
+    ...physics,
+    render: { fillStyle: color }
   });
   circle.spawnTime = performance.now();
   circle.isParticle = true;
   circle.shapeArea = Math.PI * r * r;
-  colorIndex++;
   Composite.add(engine.world, circle);
   return circle;
 }
@@ -178,9 +166,9 @@ function spawnCircle(x, y, size) {
 function spawnShape(x, y) {
   const type = pickObjectType();
   if (!type) return null;
-  const size = getObjectSizePx(type.size);
-  if (type.shape === 'circle') return spawnCircle(x, y, size);
-  return spawnBox(x, y, size);
+  const size = getObjectSizePx(type);
+  if (type.shape === 'circle') return spawnCircle(x, y, size, type.color, type.physics);
+  return spawnBox(x, y, size, type.color, type.physics);
 }
 
 // 落下中はカード内コントロールを無効化
@@ -192,7 +180,6 @@ function setParticleControlsDisabled(disabled) {
 
 function startSpawning() {
   if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
-  colorIndex = 0;
   setParticleControlsDisabled(true);
 
   const { topInnerW, topY, cx } = getCupDimensions();
@@ -250,6 +237,28 @@ Events.on(engine, 'afterUpdate', () => {
     .reduce((sum, b) => sum + b.shapeArea, 0);
   const rate = Math.min(100, Math.round(filledArea / cupArea * 100));
   fillRateEl.textContent = `充填率: ${rate}%`;
+});
+
+// ── デバッグ用1cm格子 ──
+Events.on(render, 'afterRender', () => {
+  if (!currentCupDims) return;
+  const { topInnerW } = currentCupDims;
+  const pxPerCm = topInnerW / POT_DIAMETERS[currentSize];
+  const W = render.options.width;
+  const H = render.options.height;
+  const ctx = render.context;
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(100,116,139,0.15)';
+  ctx.lineWidth = 0.5;
+
+  for (let x = 0; x < W; x += pxPerCm) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += pxPerCm) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  ctx.restore();
 });
 
 // ── 鉢上部の直径をキャンバスに描画 ──
@@ -417,7 +426,8 @@ document.getElementById('addBtn').addEventListener('click', () => {
   const { topInnerW, topY, cx } = getCupDimensions();
   const spawnXMin = cx - topInnerW / 2 + 20;
   const spawnXMax = cx + topInnerW / 2 - 20;
-  const baseSize = getObjectSizePx('M');
+  const baseType = objectTypes.find(t => t.weight > 0) || objectTypes[0];
+  const baseSize = getObjectSizePx({ ...baseType, size: 'M' });
   const cols = Math.ceil(Math.sqrt(count * (spawnXMax - spawnXMin) / (baseSize * 1.2)));
   const colW  = (spawnXMax - spawnXMin) / cols;
 
