@@ -1,0 +1,411 @@
+/* ── 資材ガイドページ専用スタイル ── */
+
+/* body の overflow:hidden を上書き。scrollbar-gutter でスクロールバー出現時のレイアウトシフトを防ぐ */
+body.guide-page {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+.guide-page {
+  background: #F8FAFC;
+  min-height: 100vh;
+  font-family: sans-serif;
+  color: #111827;
+}
+
+/* ── ヘッダー ── */
+.guide-header {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 0 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.guide-back {
+  display: inline-block;
+  font-size: 13px;
+  color: #6B7280;
+  text-decoration: none;
+  padding: 10px 0 0;
+}
+.guide-back:hover { color: #374151; }
+
+.guide-header-inner { padding: 8px 0 16px; }
+
+.guide-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 2px;
+}
+
+.guide-subtitle {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* ── ツールバー ── */
+#guide-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 20px 12px;
+}
+
+#guide-search {
+  flex: 1;
+  min-width: 160px;
+  max-width: 260px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #111827;
+  background: #FFFFFF;
+  outline: none;
+  font-family: sans-serif;
+}
+#guide-search:focus { border-color: #93C5FD; }
+#guide-search::placeholder { color: #9CA3AF; }
+
+.guide-filter-group {
+  display: flex;
+  gap: 4px;
+}
+
+.guide-filter-btn {
+  height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B7280;
+  cursor: pointer;
+  font-family: sans-serif;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.guide-filter-btn:hover { background: #F9FAFB; color: #374151; }
+.guide-filter-btn.active {
+  background: #EFF6FF;
+  border-color: #93C5FD;
+  color: #1D4ED8;
+  font-weight: 600;
+}
+
+#guide-sort {
+  height: 36px;
+  padding: 0 10px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  font-family: sans-serif;
+  outline: none;
+}
+#guide-sort:focus { border-color: #93C5FD; }
+#guide-sort.is-sorting {
+  border-color: #93C5FD;
+  color: #1D4ED8;
+}
+
+.guide-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: #9CA3AF;
+  white-space: nowrap;
+  padding-left: 12px;
+  border-left: 1px solid #E5E7EB;
+}
+
+/* ── メインコンテンツ ── */
+.guide-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 20px 48px;
+}
+
+/* ── カードグリッド ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  align-items: start; /* 開閉時に隣カードが伸びないよう */
+}
+
+/* ── 空状態 ── */
+.guide-empty {
+  text-align: center;
+  color: #9CA3AF;
+  font-size: 14px;
+  padding: 48px 0;
+  margin: 0;
+}
+
+/* ── 資材カード ── */
+.mat-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+/* カラーアクセント（上端） */
+.mat-card-accent { height: 5px; }
+
+.mat-card-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── カードヘッダー ── */
+.mat-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mat-card-name-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mat-card-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+/* 要約ラベル */
+.mat-summary {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  background: #F3F4F6;
+  border-radius: 6px;
+  padding: 3px 8px;
+  display: inline-block;
+  width: fit-content;
+  letter-spacing: 0.01em;
+}
+
+/* 有機/無機バッジ */
+.mat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  letter-spacing: 0.01em;
+}
+.mat-badge-organic   { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+.mat-badge-inorganic { background: #F1F5F9; color: #334155; border: 1px solid #94A3B8; }
+
+/* 説明文 */
+.mat-desc {
+  font-size: 13px;
+  color: #6B7280;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── サイズ情報（コンパクトなインライン表示） ── */
+.mat-sizes {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mat-size-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  flex: 1;
+  justify-content: center;
+}
+.mat-size-chip + .mat-size-chip {
+  border-left: 1px solid #E5E7EB;
+}
+
+.mat-size-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #9CA3AF;
+  letter-spacing: 0.06em;
+}
+
+.mat-size-range {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── パラメータセクション ── */
+.mat-params-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.mat-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 2px;
+}
+
+/* バー行 */
+.mat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mat-bar-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  width: 52px;
+  flex-shrink: 0;
+}
+
+.mat-bar-track {
+  flex: 1;
+  height: 10px;
+  background: #E5E7EB;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.mat-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.mat-bar-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  min-width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* 詳細バーは細め */
+.mat-adv-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #F1F5F9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.mat-adv-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: #A78BFA;
+}
+
+/* ── 詳しい説明アコーディオン ── */
+.mat-detail-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.mat-detail-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9CA3AF;
+  cursor: pointer;
+  font-family: sans-serif;
+  text-align: left;
+  width: fit-content;
+}
+.mat-detail-toggle:hover { color: #6B7280; }
+
+.mat-detail-text {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.75;
+  margin: 0;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border-left: 3px solid #BAE6FD;
+  border-radius: 0 6px 6px 0;
+}
+
+/* 区切り線 */
+.mat-divider {
+  height: 1px;
+  background: #F3F4F6;
+  margin: 0;
+}
+
+/* ── 詳細パラメータアコーディオン ── */
+.mat-adv-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  cursor: pointer;
+  font-family: sans-serif;
+  text-align: left;
+  width: 100%;
+}
+.mat-adv-toggle:hover { color: #374151; }
+
+.mat-adv-content {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 8px;
+}
+
+/* ── 共通アコーディオン基盤（grid方式） ── */
+.mat-acc-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mat-acc-wrap.open {
+  grid-template-rows: 1fr;
+}
+.mat-acc-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+/* 詳細説明の上マージン: innerのpaddingとして持たせアニメーションに含める */
+.mat-detail-wrap .mat-acc-inner .mat-detail-text {
+  margin-top: 8px;
+}

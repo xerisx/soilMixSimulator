@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>資材ガイド — 鉢充填シミュレータ</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="materials_guide.css">
+</head>
+<body class="guide-page">
+
+  <header class="guide-header">
+    <a href="index.html" class="guide-back">← シミュレータに戻る</a>
+    <div class="guide-header-inner">
+      <h1 class="guide-title">資材ガイド</h1>
+      <p class="guide-subtitle">各資材のパラメータと特性を一覧で確認できます</p>
+    </div>
+  </header>
+
+  <!-- 検索・フィルタ・並び替え -->
+  <div id="guide-toolbar">
+    <input type="search" id="guide-search" placeholder="資材名で検索…" autocomplete="off">
+    <div class="guide-filter-group">
+      <button class="guide-filter-btn active" data-filter="all">すべて</button>
+      <button class="guide-filter-btn" data-filter="organic">有機</button>
+      <button class="guide-filter-btn" data-filter="inorganic">無機</button>
+    </div>
+    <select id="guide-sort">
+      <option value="">並び替え: デフォルト</option>
+      <option value="drainage">排水性 高い順</option>
+      <option value="waterRetention">保水性 高い順</option>
+      <option value="aeration">通気性 高い順</option>
+      <option value="nutrientRetention">保肥力 高い順</option>
+    </select>
+    <span id="guide-count" class="guide-count"></span>
+  </div>
+
+  <main class="guide-main">
+    <div id="card-grid" class="card-grid"></div>
+    <p id="guide-empty" class="guide-empty" hidden>該当する資材が見つかりません</p>
+  </main>
+
+  <script src="materials.js"></script>
+  <script src="materials_guide.js"></script>
+</body>
+</html>
