@@ -387,10 +387,11 @@ function calcComposite() {
   const avg = key => objectTypes.reduce((s, t) => s + t.params[key] * t.weight, 0) / total;
   const organicWeight = objectTypes.reduce((s, t) => s + (t.params.organic ? t.weight : 0), 0);
   return {
-    drainage:       Math.round(avg('drainage')),
-    waterRetention: Math.round(avg('waterRetention')),
-    aeration:       Math.round(avg('aeration')),
-    organic:        Math.round(organicWeight / total * 100),
+    drainage:         Math.round(avg('drainage')),
+    waterRetention:   Math.round(avg('waterRetention')),
+    aeration:         Math.round(avg('aeration')),
+    organic:          Math.round(organicWeight / total * 100),
+    nutrientRetention: Math.round(avg('nutrientRetention')),
   };
 }
 
@@ -438,9 +439,10 @@ function updateGraphs() {
     }
   };
 
-  setBar('bar-drainage', 'pct-drainage', comp?.drainage       ?? null);
-  setBar('bar-water',    'pct-water',    comp?.waterRetention ?? null);
-  setBar('bar-aeration', 'pct-aeration', comp?.aeration       ?? null);
+  setBar('bar-drainage',  'pct-drainage',  comp?.drainage          ?? null);
+  setBar('bar-water',     'pct-water',     comp?.waterRetention    ?? null);
+  setBar('bar-aeration',  'pct-aeration',  comp?.aeration          ?? null);
+  setBar('bar-nutrient',  'pct-nutrient',  comp?.nutrientRetention ?? null);
 
   // 評価ラベル
   const evalMain = document.getElementById('eval-main');

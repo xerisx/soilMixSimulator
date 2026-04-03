@@ -615,6 +615,7 @@ canvas {
 .bar-drainage { background: #0284C7; }
 .bar-water    { background: #16A34A; }
 .bar-aeration { background: #64748B; }
+.bar-nutrient { background: #D97706; }
 
 .bar-pct {
   font-size: 14px;
