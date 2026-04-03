@@ -169,6 +169,35 @@ function pickObjectType() {
   return objectTypes[objectTypes.length - 1];
 }
 
+// 多角形面積（ shoelace formula ）
+function polygonArea(verts) {
+  let area = 0;
+  const n = verts.length;
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    area += verts[i].x * verts[j].y - verts[j].x * verts[i].y;
+  }
+  return Math.abs(area) / 2;
+}
+
+// 正規化済み頂点配列（[-0.5,0.5]）を size でスケールして生成
+function spawnPoly(x, y, size, normVerts, color, physics) {
+  const scaled = normVerts.map(v => ({ x: v.x * size, y: v.y * size }));
+  const body = Bodies.fromVertices(x, y, scaled, {
+    ...physics,
+    render: { fillStyle: color },
+  });
+  if (!body) return null;
+  body.spawnTime = performance.now();
+  body.isParticle = true;
+  body.shapeArea = polygonArea(scaled);
+  Composite.add(engine.world, body);
+  Body.setAngle(body, Math.random() * Math.PI * 2);
+  Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.2);
+  return body;
+}
+
+// フォールバック用（shapeVariants 未定義の資材向け）
 function spawnBox(x, y, size, color, physics) {
   const box = Bodies.rectangle(x, y, size, size, {
     ...physics,
@@ -200,6 +229,11 @@ function spawnShape(x, y) {
   const type = pickObjectType();
   if (!type) return null;
   const size = getObjectSizePx(type);
+  if (type.shapeVariants?.length) {
+    const verts = type.shapeVariants[Math.floor(Math.random() * type.shapeVariants.length)];
+    return spawnPoly(x, y, size, verts, type.color, type.physics);
+  }
+  // フォールバック
   if (type.shape === 'circle') return spawnCircle(x, y, size, type.color, type.physics);
   return spawnBox(x, y, size, type.color, type.physics);
 }
