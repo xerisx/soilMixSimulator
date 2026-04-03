@@ -205,12 +205,23 @@ function polygonArea(verts) {
   return Math.abs(area) / 2;
 }
 
+// 薄色の粒子に自動でアウトラインを付与
+function lightStroke(color) {
+  if (!color || color[0] !== '#') return null;
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 190
+    ? 'rgba(0,0,0,0.18)' : null;
+}
+
 // 正規化済み頂点配列（[-0.5,0.5]）を size でスケールして生成
 function spawnPoly(x, y, size, normVerts, color, physics) {
   const scaled = normVerts.map(v => ({ x: v.x * size, y: v.y * size }));
+  const stroke = lightStroke(color);
   const body = Bodies.fromVertices(x, y, scaled, {
     ...physics,
-    render: { fillStyle: color },
+    render: { fillStyle: color, ...(stroke ? { strokeStyle: stroke, lineWidth: 1 } : {}) },
   });
   if (!body) return null;
   body.spawnTime = performance.now();
@@ -224,9 +235,10 @@ function spawnPoly(x, y, size, normVerts, color, physics) {
 
 // フォールバック用（shapeVariants 未定義の資材向け）
 function spawnBox(x, y, size, color, physics) {
+  const stroke = lightStroke(color);
   const box = Bodies.rectangle(x, y, size, size, {
     ...physics,
-    render: { fillStyle: color }
+    render: { fillStyle: color, ...(stroke ? { strokeStyle: stroke, lineWidth: 1 } : {}) }
   });
   box.spawnTime = performance.now();
   box.isParticle = true;
@@ -239,9 +251,10 @@ function spawnBox(x, y, size, color, physics) {
 
 function spawnCircle(x, y, size, color, physics) {
   const r = size / 2;
+  const stroke = lightStroke(color);
   const circle = Bodies.circle(x, y, r, {
     ...physics,
-    render: { fillStyle: color }
+    render: { fillStyle: color, ...(stroke ? { strokeStyle: stroke, lineWidth: 1 } : {}) }
   });
   circle.spawnTime = performance.now();
   circle.isParticle = true;
@@ -471,13 +484,16 @@ function updateMixSummary() {
   const total  = active.reduce((s, t) => s + t.weight, 0);
   if (active.length === 0 || total === 0) { el.hidden = true; return; }
   el.hidden = false;
-  el.innerHTML = [...active]
-    .sort((a, b) => b.weight - a.weight)
-    .map(t => {
-      const pct = Math.round(t.weight / total * 100);
-      return `<span class="mix-chip"><span class="mix-chip-dot" style="background:${t.color}"></span>${t.name}&nbsp;${pct}%</span>`;
-    })
-    .join('');
+  const sorted = [...active].sort((a, b) => b.weight - a.weight);
+  const MAX = 4;
+  const shown = sorted.slice(0, MAX);
+  const rest  = sorted.length - shown.length;
+  const chips = shown.map(t => {
+    const pct = Math.round(t.weight / total * 100);
+    return `<span class="mix-chip"><span class="mix-chip-dot" style="background:${t.color}"></span>${t.name}&nbsp;${pct}%</span>`;
+  });
+  if (rest > 0) chips.push(`<span class="mix-chip mix-chip-more">他${rest}種</span>`);
+  el.innerHTML = chips.join('');
 }
 
 // ── 影響資材表示 ──
@@ -501,7 +517,7 @@ function updateInfluence() {
       .filter(t => (t.params[p.key] ?? 0) >= 60);
     if (tops.length === 0) return null;
     const names = tops
-      .map(t => `<span class="inf-mat" style="color:${t.color}">${t.name}</span>`)
+      .map(t => `<span class="inf-mat"><span class="inf-mat-dot" style="background:${t.color}"></span>${t.name}</span>`)
       .join('<span class="inf-dot">·</span>');
     return `<div class="inf-row"><span class="inf-param">${p.icon}&nbsp;${p.label}</span><span class="inf-arrow">→</span>${names}</div>`;
   }).filter(Boolean);
@@ -786,7 +802,7 @@ function renderObjList() {
       <span class="size-hint">${sizeHint}</span>
       <div class="ratio-row">
         <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
-        <span class="ratio-val" data-idx="${i}">${type.weight.toFixed(1)}</span>
+        <span class="ratio-val${type.weight === 0 ? ' ratio-val-zero' : ''}" data-idx="${i}">${type.weight.toFixed(1)}</span>
       </div>
     `;
     list.appendChild(card);
@@ -807,7 +823,9 @@ function renderObjList() {
     slider.addEventListener('input', () => {
       const idx = Number(slider.dataset.idx);
       objectTypes[idx].weight = Number(slider.value);
-      slider.closest('.ratio-row').querySelector('.ratio-val').textContent = Number(slider.value).toFixed(1);
+      const valEl = slider.closest('.ratio-row').querySelector('.ratio-val');
+      valEl.textContent = Number(slider.value).toFixed(1);
+      valEl.classList.toggle('ratio-val-zero', Number(slider.value) === 0);
       selectedCommercialSoil = null; // 手動変更でベースをクリア
       activePreset = null;
       document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
