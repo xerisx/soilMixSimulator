@@ -21,18 +21,34 @@
       </div>
     </header>
 
-    <section id="sec-pot">
-      <span class="ctrl-label">鉢のサイズ</span>
-      <div class="btn-group">
-        <button class="size-btn" data-size="1">1号</button>
-        <button class="size-btn" data-size="2">2号</button>
-        <button class="size-btn active" data-size="3">3号</button>
-        <button class="size-btn" data-size="4">4号</button>
-        <button class="size-btn" data-size="5">5号</button>
+    <div id="panel-scroll">
+      <!-- タブナビ -->
+      <div id="tab-nav">
+        <button class="tab-btn active" data-tab="materials">資材</button>
+        <button class="tab-btn" data-tab="commercial">市販の用土</button>
       </div>
-    </section>
 
-    <div id="obj-list"><!-- JS で描画 --></div>
+      <!-- 資材タブ -->
+      <div id="tab-materials" class="tab-content active">
+        <section id="sec-pot">
+          <span class="ctrl-label">鉢のサイズ</span>
+          <div class="btn-group">
+            <button class="size-btn" data-size="1">1号</button>
+            <button class="size-btn" data-size="2">2号</button>
+            <button class="size-btn active" data-size="3">3号</button>
+            <button class="size-btn" data-size="4">4号</button>
+            <button class="size-btn" data-size="5">5号</button>
+          </div>
+        </section>
+        <div id="base-label"></div>
+        <div id="obj-list"><!-- JS で描画 --></div>
+      </div>
+
+      <!-- 市販の用土タブ -->
+      <div id="tab-commercial" class="tab-content">
+        <div id="commercial-list"><!-- JS で描画 --></div>
+      </div>
+    </div>
 
     <section id="sec-actions">
       <button id="startBtn"  class="act-btn act-start">▶ スタート</button>
@@ -156,6 +172,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script src="materials.js"></script>
+  <script src="commercial_soils.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
