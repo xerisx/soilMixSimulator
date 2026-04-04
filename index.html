@@ -184,12 +184,13 @@
     <div id="influence-block" hidden></div>
 
     <!-- 詳細パラメータ（アコーディオン） -->
+    <div class="detail-accordion">
     <button id="detail-toggle" class="detail-toggle-btn" aria-expanded="false">
-      詳細を見る ▼
+      <span class="detail-toggle-label">詳細パラメータ</span>
+      <span class="detail-toggle-chevron">▼</span>
     </button>
     <div id="detail-panel" class="detail-panel" aria-hidden="true">
       <div class="detail-inner">
-        <h3 class="detail-title">詳細パラメータ</h3>
 
         <div class="detail-bar-row">
           <span class="detail-label">空隙率<span class="tip-icon" data-tip="用土の中の隙間の多さです。高いほど空気や水が通りやすくなります。">?</span></span>
@@ -228,6 +229,7 @@
         </div>
       </div>
     </div>
+    </div><!-- /.detail-accordion -->
 
     <!-- 免責文言（折りたたみ） -->
     <details id="disclaimer-wrap">

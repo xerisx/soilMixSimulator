@@ -410,14 +410,15 @@ canvas {
     width: 30vw;
     background: #FFFFFF;
     border-left: 1px solid #E5E7EB;
-    padding: 20px 16px 20px;
+    padding: 20px 16px 24px;
     overflow-y: auto;
     z-index: 100;
     box-shadow: -2px 0 12px rgba(0,0,0,0.04);
   }
-  #right-panel::-webkit-scrollbar       { width: 3px; }
+  #right-panel > * { flex-shrink: 0; }
+  #right-panel::-webkit-scrollbar       { width: 4px; }
   #right-panel::-webkit-scrollbar-track { background: transparent; }
-  #right-panel::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 2px; }
+  #right-panel::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 2px; }
 
   #sec-pot     { flex-direction: column; align-items: flex-start; gap: 10px; }
   .tab-content { gap: 16px; }
@@ -847,24 +848,46 @@ canvas {
 }
 
 /* ── 詳細パラメータ アコーディオン ── */
+.detail-accordion {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 .detail-toggle-btn {
   width: 100%;
   padding: 10px 14px;
   background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
+  border: none;
+  border-bottom: 1px solid transparent;
   font-size: 13px;
   font-weight: 600;
   color: #6B7280;
   font-family: sans-serif;
   cursor: pointer;
-  text-align: left;
-  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .detail-toggle-btn:hover {
   background: #F9FAFB;
   color: #374151;
+}
+
+.detail-toggle-btn[aria-expanded="true"] {
+  border-bottom-color: #E5E7EB;
+}
+
+.detail-toggle-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detail-toggle-chevron {
+  font-size: 11px;
+  color: #9CA3AF;
 }
 
 .detail-panel {
@@ -879,22 +902,10 @@ canvas {
 
 .detail-inner {
   background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 4px;
-}
-
-.detail-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #9CA3AF;
-  font-family: sans-serif;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
 .detail-bar-row {

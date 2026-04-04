@@ -890,7 +890,7 @@ const detailToggle = document.getElementById('detail-toggle');
 const detailPanel  = document.getElementById('detail-panel');
 detailToggle.addEventListener('click', () => {
   const isOpen = detailPanel.classList.toggle('open');
-  detailToggle.textContent = isOpen ? '詳細を隠す ▲' : '詳細を見る ▼';
+  detailToggle.querySelector('.detail-toggle-chevron').textContent = isOpen ? '▲' : '▼';
   detailToggle.setAttribute('aria-expanded', String(isOpen));
   detailPanel.setAttribute('aria-hidden', String(!isOpen));
   if (isOpen) {
