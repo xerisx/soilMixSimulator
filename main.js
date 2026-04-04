@@ -35,7 +35,7 @@ let objectTypes = MATERIALS
   .map(m => ({
     ...m,
     size:   'M',
-    weight: 1,
+    weight: 0,
   }));
 let cupBodies = [];
 let spawnInterval = null;
@@ -806,21 +806,19 @@ function renderObjList() {
         <span class="obj-name">${type.name}${tipAttr}</span>
         <button class="fav-btn${favActive}" data-fav-type="material" data-fav-id="${type.id}" aria-label="お気に入り">★</button>
       </div>
-      <div class="obj-info-row">
-        ${tagsHtml}
-        <div class="obj-size-area">
-          <div class="obj-sizes">
-            ${['S', 'M', 'L'].map(s =>
-              `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
-            ).join('')}
-          </div>
-          <span class="size-grain-info">
-            <span class="size-grain-dot" style="width:${dotSize}px;height:${dotSize}px"></span>
-            <span class="size-grain-label">${grain.min}〜${grain.max}mm</span>
-            ${sizeHint ? `<span class="size-grain-hint">· ${sizeHint}</span>` : ''}
-          </span>
+      <div class="obj-size-row">
+        <div class="obj-sizes">
+          ${['S', 'M', 'L'].map(s =>
+            `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
+          ).join('')}
+        </div>
+        <div class="size-grain-info">
+          <span class="size-grain-dot" style="width:${dotSize}px;height:${dotSize}px"></span>
+          <span class="size-grain-label">${grain.min}〜${grain.max}mm</span>
+          ${sizeHint ? `<span class="size-grain-hint">· ${sizeHint}</span>` : ''}
         </div>
       </div>
+      ${tagsHtml}
       <div class="ratio-row">
         <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
         <span class="ratio-val${type.weight === 0 ? ' ratio-val-zero' : ''}" data-idx="${i}">${type.weight.toFixed(1)}</span>
@@ -949,6 +947,9 @@ function applyPreset(key) {
 document.querySelectorAll('.preset-btn').forEach(btn => {
   btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
 });
+
+// 初期状態: バランスプリセットを適用
+applyPreset('balance');
 
 // ── スタートボタン ──
 document.getElementById('startBtn').addEventListener('click', () => {

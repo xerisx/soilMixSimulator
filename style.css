@@ -268,7 +268,7 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background: #F9FAFB;
   border: 1px solid #E5E7EB;
   border-radius: 12px;
@@ -425,7 +425,7 @@ canvas {
   #obj-list    { flex-direction: column; overflow-x: visible; overflow-y: visible; gap: 10px; padding-bottom: 0; }
   .obj-card    { flex: none; width: 100%; min-width: unset; align-items: stretch; }
   .obj-icon    { text-align: center; }
-  .obj-info-row { flex-wrap: nowrap; justify-content: space-between; }
+  .obj-size-row { flex-wrap: nowrap; }
   .act-group   { gap: 8px; }
   .act-btn     { width: 100%; text-align: center; }
 }
@@ -562,18 +562,19 @@ canvas {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 16px;
   color: #D1D5DB;
-  padding: 2px 3px;
+  padding: 3px 5px;
+  border-radius: 6px;
   line-height: 1;
   flex-shrink: 0;
-  transition: color 0.15s;
+  transition: background 150ms, color 150ms;
   touch-action: manipulation;
 }
 
-.fav-btn:hover       { color: #D97706; }
-.fav-btn.active      { color: #D97706; }
-.fav-btn.active:hover{ color: #B45309; }
+.fav-btn:hover        { color: #D97706; }
+.fav-btn.active       { color: #D97706; background: #FEF3C7; }
+.fav-btn.active:hover { color: #B45309; }
 
 /* ── 物体カード ── */
 .obj-name-row {
@@ -712,7 +713,7 @@ canvas {
   height: 100%;
   width: 0%;
   border-radius: 8px;
-  transition: width 300ms ease-out;
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bar-drainage { background: #0284C7; }
@@ -769,7 +770,7 @@ canvas {
   width: 50%;
   background: #16A34A;
   border-radius: 9999px;
-  transition: width 300ms ease-out;
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .split-bar-ends {
@@ -1095,10 +1096,10 @@ canvas {
 
 .mat-tag {
   display: inline-block;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9px;
+  font-weight: 600;
   font-family: sans-serif;
-  padding: 2px 7px;
+  padding: 1px 5px;
   border-radius: 9999px;
   line-height: 1.6;
 }
@@ -1111,18 +1112,15 @@ canvas {
 .mat-tag[data-tag="バランス"] { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }
 
 /* ── 資材情報行（タグ + サイズ選択 + 粒径） ── */
-.obj-info-row {
+/* サイズ主操作行: S/M/L + 粒径情報 */
+.obj-size-row {
   display: flex;
   align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: 8px;
   width: 100%;
 }
 
-.obj-size-area {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+.obj-size-row .obj-sizes {
   flex-shrink: 0;
 }
 
@@ -1130,7 +1128,7 @@ canvas {
   display: flex;
   align-items: center;
   gap: 3px;
-  white-space: nowrap;
+  min-width: 0;
 }
 
 .size-grain-dot {
@@ -1143,14 +1141,14 @@ canvas {
 
 .size-grain-label {
   font-size: 11px;
-  color: #374151;
+  color: #111827;
   font-family: sans-serif;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .size-grain-hint {
-  font-size: 10px;
-  color: #9CA3AF;
+  font-size: 9px;
+  color: #B0BAC8;
   font-family: sans-serif;
 }
 
