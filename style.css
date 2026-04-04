@@ -1033,11 +1033,22 @@ canvas {
 #feedback-link a {
   color: #6B7280;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
 }
 
 #feedback-link a:hover {
   color: #111827;
   text-decoration: underline;
+}
+
+.x-logo {
+  width: 11px;
+  height: 11px;
+  fill: currentColor;
+  flex-shrink: 0;
 }
 
 /* ── 鉢サイズヒント ── */
