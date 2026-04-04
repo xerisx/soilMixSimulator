@@ -212,6 +212,32 @@ canvas {
   flex-wrap: wrap;
 }
 
+/* ── 鉢への操作ボタン（モバイル: パネル内カラム） ── */
+#center-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+#center-actions .act-start {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#center-actions .act-group-ops {
+  margin-bottom: 10px;
+}
+
+#center-actions .act-group-reset {
+  padding-top: 12px;
+  border-top: 1px solid #F3F4F6;
+}
+
+#center-actions .act-group-reset .act-btn {
+  width: 100%;
+}
+
+/* ── 配合リセット（左パネル下部） ── */
 #sec-actions {
   display: flex;
   flex-direction: column;
@@ -225,20 +251,6 @@ canvas {
 
 .act-group .act-btn {
   flex: 1;
-}
-
-#sec-actions .act-start {
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.act-group-ops {
-  margin-bottom: 16px;
-}
-
-.act-group-reset {
-  padding-top: 14px;
-  border-top: 1px solid #F3F4F6;
 }
 
 #obj-list {
@@ -256,11 +268,11 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   background: #F9FAFB;
   border: 1px solid #E5E7EB;
   border-radius: 12px;
-  padding: 8px 12px;
+  padding: 7px 10px;
   min-width: 100px;
 }
 
@@ -307,7 +319,79 @@ canvas {
   #panel-scroll::-webkit-scrollbar-track { background: transparent; }
   #panel-scroll::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 2px; }
 
-  /* sec-actionsは固定ボタン領域 */
+  /* center-actions: 鉢の直下に段組み配置（JS で top を動的設定） */
+  #center-actions {
+    position: fixed;
+    top: 65vh;  /* JS が実行されるまでの初期フォールバック */
+    bottom: auto;
+    left: 30vw;
+    right: 30vw;
+    max-width: 300px;
+    margin: 0 auto;
+    z-index: 150;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* 1段目: 主CTA — 全幅 */
+  #center-actions .act-start {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  /* 2段目: 追加投入 + トントン — 横並び均等 */
+  #center-actions .act-group-ops {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+
+  #center-actions .act-group-ops .act-btn {
+    flex: 1;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* 3段目: 鉢を空にする — テキストリンク風の補助操作 */
+  #center-actions .act-group-reset {
+    border-top: none;
+    padding-top: 0;
+    margin-left: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  #center-actions .act-group-reset .act-reset {
+    background: transparent;
+    border: 1px solid #D1D5DB;
+    box-shadow: none;
+    color: #6B7280;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 18px;
+    width: auto;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+
+  #center-actions .act-group-reset .act-reset:hover {
+    background: #F9FAFB;
+    border-color: #9CA3AF;
+    color: #374151;
+  }
+
+  /* sec-actions: 配合リセットのみの左パネル下部 */
   #sec-actions {
     flex-shrink: 0;
     padding: 12px 16px 20px;
@@ -341,7 +425,7 @@ canvas {
   #obj-list    { flex-direction: column; overflow-x: visible; overflow-y: visible; gap: 10px; padding-bottom: 0; }
   .obj-card    { flex: none; width: 100%; min-width: unset; align-items: stretch; }
   .obj-icon    { text-align: center; }
-  .obj-sizes   { justify-content: center; }
+  .obj-info-row { flex-wrap: nowrap; justify-content: space-between; }
   .act-group   { gap: 8px; }
   .act-btn     { width: 100%; text-align: center; }
 }
@@ -438,6 +522,7 @@ canvas {
   height: 100%;
   align-items: center;
   justify-content: center;
+  padding-bottom: 16vh;
   pointer-events: none;
   z-index: 10;
 }
@@ -448,12 +533,12 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: rgba(255,255,255,0.82);
   backdrop-filter: blur(4px);
   border: 1px solid #E5E7EB;
   border-radius: 16px;
-  padding: 28px 36px;
+  padding: 20px 28px;
 }
 #empty-state-icon {
   font-size: 36px;
@@ -507,17 +592,17 @@ canvas {
   text-align: center;
 }
 
-.obj-sizes { display: flex; gap: 4px; }
+.obj-sizes { display: flex; gap: 3px; }
 
 .obj-size-btn {
-  padding: 5px 10px;
+  padding: 3px 8px;
   border: 1.5px solid #E5E7EB;
   background: #FFFFFF;
   color: #374151;
-  font-size: 14px;
+  font-size: 13px;
   font-family: sans-serif;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 5px;
   transition: all 0.15s;
   touch-action: manipulation;
 }
@@ -1005,8 +1090,7 @@ canvas {
 .mat-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 2px;
+  gap: 3px;
 }
 
 .mat-tag {
@@ -1026,20 +1110,56 @@ canvas {
 .mat-tag[data-tag="保肥"]     { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
 .mat-tag[data-tag="バランス"] { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }
 
-/* ── S/M/L サイズヒント ── */
-.size-hint {
+/* ── 資材情報行（タグ + サイズ選択 + 粒径） ── */
+.obj-info-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.obj-size-area {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.size-grain-info {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.size-grain-dot {
+  border-radius: 50%;
+  background: #9CA3AF;
+  flex-shrink: 0;
+  display: inline-block;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+}
+
+.size-grain-label {
+  font-size: 11px;
+  color: #374151;
+  font-family: sans-serif;
+  font-weight: 600;
+}
+
+.size-grain-hint {
   font-size: 10px;
   color: #9CA3AF;
   font-family: sans-serif;
-  text-align: center;
-  width: 100%;
-  display: block;
 }
 
 /* ── モバイル細調整 ── */
 @media (max-width: 767px) {
-  .obj-card     { min-width: 100px; }
-  .obj-size-btn { padding: 4px 8px; font-size: 13px; }
+  .obj-card         { min-width: 100px; }
+  .obj-size-btn     { padding: 3px 7px; font-size: 12px; }
+  .size-grain-label { font-size: 10px; }
+  .size-grain-hint  { display: none; }
   .act-btn      { padding: 8px 12px; font-size: 14px; }
   .size-btn     { padding: 6px 12px; font-size: 14px; }
   .ctrl-label   { font-size: 14px; }
@@ -1063,7 +1183,7 @@ canvas {
 /* ── キャンバス初期ガイド ── */
 #canvas-guide {
   position: fixed;
-  top: 50%;
+  top: 44%;
   left: 30%;
   width: 40%;
   transform: translateY(-50%);
@@ -1081,7 +1201,7 @@ canvas {
   -webkit-backdrop-filter: blur(6px);
   border: 1px solid #E5E7EB;
   border-radius: 16px;
-  padding: 22px 30px;
+  padding: 16px 24px;
   text-align: left;
   box-shadow: 0 2px 16px rgba(0,0,0,0.06);
 }

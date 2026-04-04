@@ -168,6 +168,16 @@ function buildCup() {
   currentCupDims = { topInnerW, botInnerW, cupHeight, topY, bottomY, cx };
   cupBodies = [wallL, wallR, bottom];
   Composite.add(engine.world, cupBodies);
+  positionCenterActions();
+}
+
+function positionCenterActions() {
+  if (window.innerWidth < 768) return;
+  const el = document.getElementById('center-actions');
+  if (!el || !currentCupDims) return;
+  // 鉢の外底辺(bottomY + WALL_T)の直下 14px に top 端を合わせる
+  el.style.top    = (currentCupDims.bottomY + WALL_T + 14) + 'px';
+  el.style.bottom = 'auto';
 }
 
 function clearDynamicBodies() {
@@ -787,19 +797,30 @@ function renderObjList() {
     const favActive = isFavorite('material', type.id) ? ' active' : '';
     const tags = getMaterialTags(type);
     const tagsHtml = `<div class="mat-tags">${tags.map(t => `<span class="mat-tag" data-tag="${t}">${t}</span>`).join('')}</div>`;
-    const sizeHint = SIZE_HINTS[type.size] ?? '';
+    const sizeKey  = type.size;
+    const grain    = type.sizes[sizeKey];
+    const dotSize  = Math.round(Math.min(12, Math.max(3, grain.max * 0.5)));
+    const sizeHint = SIZE_HINTS[sizeKey] ?? '';
     card.innerHTML = `
       <div class="obj-name-row">
         <span class="obj-name">${type.name}${tipAttr}</span>
         <button class="fav-btn${favActive}" data-fav-type="material" data-fav-id="${type.id}" aria-label="お気に入り">★</button>
       </div>
-      ${tagsHtml}
-      <div class="obj-sizes">
-        ${['S', 'M', 'L'].map(s =>
-          `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
-        ).join('')}
+      <div class="obj-info-row">
+        ${tagsHtml}
+        <div class="obj-size-area">
+          <div class="obj-sizes">
+            ${['S', 'M', 'L'].map(s =>
+              `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
+            ).join('')}
+          </div>
+          <span class="size-grain-info">
+            <span class="size-grain-dot" style="width:${dotSize}px;height:${dotSize}px"></span>
+            <span class="size-grain-label">${grain.min}〜${grain.max}mm</span>
+            ${sizeHint ? `<span class="size-grain-hint">· ${sizeHint}</span>` : ''}
+          </span>
+        </div>
       </div>
-      <span class="size-hint">${sizeHint}</span>
       <div class="ratio-row">
         <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
         <span class="ratio-val${type.weight === 0 ? ' ratio-val-zero' : ''}" data-idx="${i}">${type.weight.toFixed(1)}</span>
@@ -814,8 +835,16 @@ function renderObjList() {
       objectTypes[idx].size = btn.dataset.size;
       btn.closest('.obj-sizes').querySelectorAll('.obj-size-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const hintEl = btn.closest('.obj-card').querySelector('.size-hint');
-      if (hintEl) hintEl.textContent = SIZE_HINTS[btn.dataset.size] ?? '';
+      const newSize  = btn.dataset.size;
+      const newGrain = objectTypes[idx].sizes[newSize];
+      const newDot   = Math.round(Math.min(12, Math.max(3, newGrain.max * 0.5)));
+      const card     = btn.closest('.obj-card');
+      const dotEl    = card.querySelector('.size-grain-dot');
+      const labelEl  = card.querySelector('.size-grain-label');
+      const hintEl   = card.querySelector('.size-grain-hint');
+      if (dotEl)   { dotEl.style.width = newDot + 'px'; dotEl.style.height = newDot + 'px'; }
+      if (labelEl) labelEl.textContent = `${newGrain.min}〜${newGrain.max}mm`;
+      if (hintEl)  hintEl.textContent  = SIZE_HINTS[newSize] ? `· ${SIZE_HINTS[newSize]}` : '';
     });
   });
 
