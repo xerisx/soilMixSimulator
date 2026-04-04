@@ -280,6 +280,8 @@ canvas {
    デスクトップ: 左30% / 中央40% / 右30%
    ════════════════════════════ */
 @media (min-width: 768px) {
+  #canvas-guide { display: flex; }
+
   #panel {
     top: 0; bottom: 0;
     left: 0; right: auto;
@@ -1172,17 +1174,50 @@ canvas {
 
 /* ── モバイル細調整 ── */
 @media (max-width: 767px) {
+  .act-btn      { padding: 8px 12px; font-size: 14px; }
+  .size-btn     { padding: 6px 12px; font-size: 14px; }
+  .ctrl-label   { font-size: 14px; }
+  #fillRate     { padding: 5px 14px; }
+  #fill-pct     { font-size: 17px; }
+  #canvas-guide { display: none; }
+
   .obj-card         { min-width: 100px; }
   .obj-size-btn     { padding: 3px 7px; font-size: 12px; }
   .size-grain-label { font-size: 10px; }
   .size-grain-hint  { display: none; }
-  .act-btn      { padding: 8px 12px; font-size: 14px; }
-  .size-btn     { padding: 6px 12px; font-size: 14px; }
-  .ctrl-label   { font-size: 14px; }
-  .ratio-val    { font-size: 13px; }
-  #fillRate     { padding: 5px 14px; }
-  #fill-pct     { font-size: 17px; }
-  #canvas-guide { display: none; }
+  .ratio-val        { font-size: 13px; }
+
+  /* ── ボタン状態制御（モバイル） ── */
+  /* 未投入: 追加投入・トントン・リセットを隠す */
+  #center-actions .act-group-ops   { display: none; }
+  #center-actions .act-group-reset { display: none; }
+
+  /* 投入後: スタートを隠し、操作ボタンを表示 */
+  #center-actions.has-poured #startBtn        { display: none; }
+  #center-actions.has-poured .act-group-ops   { display: flex; }
+  #center-actions.has-poured .act-group-reset { display: block; }
+
+  /* 破壊系: リセットはテキストリンク風、全て0は非表示 */
+  #sec-actions { display: none; }
+  #center-actions .act-group-reset {
+    border-top: none;
+    padding-top: 0;
+  }
+  #resetBtn {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #B0BAC8 !important;
+    font-size: 12px !important;
+    padding: 4px 0 !important;
+    font-weight: 400;
+    text-align: center;
+    width: 100%;
+  }
+  #resetBtn:hover {
+    color: #6B7280 !important;
+    background: none !important;
+  }
 }
 
 /* ── ボタン補助テキスト ── */
@@ -1203,7 +1238,7 @@ canvas {
   left: 30%;
   width: 40%;
   transform: translateY(-50%);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   pointer-events: none;

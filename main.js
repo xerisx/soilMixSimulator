@@ -116,12 +116,13 @@ function getCupDimensions() {
   const availH = H - bottomOffset;
   const cx = leftOffset + availW / 2;
 
-  const refDim = Math.min(availW, availH);
+  const mobileScale = isDesktop ? 1.0 : 0.72;
+  const refDim = Math.min(availW, availH) * mobileScale;
   let topInnerW = refDim * CUP_RATIO.topW;
   let botInnerW = refDim * CUP_RATIO.botW;
   let cupHeight  = topInnerW * CUP_RATIO.hToW;
 
-  const maxHeight = availH * 0.88;
+  const maxHeight = availH * (isDesktop ? 0.88 : 0.52);
   if (cupHeight > maxHeight) {
     const scale = maxHeight / cupHeight;
     topInnerW *= scale;
@@ -129,7 +130,7 @@ function getCupDimensions() {
     cupHeight  = maxHeight;
   }
 
-  const topY = (availH - cupHeight) / 2;
+  const topY = isDesktop ? (availH - cupHeight) / 2 : 76;
   return { topInnerW, botInnerW, cupHeight, topY, cx };
 }
 
@@ -927,12 +928,18 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
 // 初期状態: バランスプリセットを適用
 applyPreset('balance');
 
+// ── 投入状態の切り替え ──
+function setPouredState(poured) {
+  document.getElementById('center-actions')?.classList.toggle('has-poured', poured);
+}
+
 // ── スタートボタン ──
 document.getElementById('startBtn').addEventListener('click', () => {
   if (isAllZero()) { showEmptyState(); return; }
   document.getElementById('canvas-guide')?.setAttribute('hidden', '');
   reset();
   startSpawning();
+  setPouredState(true);
 });
 
 // ── 追加ボタン ──
@@ -994,7 +1001,10 @@ document.getElementById('tontonBtn').addEventListener('click', () => {
 });
 
 // ── リセットボタン ──
-document.getElementById('resetBtn').addEventListener('click', reset);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  reset();
+  setPouredState(false);
+});
 
 // ── 全て0ボタン ──
 document.getElementById('clearBtn').addEventListener('click', clearAllWeights);
