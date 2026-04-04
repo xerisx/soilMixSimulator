@@ -298,7 +298,7 @@ canvas {
   /* 上部固定エリア */
   #panel-fixed-top {
     flex-shrink: 0;
-    padding: 16px 16px 12px;
+    padding: 12px 16px 12px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -437,32 +437,28 @@ canvas {
 @media (min-width: 768px) {
   #app-header {
     display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 24px 16px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 12px 16px 10px 18px;
     border-bottom: 1px solid #E5E7EB;
     flex-shrink: 0;
   }
 }
 
-#app-icon { font-size: 44px; line-height: 1; flex-shrink: 0; }
-
-#app-title-group { display: flex; flex-direction: column; gap: 3px; }
-
-#app-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: #16A34A;
-  font-family: sans-serif;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+#app-logo {
+  height: 40px;
+  width: auto;
+  display: block;
 }
 
 #app-sub {
-  font-size: 13px;
-  color: #6B7280;
+  font-size: 10px;
+  color: #9CA3AF;
   font-family: sans-serif;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding-left: 1px;
 }
 
 /* ── 共通: ラベル ── */

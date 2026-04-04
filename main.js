@@ -366,31 +366,7 @@ function applyCanvasSize() {
   render.canvas.height  = window.innerHeight;
 }
 
-// ── 充填率の計算・表示 ──
-const fillStateEl = document.getElementById('fill-state');
-const fillPctEl   = document.getElementById('fill-pct');
-
-function getFillStateLabel(rate) {
-  if (rate === 0)  return '未投入';
-  if (rate <= 40)  return '充填中';
-  if (rate <= 75)  return '積もっています';
-  return 'ほぼ満タン';
-}
-
 let lastFillRate = -1;
-Events.on(engine, 'afterUpdate', () => {
-  if (!currentCupDims) return;
-  const { topInnerW, botInnerW, cupHeight, topY, bottomY } = currentCupDims;
-  const cupArea = (topInnerW + botInnerW) / 2 * cupHeight;
-  const filledArea = Composite.allBodies(engine.world)
-    .filter(b => b.isParticle && b.position.y > topY && b.position.y < bottomY)
-    .reduce((sum, b) => sum + b.shapeArea, 0);
-  const rate = Math.min(100, Math.round(filledArea / cupArea * 100));
-  if (rate === lastFillRate) return;
-  lastFillRate = rate;
-  if (fillStateEl) fillStateEl.textContent = getFillStateLabel(rate);
-  if (fillPctEl)   fillPctEl.textContent   = rate === 0 ? '' : `${rate}%`;
-});
 
 // ── デバッグ用1cm格子 ──
 Events.on(render, 'afterRender', () => {
