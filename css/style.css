@@ -258,13 +258,13 @@ canvas {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  align-items: stretch;
+  gap: 5px;
   background: #F9FAFB;
   border: 1px solid #E5E7EB;
   border-radius: 12px;
-  padding: 7px 10px;
-  min-width: 100px;
+  padding: 8px 10px;
+  min-width: 140px;
 }
 
 /* ════════════════════════════
@@ -605,17 +605,45 @@ canvas {
 .obj-name-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  gap: 5px;
   width: 100%;
 }
 
 .obj-name {
-  font-size: 15px;
+  font-size: 14px;
   font-family: sans-serif;
   font-weight: 700;
   color: #111827;
-  text-align: center;
+  flex-shrink: 0;
+}
+
+/* タグは名前行の中でスペースを埋める */
+.obj-name-row .mat-tags {
+  flex: 1;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  min-width: 0;
+  gap: 3px;
+}
+
+/* ── 操作行: サイズ選択 + スライダーを横一列に ── */
+.obj-main-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.obj-main-row .obj-size-row {
+  flex-shrink: 0;
+  gap: 5px;
+  width: auto; /* ベースの width:100% を打ち消す */
+}
+
+.obj-main-row .ratio-row {
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
 }
 
 .obj-sizes { display: flex; gap: 3px; }
@@ -1260,11 +1288,14 @@ canvas {
   .ctrl-label   { font-size: 14px; }
   #canvas-guide { display: none; }
 
-  .obj-card         { min-width: 100px; }
-  .obj-size-btn     { padding: 3px 7px; font-size: 12px; }
+  /* 縦リスト化 */
+  #obj-list { flex-direction: column; overflow-x: hidden; gap: 6px; padding-bottom: 0; }
+  .obj-card { flex: none; width: 100%; min-width: unset; padding: 9px 12px; gap: 6px; }
+  .obj-name { font-size: 14px; }
+  .obj-size-btn     { padding: 4px 8px; font-size: 12px; }
   .size-grain-label { font-size: 10px; }
   .size-grain-hint  { display: none; }
-  .ratio-val        { font-size: 13px; }
+  .ratio-val        { font-size: 13px; min-width: 28px; }
 
   /* ── ボタン状態制御（モバイル） ── */
   /* 未投入: 追加投入・トントン・リセットを隠す */
