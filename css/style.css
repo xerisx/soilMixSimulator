@@ -64,6 +64,7 @@ canvas {
   gap: 8px;
   z-index: 100;
   box-shadow: 0 -2px 12px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
 
 #right-panel { display: none; }
@@ -75,11 +76,14 @@ canvas {
   gap: 8px;
 }
 
-/* ── panel-scroll（モバイルではただのflex列） ── */
+/* ── panel-scroll（モバイルではスクロール可能な中間エリア） ── */
 #panel-scroll {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* ── タブナビ ── */
@@ -1068,6 +1072,7 @@ canvas {
   flex-direction: column;
   gap: 6px;
 }
+#preset-bar[hidden] { display: none; }
 
 .preset-label {
   font-size: 11px;

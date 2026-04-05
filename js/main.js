@@ -170,6 +170,7 @@ function buildCup() {
   cupBodies = [wallL, wallR, bottom];
   Composite.add(engine.world, cupBodies);
   positionCenterActions();
+  adjustMobilePanelHeight();
 }
 
 function positionCenterActions() {
@@ -179,6 +180,16 @@ function positionCenterActions() {
   // 鉢の外底辺(bottomY + WALL_T)の直下 14px に top 端を合わせる
   el.style.top    = (currentCupDims.bottomY + WALL_T + 14) + 'px';
   el.style.bottom = 'auto';
+}
+
+function adjustMobilePanelHeight() {
+  if (window.innerWidth >= DESKTOP_BREAKPOINT) return;
+  const panel = document.getElementById('panel');
+  if (!panel || !currentCupDims) return;
+  const potBottomY = currentCupDims.bottomY + WALL_T;
+  const gap = 10;
+  const newHeight = window.innerHeight - potBottomY - gap;
+  panel.style.height = Math.max(newHeight, 160) + 'px';
 }
 
 function clearDynamicBodies() {
@@ -617,6 +628,8 @@ function switchTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(c => {
     c.classList.toggle('active', c.id === `tab-${tabId}`);
   });
+  const presetBar = document.getElementById('preset-bar');
+  if (presetBar) presetBar.hidden = (tabId === 'commercial');
 }
 
 // ── ベースラベル ──
