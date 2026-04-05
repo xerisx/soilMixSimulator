@@ -81,9 +81,9 @@ let favorites = loadFavorites();
 
 const canvasEl = document.getElementById('canvas');
 const engine = Engine.create({
-  positionIterations: 20,
-  velocityIterations: 16,
-  constraintIterations: 8,
+  positionIterations: 30,
+  velocityIterations: 24,
+  constraintIterations: 12,
 });
 Matter.Resolver._slop = 0;
 
@@ -294,7 +294,11 @@ function spawnCircle(x, y, size, color, physics) {
   const r = size / 2;
   const stroke = lightStroke(color);
   const circle = Bodies.circle(x, y, r, {
-    ...physics,
+    friction:       0.9,
+    frictionStatic: 0.5,
+    frictionAir:    0.01,
+    density:        0.003,
+    restitution:    0,
     render: { fillStyle: color, ...(stroke ? { strokeStyle: stroke, lineWidth: 1 } : {}) }
   });
   circle.spawnTime = performance.now();
