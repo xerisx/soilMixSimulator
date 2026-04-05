@@ -1035,8 +1035,13 @@ detailToggle.addEventListener('click', () => {
   }
 });
 
-Render.run(render);
-Runner.run(Runner.create(), engine);
+// rAF はモバイルのスクロール中に throttle されて止まるため setInterval で駆動する
+// Render.world / Engine.update の両方を同じループで回すことで scroll 中も継続する
+const TICK_MS = 1000 / 60;
+setInterval(() => {
+  Engine.update(engine, TICK_MS);
+  Render.world(render);
+}, TICK_MS);
 
 // ── リサイズ対応 ──
 let resizeTimer;
