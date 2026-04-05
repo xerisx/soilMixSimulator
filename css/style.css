@@ -1255,6 +1255,46 @@ canvas {
   #pot-hint            { order: 2; font-size: 10px; color: #B0BAC8; }
   #sec-pot .btn-group  { order: 3; width: 100%; gap: 6px; }
   #sec-pot .size-btn   { flex: 1; padding: 5px 0; font-size: 13px; }
+
+  /* 有機物率カード: コンパクト化 */
+  .organic-block               { gap: 5px; padding: 9px 12px; }
+  .organic-block .chart-label  { font-size: 12px; }
+  .split-bar-wrap              { gap: 3px; }
+  .split-bar-ends              { display: none; }        /* 両端ラベルは非表示 */
+  .split-bar-footer            { gap: 6px; }
+  .split-label                 { font-size: 12px; }
+  .split-vals                  { font-size: 11px; }
+
+  /* 保肥力カード: 1行に近いコンパクト表示 */
+  .nutrient-block              { padding: 7px 12px; gap: 0; }
+  .nutrient-block .bar-icon    { font-size: 10px; color: #D97706; }
+  .nutrient-block .bar-label   { font-size: 11px; color: #6B7280; }
+  .nutrient-block .bar-track   { height: 5px; }
+  .nutrient-block .bar-pct     { font-size: 11px; color: #6B7280; }
+
+  /* フッター導線: 詰める */
+  #disclaimer-wrap  { padding-top: 6px; }
+  #guide-link       { padding-bottom: 4px; font-size: 11px; }
+  #feedback-link    { padding-top: 8px; font-size: 11px; margin-top: 0; }
+
+  /* 貢献資材カード: 密度を上げる */
+  #influence-block   { padding: 8px 11px; gap: 4px; }
+  .inf-title         { font-size: 10px; font-weight: 600; letter-spacing: 0.03em; margin: 0 0 1px; }
+  .inf-row           { font-size: 11px; gap: 4px; }
+  .inf-param         { font-size: 11px; min-width: 44px; }
+  .inf-mat           { gap: 3px; font-size: 11px; }
+  .inf-mat-dot       { width: 6px; height: 6px; }
+
+  /* 詳細パラメータ アコーディオン */
+  .detail-toggle-btn  { padding: 7px 12px; font-size: 12px; }
+  .detail-toggle-label{ font-size: 12px; }
+  .detail-inner       { padding: 10px 12px; gap: 8px; }
+  .detail-bar-row     { gap: 6px; }
+  .detail-section     { gap: 4px; }
+  .gran-rows          { gap: 4px; padding-left: 6px; }
+  .detail-label       { font-size: 11px; width: 54px; }
+  .gran-label         { font-size: 11px; width: 24px; }
+  .detail-inner .tip-icon { width: 12px; height: 12px; font-size: 9px; margin-left: 2px; }
 }
 
 .mratio-label {

@@ -949,7 +949,7 @@ function updateAccordionHeaders(list) {
   if (!activeBody || !inactiveBody) return;
   const activeHeader   = activeBody.closest('.mat-accordion').querySelector('span:first-child');
   const inactiveHeader = inactiveBody.closest('.mat-accordion').querySelector('span:first-child');
-  if (activeHeader)   activeHeader.textContent   = `お気に入り / 使用中（${activeBody.querySelectorAll('.obj-card').length}件）`;
+  if (activeHeader)   activeHeader.textContent   = `使用中 / お気に入り（${activeBody.querySelectorAll('.obj-card').length}件）`;
   if (inactiveHeader) inactiveHeader.textContent = `その他の資材（${inactiveBody.querySelectorAll('.obj-card').length}件）`;
 }
 
@@ -1001,8 +1001,8 @@ function renderObjList() {
       'material'
     );
 
-    // アコーディオン1: お気に入り / 使用中
-    const activeSection = createMatAccordion(`お気に入り / 使用中（${activeAll.length}件）`, prevActiveOpen, 'active');
+    // アコーディオン1: 使用中 / お気に入り
+    const activeSection = createMatAccordion(`使用中 / お気に入り（${activeAll.length}件）`, prevActiveOpen, 'active');
     activeAll.forEach(type => appendObjCard(activeSection.body, type));
     list.appendChild(activeSection.el);
 
