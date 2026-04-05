@@ -202,7 +202,7 @@ canvas {
   z-index: 200;
   background: #FFFFFF;
   border-top: 1px solid #E5E7EB;
-  padding: 10px 14px 14px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -211,11 +211,10 @@ canvas {
 
 #center-actions .act-start {
   width: 100%;
-  margin-bottom: 10px;
 }
 
 #center-actions .act-group-ops {
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 #center-actions .act-group-reset {
@@ -1400,7 +1399,17 @@ canvas {
 
 /* ── モバイル細調整 ── */
 @media (max-width: 767px) {
-  .act-btn      { padding: 8px 12px; font-size: 14px; }
+  .act-btn                                { padding: 0 12px; font-size: 13px; }
+  #center-actions #startBtn,
+  #center-actions .act-group-ops .act-btn {
+    height: 40px;
+    padding: 0 10px;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
   .size-btn     { padding: 6px 12px; font-size: 14px; }
   .ctrl-label   { font-size: 14px; }
   #canvas-guide { display: none; }
@@ -1425,7 +1434,7 @@ canvas {
   #center-actions.has-poured .act-group-reset { display: block; }
 
   /* ページ下端余白: 固定ボタン郡が最終コンテンツに重ならないように */
-  #panel { padding-bottom: 90px; }
+  #panel { padding-bottom: 72px; }
   /* margin-top:auto はデスクトップ専用（モバイルでは不要な空白になる） */
   #feedback-link { margin-top: 0; }
   /* sticky バーで代替するため、モバイルの分析パネル内バーブロックは非表示 */
