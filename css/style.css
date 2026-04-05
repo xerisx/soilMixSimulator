@@ -641,8 +641,10 @@ canvas {
 }
 .act-start        { background: #16A34A; color: #FFFFFF; font-size: 17px; font-weight: 700; }
 .act-start:hover  { background: #15803D; }
-.act-add          { background: #0284C7; color: #FFFFFF; font-weight: 600; }
-.act-add:hover    { background: #0369A1; }
+.act-air           { background: #F0F9FF; color: #0284C7; border: 1.5px solid #BAE6FD; font-weight: 600; }
+.act-air:hover     { background: #E0F2FE; }
+.act-air.active    { background: #0284C7; color: #FFFFFF; border-color: #0284C7; }
+.act-air.active:hover { background: #0369A1; }
 .act-tonton       { background: #D97706; color: #FFFFFF; font-weight: 600; }
 .act-tonton:hover { background: #B45309; }
 .act-reset        { background: #FFF7ED; color: #92400E; border: 1.5px solid #FED7AA; font-size: 13px; padding: 7px 14px; font-weight: 400; }

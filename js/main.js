@@ -308,13 +308,22 @@ function spawnShape(x, y) {
   const type = pickObjectType();
   if (!type) return null;
   const size = getObjectSizePx(type);
+  let body;
   if (type.shapeVariants?.length) {
     const verts = type.shapeVariants[Math.floor(Math.random() * type.shapeVariants.length)];
-    return spawnPoly(x, y, size, verts, type.color, type.physics);
+    body = spawnPoly(x, y, size, verts, type.color, type.physics);
+  } else if (type.shape === 'circle') {
+    body = spawnCircle(x, y, size, type.color, type.physics);
+  } else {
+    body = spawnBox(x, y, size, type.color, type.physics);
   }
-  // フォールバック
-  if (type.shape === 'circle') return spawnCircle(x, y, size, type.color, type.physics);
-  return spawnBox(x, y, size, type.color, type.physics);
+  if (body && isAirView) {
+    body._origFill = body.render.fillStyle;
+    body._origStroke = body.render.strokeStyle;
+    body.render.fillStyle = '#FFFFFF';
+    body.render.strokeStyle = '#CBD5E1';
+  }
+  return body;
 }
 
 // 落下中はカード内コントロールを無効化
@@ -1106,25 +1115,46 @@ document.getElementById('startBtn').addEventListener('click', () => {
   setPouredState(true);
 });
 
-// ── 追加ボタン ──
-document.getElementById('addBtn').addEventListener('click', () => {
-  if (isAllZero()) { showEmptyState(); return; }
-  document.getElementById('canvas-guide')?.setAttribute('hidden', '');
-  const count = ADD_COUNTS[currentSize];
-  const { topInnerW, topY, cx } = getCupDimensions();
-  const spawnXMin = cx - topInnerW / 2 + 20;
-  const spawnXMax = cx + topInnerW / 2 - 20;
-  const baseType = objectTypes.find(t => t.weight > 0) || objectTypes[0];
-  const baseSize = getObjectSizePx({ ...baseType, size: 'M' });
-  const cols = Math.ceil(Math.sqrt(count * (spawnXMax - spawnXMin) / (baseSize * 1.2)));
-  const colW  = (spawnXMax - spawnXMin) / cols;
+// ── 空気層ビュー: 鉢内部背景を beforeRender で描画 ──
+let isAirView = false;
 
-  for (let i = 0; i < count; i++) {
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    const x = spawnXMin + colW * col + colW * (0.2 + Math.random() * 0.6);
-    const y = topY - baseSize - row * (baseSize * 1.3);
-    spawnShape(x, y);
+Events.on(render, 'afterRender', () => {
+  if (!isAirView || !currentCupDims) return;
+  const { topInnerW, botInnerW, topY, bottomY, cx } = currentCupDims;
+  const ctx = render.context;
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-over'; // 既存描画の背面に描く
+  ctx.fillStyle = '#93C5FD';
+  ctx.beginPath();
+  ctx.moveTo(cx - topInnerW / 2, topY);
+  ctx.lineTo(cx + topInnerW / 2, topY);
+  ctx.lineTo(cx + botInnerW / 2, bottomY);
+  ctx.lineTo(cx - botInnerW / 2, bottomY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+});
+
+document.getElementById('airBtn').addEventListener('click', () => {
+  isAirView = !isAirView;
+  const btn = document.getElementById('airBtn');
+  btn.classList.toggle('active', isAirView);
+
+  const bodies = Composite.allBodies(engine.world);
+  if (isAirView) {
+    bodies.forEach(b => {
+      if (b.isStatic) return;
+      b._origFill = b.render.fillStyle;
+      b._origStroke = b.render.strokeStyle;
+      b.render.fillStyle = '#FFFFFF';
+      b.render.strokeStyle = '#CBD5E1';
+    });
+  } else {
+    bodies.forEach(b => {
+      if (b.isStatic) return;
+      if (b._origFill !== undefined) b.render.fillStyle = b._origFill;
+      if (b._origStroke !== undefined) b.render.strokeStyle = b._origStroke;
+    });
   }
 });
 
@@ -1166,6 +1196,10 @@ document.getElementById('tontonBtn').addEventListener('click', () => {
 
 // ── リセットボタン ──
 document.getElementById('resetBtn').addEventListener('click', () => {
+  if (isAirView) {
+    isAirView = false;
+    document.getElementById('airBtn').classList.remove('active');
+  }
   reset();
   setPouredState(false);
 });
