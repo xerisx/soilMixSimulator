@@ -11,44 +11,6 @@ canvas {
   top: 0; left: 0;
 }
 
-/* ── 充填率 ── */
-#fillRate {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  font-family: sans-serif;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 7px 20px;
-  border-radius: 10px;
-  border: 1px solid #E5E7EB;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 200;
-  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
-}
-
-#fill-state {
-  font-size: 11px;
-  font-weight: 600;
-  color: #9CA3AF;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-}
-
-#fill-pct {
-  font-size: 22px;
-  font-weight: bold;
-  color: #111827;
-  line-height: 1.1;
-  min-height: 1.1em; /* 未投入時にレイアウトが縮まないよう */
-}
 
 /* ════════════════════════════
    モバイル（デフォルト）: 下部パネル
@@ -233,12 +195,18 @@ canvas {
   flex-wrap: wrap;
 }
 
-/* ── 鉢への操作ボタン（モバイル: パネル内カラム・縮まない） ── */
+/* ── 鉢への操作ボタン（モバイル: パネルと独立した固定レイヤー） ── */
 #center-actions {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 200;
+  background: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
+  padding: 10px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 0;
-  flex-shrink: 0;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
 }
 
 #center-actions .act-start {
@@ -1255,8 +1223,6 @@ canvas {
   .act-btn      { padding: 8px 12px; font-size: 14px; }
   .size-btn     { padding: 6px 12px; font-size: 14px; }
   .ctrl-label   { font-size: 14px; }
-  #fillRate     { padding: 5px 14px; }
-  #fill-pct     { font-size: 17px; }
   #canvas-guide { display: none; }
 
   .obj-card         { min-width: 100px; }
@@ -1274,6 +1240,9 @@ canvas {
   #center-actions.has-poured #startBtn        { display: none; }
   #center-actions.has-poured .act-group-ops   { display: flex; }
   #center-actions.has-poured .act-group-reset { display: block; }
+
+  /* パネルスクロール下端余白: ボタン郡が重なってもコンテンツを読めるように */
+  #panel-scroll { padding-bottom: 160px; }
 
   /* 破壊系: リセットはテキストリンク風、全て0は非表示 */
   #sec-actions { display: none; }

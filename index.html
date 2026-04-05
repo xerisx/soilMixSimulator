@@ -8,10 +8,6 @@
 </head>
 <body>
   <canvas id="canvas"></canvas>
-  <div id="fillRate">
-    <span id="fill-state">未投入</span>
-    <span id="fill-pct"></span>
-  </div>
   <div id="empty-state" hidden>
     <div id="empty-state-inner">
       <span id="empty-state-icon">🪴</span>
@@ -81,21 +77,22 @@
       </div>
     </div>
 
-    <!-- 鉢への操作ボタン: デスクトップでは鉢の下に浮遊 -->
-    <div id="center-actions">
-      <button id="startBtn" class="act-btn act-start">▶ 投入して開始</button>
-      <div class="act-group act-group-ops">
-        <button id="addBtn"    class="act-btn act-add">＋ 追加投入</button>
-        <button id="tontonBtn" class="act-btn act-tonton">トントン<span class="act-btn-sub">ならして再配置</span></button>
-      </div>
-      <div class="act-group-reset">
-        <button id="resetBtn" class="act-btn act-reset">鉢を空にする</button>
-      </div>
-    </div>
     <!-- 配合設定のリセット: 左パネルに残す -->
     <section id="sec-actions">
       <button id="clearBtn" class="act-btn act-clear">全て0</button>
     </section>
+  </div>
+
+  <!-- 鉢への操作ボタン: モバイルではパネルと独立した固定レイヤー / デスクトップでは鉢の下に浮遊 -->
+  <div id="center-actions">
+    <button id="startBtn" class="act-btn act-start">▶ 投入して開始</button>
+    <div class="act-group act-group-ops">
+      <button id="addBtn"    class="act-btn act-add">＋ 追加投入</button>
+      <button id="tontonBtn" class="act-btn act-tonton">トントン<span class="act-btn-sub">ならして再配置</span></button>
+    </div>
+    <div class="act-group-reset">
+      <button id="resetBtn" class="act-btn act-reset">鉢を空にする</button>
+    </div>
   </div>
 
   <!-- キャンバス初期ガイド（初回のみ表示） -->

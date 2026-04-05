@@ -107,10 +107,7 @@ function getCupDimensions() {
 
   const leftOffset   = isDesktop ? Math.round(W * 0.3) : 0;
   const rightOffset  = isDesktop ? Math.round(W * 0.3) : 0;
-  const bottomOffset = isDesktop ? 0 : (() => {
-    const panel = document.getElementById('panel');
-    return panel ? (panel.offsetHeight || 150) + 12 : 162;
-  })();
+  const bottomOffset = isDesktop ? 0 : Math.round(H * 0.55);
 
   const availW = W - leftOffset - rightOffset;
   const availH = H - bottomOffset;
@@ -181,6 +178,9 @@ function positionCenterActions() {
   // 鉢の外底辺(bottomY + WALL_T)の直下 14px に top 端を合わせる
   el.style.top    = (currentCupDims.bottomY + WALL_T + 14) + 'px';
   el.style.bottom = 'auto';
+  // モバイルで設定したインラインスタイルをリセット
+  const panel = document.getElementById('panel');
+  if (panel) { panel.style.height = ''; panel.style.bottom = ''; }
 }
 
 function adjustMobilePanelHeight() {
@@ -190,7 +190,8 @@ function adjustMobilePanelHeight() {
   const potBottomY = currentCupDims.bottomY + WALL_T;
   const gap = 10;
   const newHeight = window.innerHeight - potBottomY - gap;
-  panel.style.height = Math.max(newHeight, 160) + 'px';
+  panel.style.height = Math.max(newHeight, 100) + 'px';
+  panel.style.bottom = '0';
 }
 
 function relocateRightPanel() {
