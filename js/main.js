@@ -1053,8 +1053,14 @@ setInterval(() => {
 }, TICK_MS);
 
 // ── リサイズ対応 ──
+// 横幅が変わった場合のみ処理する（iOS Safariはスクロール時にアドレスバーの出入りで
+// innerHeight が変化し resize が発火するが、それは無視する）
 let resizeTimer;
+let lastResizeW = window.innerWidth;
 window.addEventListener('resize', () => {
+  const newW = window.innerWidth;
+  if (newW === lastResizeW) return;
+  lastResizeW = newW;
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
     applyCanvasSize();
