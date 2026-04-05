@@ -566,6 +566,11 @@ function updateGraphs() {
   setBar('bar-aeration',  'pct-aeration',  comp?.aeration          ?? null);
   setBar('bar-nutrient',  'pct-nutrient',  comp?.nutrientRetention ?? null);
 
+  // モバイル: sticky 3指標バーに同期
+  setBar('mms-bar-drainage', 'mms-pct-drainage', comp?.drainage       ?? null);
+  setBar('mms-bar-water',    'mms-pct-water',    comp?.waterRetention ?? null);
+  setBar('mms-bar-aeration', 'mms-pct-aeration', comp?.aeration       ?? null);
+
   // 評価ラベル
   const evalMain = document.getElementById('eval-main');
   const evalSub  = document.getElementById('eval-sub');
@@ -935,7 +940,7 @@ function updateAccordionHeaders(list) {
   if (!activeBody || !inactiveBody) return;
   const activeHeader   = activeBody.closest('.mat-accordion').querySelector('span:first-child');
   const inactiveHeader = inactiveBody.closest('.mat-accordion').querySelector('span:first-child');
-  if (activeHeader)   activeHeader.textContent   = `お気に入り・使用中の資材（${activeBody.querySelectorAll('.obj-card').length}件）`;
+  if (activeHeader)   activeHeader.textContent   = `お気に入り / 使用中（${activeBody.querySelectorAll('.obj-card').length}件）`;
   if (inactiveHeader) inactiveHeader.textContent = `その他の資材（${inactiveBody.querySelectorAll('.obj-card').length}件）`;
 }
 
@@ -987,8 +992,8 @@ function renderObjList() {
       'material'
     );
 
-    // アコーディオン1: お気に入り・使用中の資材
-    const activeSection = createMatAccordion(`お気に入り・使用中の資材（${activeAll.length}件）`, prevActiveOpen, 'active');
+    // アコーディオン1: お気に入り / 使用中
+    const activeSection = createMatAccordion(`お気に入り / 使用中（${activeAll.length}件）`, prevActiveOpen, 'active');
     activeAll.forEach(type => appendObjCard(activeSection.body, type));
     list.appendChild(activeSection.el);
 

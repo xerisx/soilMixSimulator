@@ -68,6 +68,24 @@
       <!-- 資材タブ -->
       <div id="tab-materials" class="tab-content active">
         <div id="base-label"></div>
+        <!-- モバイル: 3指標スティッキーバー -->
+        <div id="mobile-metrics-sticky">
+          <div class="mms-row">
+            <span class="mms-label">↓ 排水性</span>
+            <div class="mms-track"><div class="mms-fill bar-drainage" id="mms-bar-drainage"></div></div>
+            <span class="mms-pct" id="mms-pct-drainage">--</span>
+          </div>
+          <div class="mms-row">
+            <span class="mms-label">● 保水性</span>
+            <div class="mms-track"><div class="mms-fill bar-water" id="mms-bar-water"></div></div>
+            <span class="mms-pct" id="mms-pct-water">--</span>
+          </div>
+          <div class="mms-row">
+            <span class="mms-label">〜 通気性</span>
+            <div class="mms-track"><div class="mms-fill bar-aeration" id="mms-bar-aeration"></div></div>
+            <span class="mms-pct" id="mms-pct-aeration">--</span>
+          </div>
+        </div>
         <div id="obj-list"><!-- JS で描画 --></div>
         <a href="materials_guide.html" id="guide-link-panel" target="_blank" rel="noopener noreferrer">📖 各資材の詳細は資材ガイドへ</a>
       </div>
