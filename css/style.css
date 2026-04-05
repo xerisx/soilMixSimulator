@@ -1356,7 +1356,9 @@ canvas {
   #center-actions.has-poured .act-group-reset { display: block; }
 
   /* ページ下端余白: 固定ボタン郡が最終コンテンツに重ならないように */
-  #panel { padding-bottom: 160px; }
+  #panel { padding-bottom: 90px; }
+  /* margin-top:auto はデスクトップ専用（モバイルでは不要な空白になる） */
+  #feedback-link { margin-top: 0; }
 
   /* 破壊系: リセットはテキストリンク風、全て0は非表示 */
   #sec-actions { display: none; }
