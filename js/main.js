@@ -579,6 +579,39 @@ function updateGraphs() {
 
   updateMixSummary();
   updateInfluence();
+  renderMixRatio();
+}
+
+// ── 配合割合（パネル内） ──
+function renderMixRatio() {
+  const panel = document.getElementById('mix-ratio-panel');
+  if (!panel) return;
+  const active = objectTypes.filter(t => t.weight > 0);
+  const total  = active.reduce((s, t) => s + t.weight, 0);
+  if (active.length === 0 || total === 0) { panel.hidden = true; return; }
+  panel.hidden = false;
+
+  const sorted = [...active].sort((a, b) => b.weight - a.weight);
+
+  const barEl = document.getElementById('mix-ratio-bar');
+  if (barEl) {
+    barEl.innerHTML = sorted.map(t => {
+      const pct = t.weight / total * 100;
+      return `<span class="mratio-seg" style="width:${pct}%;background:${t.color}"></span>`;
+    }).join('');
+  }
+
+  const listEl = document.getElementById('mix-ratio-list');
+  if (listEl) {
+    listEl.innerHTML = sorted.map(t => {
+      const pct = Math.round(t.weight / total * 100);
+      return `<div class="mratio-item">
+        <span class="mratio-dot" style="background:${t.color}"></span>
+        <span class="mratio-name">${t.name}</span>
+        <span class="mratio-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+  }
 }
 
 // ── 詳細パラメータ ──
