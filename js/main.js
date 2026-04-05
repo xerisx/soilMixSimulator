@@ -185,7 +185,9 @@ function adjustMobilePanelHeight() {
   const spacer = document.getElementById('canvas-spacer');
   if (!spacer || !currentCupDims) return;
   const potBottomY = currentCupDims.bottomY + WALL_T;
-  spacer.style.height = (potBottomY + 16) + 'px';
+  const header = document.getElementById('mobile-header');
+  const headerH = header ? header.offsetHeight : 0;
+  spacer.style.height = Math.max(potBottomY + 16 - headerH, 0) + 'px';
 }
 
 function relocateRightPanel() {
@@ -426,7 +428,8 @@ Events.on(render, 'afterRender', () => {
   const ctx = render.context;
   const diameter = POT_DIAMETERS[currentSize];
 
-  const lineY  = topY - 20;
+  const lineOffset = window.innerWidth >= DESKTOP_BREAKPOINT ? 20 : 10;
+  const lineY  = topY - lineOffset;
   const tickH  = 6;
   const leftX  = cx - topInnerW / 2;
   const rightX = cx + topInnerW / 2;

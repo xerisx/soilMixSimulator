@@ -427,6 +427,38 @@ canvas {
   .act-btn     { width: 100%; text-align: center; }
 }
 
+/* ── モバイル sticky ブランドヘッダー ── */
+#mobile-header {
+  position: sticky;
+  top: 0;
+  /* z-index はあえて設定しない: スクロールで panel(z-index:1) が上に被さる */
+  background: #FFFFFF;
+  border-bottom: 1px solid #EFEFEF;
+  padding: 5px 14px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+#mobile-logo {
+  height: 15px;
+  width: auto;
+  display: block;
+}
+
+#mobile-sub {
+  font-size: 8px;
+  color: #B0BAC8;
+  font-family: sans-serif;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  #mobile-header { display: none; }
+}
+
 /* ── アプリヘッダー ── */
 #app-header { display: none; }
 
