@@ -171,6 +171,7 @@ function buildCup() {
   Composite.add(engine.world, cupBodies);
   positionCenterActions();
   adjustMobilePanelHeight();
+  relocateRightPanel();
 }
 
 function positionCenterActions() {
@@ -190,6 +191,23 @@ function adjustMobilePanelHeight() {
   const gap = 10;
   const newHeight = window.innerHeight - potBottomY - gap;
   panel.style.height = Math.max(newHeight, 160) + 'px';
+}
+
+function relocateRightPanel() {
+  const rp = document.getElementById('right-panel');
+  if (!rp) return;
+  if (window.innerWidth < DESKTOP_BREAKPOINT) {
+    const anchor = document.getElementById('mix-ratio-panel');
+    if (anchor && anchor.parentNode && anchor.parentNode !== rp.parentNode) {
+      anchor.parentNode.appendChild(rp);
+    }
+    rp.classList.add('rp-mobile');
+  } else {
+    if (rp.parentNode !== document.body) {
+      document.body.appendChild(rp);
+    }
+    rp.classList.remove('rp-mobile');
+  }
 }
 
 function clearDynamicBodies() {

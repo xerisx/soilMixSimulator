@@ -69,6 +69,22 @@ canvas {
 
 #right-panel { display: none; }
 
+/* モバイル: tab-materials 内に移動された際のスタイル */
+#right-panel.rp-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: static;
+  width: auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  overflow-y: visible;
+}
+/* モバイル時はヘッダーを非表示 */
+#right-panel.rp-mobile .rp-header { display: none; }
+
 /* ── panel-fixed-top（モバイル: 縮まないよう固定） ── */
 #panel-fixed-top {
   display: flex;
