@@ -254,6 +254,50 @@ canvas {
 #obj-list::-webkit-scrollbar-track { background: transparent; }
 #obj-list::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 2px; }
 
+/* ── 資材アコーディオン（モバイル） ── */
+.mat-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mat-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: #F3F4F6;
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: sans-serif;
+  color: #6B7280;
+  cursor: pointer;
+  text-align: left;
+  touch-action: manipulation;
+}
+
+.mat-accordion-arrow {
+  font-size: 14px;
+  color: #9CA3AF;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.mat-accordion-header.open .mat-accordion-arrow {
+  transform: rotate(180deg);
+}
+
+.mat-accordion-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mat-accordion-body[hidden] { display: none; }
+
 .obj-card {
   flex: 0 0 auto;
   display: flex;
@@ -1126,13 +1170,17 @@ canvas {
 
 /* ── 配合割合 ── */
 #mix-ratio-panel {
-  padding-top: 10px;
-  border-top: 1px solid #F3F4F6;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #F3F4F6;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 #mix-ratio-panel[hidden] { display: none; }
+
+@media (max-width: 767px) {
+  #mix-ratio-panel { display: none !important; }
+}
 
 .mratio-label {
   font-size: 11px;
@@ -1288,8 +1336,8 @@ canvas {
   .ctrl-label   { font-size: 14px; }
   #canvas-guide { display: none; }
 
-  /* 縦リスト化 */
-  #obj-list { flex-direction: column; overflow-x: hidden; gap: 6px; padding-bottom: 0; }
+  /* 縦リスト・アコーディオン構成 */
+  #obj-list { flex-direction: column; overflow-x: hidden; gap: 10px; padding-bottom: 0; }
   .obj-card { flex: none; width: 100%; min-width: unset; padding: 9px 12px; gap: 6px; }
   .obj-name { font-size: 14px; }
   .obj-size-btn     { padding: 4px 8px; font-size: 12px; }

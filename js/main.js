@@ -194,9 +194,9 @@ function relocateRightPanel() {
   const rp = document.getElementById('right-panel');
   if (!rp) return;
   if (window.innerWidth < DESKTOP_BREAKPOINT) {
-    const anchor = document.getElementById('mix-ratio-panel');
-    if (anchor && anchor.parentNode && anchor.parentNode !== rp.parentNode) {
-      anchor.parentNode.appendChild(rp);
+    const container = document.getElementById('tab-materials');
+    if (container && rp.parentNode !== container) {
+      container.appendChild(rp);
     }
     rp.classList.add('rp-mobile');
   } else {
@@ -822,57 +822,49 @@ document.addEventListener('touchstart', e => {
 });
 
 // ── 物体リスト UI ──
-function renderObjList() {
-  const list = document.getElementById('obj-list');
-  list.innerHTML = '';
-
-  // お気に入りを先頭に並べた配列（objectTypesの並び自体は変えない）
-  const sorted = sortedByFavorite(objectTypes, 'material');
-
-  sorted.forEach((type) => {
-    // objectTypes内のインデックスはIDで引く（ソート後も正しく操作するため）
-    const i = objectTypes.findIndex(t => t.id === type.id);
-    const card = document.createElement('div');
-    card.className = 'obj-card';
-    const tipAttr = type.tooltip
-      ? `<span class="tip-icon" data-tip="${type.tooltip}">?</span>`
-      : '';
-    const favActive = isFavorite('material', type.id) ? ' active' : '';
-    const tags = getMaterialTags(type);
-    const tagsHtml = `<div class="mat-tags">${tags.map(t => `<span class="mat-tag" data-tag="${t}">${t}</span>`).join('')}</div>`;
-    const sizeKey  = type.size;
-    const grain    = type.sizes[sizeKey];
-    const dotSize  = Math.round(Math.min(12, Math.max(3, grain.max * 0.5)));
-    const sizeHint = SIZE_HINTS[sizeKey] ?? '';
-    card.innerHTML = `
-      <div class="obj-name-row">
-        <span class="obj-name">${type.name}${tipAttr}</span>
-        ${tagsHtml}
-        <button class="fav-btn${favActive}" data-fav-type="material" data-fav-id="${type.id}" aria-label="お気に入り">★</button>
-      </div>
-      <div class="obj-main-row">
-        <div class="obj-size-row">
-          <div class="obj-sizes">
-            ${['S', 'M', 'L'].map(s =>
-              `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
-            ).join('')}
-          </div>
-          <div class="size-grain-info">
-            <span class="size-grain-dot" style="width:${dotSize}px;height:${dotSize}px"></span>
-            <span class="size-grain-label">${grain.min}〜${grain.max}mm</span>
-            ${sizeHint ? `<span class="size-grain-hint">· ${sizeHint}</span>` : ''}
-          </div>
+// カード1枚を生成してlistに追加し、イベントを即座にバインド
+function appendObjCard(list, type) {
+  const i = objectTypes.findIndex(t => t.id === type.id);
+  const card = document.createElement('div');
+  card.className = 'obj-card';
+  const tipAttr = type.tooltip
+    ? `<span class="tip-icon" data-tip="${type.tooltip}">?</span>`
+    : '';
+  const favActive = isFavorite('material', type.id) ? ' active' : '';
+  const tags = getMaterialTags(type);
+  const tagsHtml = `<div class="mat-tags">${tags.map(t => `<span class="mat-tag" data-tag="${t}">${t}</span>`).join('')}</div>`;
+  const sizeKey = type.size;
+  const grain   = type.sizes[sizeKey];
+  const dotSize = Math.round(Math.min(12, Math.max(3, grain.max * 0.5)));
+  const sizeHint = SIZE_HINTS[sizeKey] ?? '';
+  card.innerHTML = `
+    <div class="obj-name-row">
+      <span class="obj-name">${type.name}${tipAttr}</span>
+      ${tagsHtml}
+      <button class="fav-btn${favActive}" data-fav-type="material" data-fav-id="${type.id}" aria-label="お気に入り">★</button>
+    </div>
+    <div class="obj-main-row">
+      <div class="obj-size-row">
+        <div class="obj-sizes">
+          ${['S', 'M', 'L'].map(s =>
+            `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
+          ).join('')}
         </div>
-        <div class="ratio-row">
-          <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
-          <span class="ratio-val${type.weight === 0 ? ' ratio-val-zero' : ''}" data-idx="${i}">${type.weight.toFixed(1)}</span>
+        <div class="size-grain-info">
+          <span class="size-grain-dot" style="width:${dotSize}px;height:${dotSize}px"></span>
+          <span class="size-grain-label">${grain.min}〜${grain.max}mm</span>
+          ${sizeHint ? `<span class="size-grain-hint">· ${sizeHint}</span>` : ''}
         </div>
       </div>
-    `;
-    list.appendChild(card);
-  });
+      <div class="ratio-row">
+        <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
+        <span class="ratio-val${type.weight === 0 ? ' ratio-val-zero' : ''}" data-idx="${i}">${type.weight.toFixed(1)}</span>
+      </div>
+    </div>
+  `;
+  list.appendChild(card);
 
-  list.querySelectorAll('.obj-size-btn').forEach(btn => {
+  card.querySelectorAll('.obj-size-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const idx = Number(btn.dataset.idx);
       objectTypes[idx].size = btn.dataset.size;
@@ -881,39 +873,133 @@ function renderObjList() {
       const newSize  = btn.dataset.size;
       const newGrain = objectTypes[idx].sizes[newSize];
       const newDot   = Math.round(Math.min(12, Math.max(3, newGrain.max * 0.5)));
-      const card     = btn.closest('.obj-card');
-      const dotEl    = card.querySelector('.size-grain-dot');
-      const labelEl  = card.querySelector('.size-grain-label');
-      const hintEl   = card.querySelector('.size-grain-hint');
+      const c      = btn.closest('.obj-card');
+      const dotEl  = c.querySelector('.size-grain-dot');
+      const labelEl = c.querySelector('.size-grain-label');
+      const hintEl  = c.querySelector('.size-grain-hint');
       if (dotEl)   { dotEl.style.width = newDot + 'px'; dotEl.style.height = newDot + 'px'; }
       if (labelEl) labelEl.textContent = `${newGrain.min}〜${newGrain.max}mm`;
       if (hintEl)  hintEl.textContent  = SIZE_HINTS[newSize] ? `· ${SIZE_HINTS[newSize]}` : '';
     });
   });
 
-  list.querySelectorAll('.ratio-slider').forEach(slider => {
-    slider.addEventListener('input', () => {
-      const idx = Number(slider.dataset.idx);
-      objectTypes[idx].weight = Number(slider.value);
-      const valEl = slider.closest('.ratio-row').querySelector('.ratio-val');
-      valEl.textContent = Number(slider.value).toFixed(1);
-      valEl.classList.toggle('ratio-val-zero', Number(slider.value) === 0);
-      selectedCommercialSoil = null; // 手動変更でベースをクリア
-      activePreset = null;
-      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-      updateBaseLabel();
-      updateGraphs();
-    });
+  card.querySelector('.ratio-slider').addEventListener('input', (e) => {
+    const idx = Number(e.target.dataset.idx);
+    const newWeight = Number(e.target.value);
+    objectTypes[idx].weight = newWeight;
+    const valEl = card.querySelector('.ratio-val');
+    valEl.textContent = newWeight.toFixed(1);
+    valEl.classList.toggle('ratio-val-zero', newWeight === 0);
+    selectedCommercialSoil = null;
+    activePreset = null;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    updateBaseLabel();
+    updateGraphs();
+
   });
 
-  list.querySelectorAll('.fav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      toggleFavorite(btn.dataset.favType, btn.dataset.favId);
-      renderObjList();
-    });
+  // モバイル: 値確定時（指を離した後）に境界を越えていたらアコーディオン間を移動
+  // お気に入りは常にactiveに留まるため対象外
+  card.querySelector('.ratio-slider').addEventListener('change', (e) => {
+    if (window.innerWidth >= DESKTOP_BREAKPOINT) return;
+    if (isFavorite('material', type.id)) return;
+    const weight = objectTypes[Number(e.target.dataset.idx)].weight;
+    const wasActive = card.closest('[data-accordion="active"]') !== null;
+    const shouldBeActive = weight > 0;
+    if (wasActive !== shouldBeActive) {
+      moveBetweenAccordions(card, shouldBeActive);
+    }
   });
 
-  setupTooltips(list);
+  card.querySelector('.fav-btn').addEventListener('click', () => {
+    toggleFavorite('material', type.id);
+    renderObjList();
+  });
+
+  setupTooltips(card);
+}
+
+function moveBetweenAccordions(card, toActive) {
+  const list = document.getElementById('obj-list');
+  if (!list) return;
+  const targetBody = list.querySelector(
+    toActive ? '[data-accordion="active"]' : '[data-accordion="inactive"]'
+  );
+  if (targetBody) targetBody.appendChild(card);
+  updateAccordionHeaders(list);
+}
+
+function updateAccordionHeaders(list) {
+  const activeBody   = list.querySelector('[data-accordion="active"]');
+  const inactiveBody = list.querySelector('[data-accordion="inactive"]');
+  if (!activeBody || !inactiveBody) return;
+  const activeHeader   = activeBody.closest('.mat-accordion').querySelector('span:first-child');
+  const inactiveHeader = inactiveBody.closest('.mat-accordion').querySelector('span:first-child');
+  if (activeHeader)   activeHeader.textContent   = `お気に入り・使用中の資材（${activeBody.querySelectorAll('.obj-card').length}件）`;
+  if (inactiveHeader) inactiveHeader.textContent = `その他の資材（${inactiveBody.querySelectorAll('.obj-card').length}件）`;
+}
+
+function createMatAccordion(label, open, key) {
+  const el = document.createElement('div');
+  el.className = 'mat-accordion';
+
+  const header = document.createElement('button');
+  header.className = 'mat-accordion-header' + (open ? ' open' : '');
+  header.innerHTML = `<span>${label}</span><span class="mat-accordion-arrow">▾</span>`;
+
+  const body = document.createElement('div');
+  body.className = 'mat-accordion-body';
+  if (key) body.dataset.accordion = key;
+  if (!open) body.hidden = true;
+
+  header.addEventListener('click', () => {
+    const nowOpen = body.hidden;
+    body.hidden = !nowOpen;
+    header.classList.toggle('open', nowOpen);
+  });
+
+  el.appendChild(header);
+  el.appendChild(body);
+  return { el, body };
+}
+
+function renderObjList() {
+  const list = document.getElementById('obj-list');
+
+  // 再描画前にアコーディオンの開閉状態を保存
+  const prevActiveOpen   = (() => { const b = list.querySelector('[data-accordion="active"]');   return b ? !b.hidden : true;  })();
+  const prevInactiveOpen = (() => { const b = list.querySelector('[data-accordion="inactive"]'); return b ? !b.hidden : false; })();
+
+  list.innerHTML = '';
+
+  const isMobile = window.innerWidth < DESKTOP_BREAKPOINT;
+
+  if (isMobile) {
+    // お気に入り・使用中: 全お気に入り（上部）→ 非お気に入りでweight>0（下部）
+    const favActive    = objectTypes.filter(t => isFavorite('material', t.id) && t.weight > 0);
+    const favZero      = objectTypes.filter(t => isFavorite('material', t.id) && t.weight === 0);
+    const nonFavActive = objectTypes.filter(t => !isFavorite('material', t.id) && t.weight > 0);
+    const activeAll = [...favActive, ...favZero, ...nonFavActive];
+
+    // その他: weight===0 かつ非お気に入り
+    const inactive = sortedByFavorite(
+      objectTypes.filter(t => t.weight === 0 && !isFavorite('material', t.id)),
+      'material'
+    );
+
+    // アコーディオン1: お気に入り・使用中の資材
+    const activeSection = createMatAccordion(`お気に入り・使用中の資材（${activeAll.length}件）`, prevActiveOpen, 'active');
+    activeAll.forEach(type => appendObjCard(activeSection.body, type));
+    list.appendChild(activeSection.el);
+
+    // アコーディオン2: その他の資材
+    const inactiveSection = createMatAccordion(`その他の資材（${inactive.length}件）`, prevInactiveOpen, 'inactive');
+    inactive.forEach(type => appendObjCard(inactiveSection.body, type));
+    list.appendChild(inactiveSection.el);
+  } else {
+    // デスクトップ: お気に入り優先の従来順
+    sortedByFavorite(objectTypes, 'material').forEach(type => appendObjCard(list, type));
+  }
 }
 
 // ── 初期化 ──
