@@ -2,7 +2,8 @@
 
 body {
   background: #F8FAFC;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 canvas {
@@ -11,22 +12,24 @@ canvas {
   top: 0; left: 0;
 }
 
+/* ── モバイル: 鉢エリアの高さを確保する透明スペーサー ── */
+#canvas-spacer {
+  height: 45vh; /* JS で potBottomY に基づいて上書きされる */
+  flex-shrink: 0;
+}
 
 /* ════════════════════════════
-   モバイル（デフォルト）: 下部パネル
+   モバイル（デフォルト）: 通常フロー パネル
    ════════════════════════════ */
 #panel {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
+  position: relative;
+  z-index: 1;
   background: #FFFFFF;
   border-top: 1px solid #E5E7EB;
   padding: 10px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 100;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.05);
-  overflow: hidden;
 }
 
 #right-panel { display: none; }
@@ -55,14 +58,11 @@ canvas {
   flex-shrink: 0;
 }
 
-/* ── panel-scroll（モバイルではスクロール可能な中間エリア） ── */
+/* ── panel-scroll（モバイルでは通常フロー、デスクトップではスクロール可能） ── */
 #panel-scroll {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
 }
 
 /* ── タブナビ ── */
@@ -271,9 +271,12 @@ canvas {
    デスクトップ: 左30% / 中央40% / 右30%
    ════════════════════════════ */
 @media (min-width: 768px) {
+  body { overflow: hidden; }
   #canvas-guide { display: flex; }
+  #canvas-spacer { display: none; }
 
   #panel {
+    position: fixed;
     top: 0; bottom: 0;
     left: 0; right: auto;
     width: 30vw;
@@ -1241,8 +1244,8 @@ canvas {
   #center-actions.has-poured .act-group-ops   { display: flex; }
   #center-actions.has-poured .act-group-reset { display: block; }
 
-  /* パネルスクロール下端余白: ボタン郡が重なってもコンテンツを読めるように */
-  #panel-scroll { padding-bottom: 160px; }
+  /* ページ下端余白: 固定ボタン郡が最終コンテンツに重ならないように */
+  #panel { padding-bottom: 160px; }
 
   /* 破壊系: リセットはテキストリンク風、全て0は非表示 */
   #sec-actions { display: none; }

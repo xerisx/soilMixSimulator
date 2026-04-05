@@ -178,20 +178,14 @@ function positionCenterActions() {
   // 鉢の外底辺(bottomY + WALL_T)の直下 14px に top 端を合わせる
   el.style.top    = (currentCupDims.bottomY + WALL_T + 14) + 'px';
   el.style.bottom = 'auto';
-  // モバイルで設定したインラインスタイルをリセット
-  const panel = document.getElementById('panel');
-  if (panel) { panel.style.height = ''; panel.style.bottom = ''; }
 }
 
 function adjustMobilePanelHeight() {
   if (window.innerWidth >= DESKTOP_BREAKPOINT) return;
-  const panel = document.getElementById('panel');
-  if (!panel || !currentCupDims) return;
+  const spacer = document.getElementById('canvas-spacer');
+  if (!spacer || !currentCupDims) return;
   const potBottomY = currentCupDims.bottomY + WALL_T;
-  const gap = 10;
-  const newHeight = window.innerHeight - potBottomY - gap;
-  panel.style.height = Math.max(newHeight, 100) + 'px';
-  panel.style.bottom = '0';
+  spacer.style.height = (potBottomY + 16) + 'px';
 }
 
 function relocateRightPanel() {
