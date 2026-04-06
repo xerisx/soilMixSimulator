@@ -8,10 +8,19 @@ const BASE_SIZE_EFFECT = {
 
 // 資材のサイズ補正後のパラメータを返す（0〜100にクランプ）
 function getAdjustedParams(type) {
+  const p     = type.params;
+  const clamp = v => Math.min(100, Math.max(0, Math.round(v)));
+  if (type.hasSize === false) {
+    return {
+      drainage:          clamp(p.drainage),
+      waterRetention:    clamp(p.waterRetention),
+      aeration:          clamp(p.aeration),
+      nutrientRetention: clamp(p.nutrientRetention),
+      organic:           p.organic,
+    };
+  }
   const effect = BASE_SIZE_EFFECT[type.size] ?? BASE_SIZE_EFFECT.M;
   const sens   = type.sizeSensitivity ?? 0.5;
-  const p      = type.params;
-  const clamp  = v => Math.min(100, Math.max(0, Math.round(v)));
   return {
     drainage:          clamp(p.drainage          + effect.drainage          * sens),
     waterRetention:    clamp(p.waterRetention    + effect.waterRetention    * sens),

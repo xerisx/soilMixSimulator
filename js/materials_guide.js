@@ -8,10 +8,18 @@ const GUIDE_SIZE_EFFECT = {
 };
 
 function getAdjustedParamsForGuide(mat, size) {
+  const p     = mat.params;
+  const clamp = v => Math.min(100, Math.max(0, Math.round(v)));
+  if (mat.hasSize === false) {
+    return {
+      drainage:          clamp(p.drainage),
+      waterRetention:    clamp(p.waterRetention),
+      aeration:          clamp(p.aeration),
+      nutrientRetention: clamp(p.nutrientRetention),
+    };
+  }
   const effect = GUIDE_SIZE_EFFECT[size] ?? GUIDE_SIZE_EFFECT.M;
   const sens   = mat.sizeSensitivity ?? 0.5;
-  const p      = mat.params;
-  const clamp  = v => Math.min(100, Math.max(0, Math.round(v)));
   return {
     drainage:          clamp(p.drainage          + effect.drainage          * sens),
     waterRetention:    clamp(p.waterRetention    + effect.waterRetention    * sens),
@@ -134,7 +142,7 @@ function renderCard(mat, favIds = new Set()) {
 
       ${detailSection}
 
-      ${sizeRow(mat.sizes)}
+      ${mat.hasSize === false ? '' : sizeRow(mat.sizes)}
 
       <hr class="mat-divider">
 

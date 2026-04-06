@@ -172,10 +172,23 @@ function appendObjCard(list, type) {
   const favActive = isFavorite('material', type.id) ? ' active' : '';
   const tags = getMaterialTags(type);
   const tagsHtml = `<div class="mat-tags">${tags.map(t => `<span class="mat-tag" data-tag="${t}">${t}</span>`).join('')}</div>`;
-  const sizeKey = type.size;
-  const grain   = type.sizes[sizeKey];
-  const dotSize = Math.round(Math.min(12, Math.max(3, grain.max * 0.5)));
-  const sizeHint = SIZE_HINTS[sizeKey] ?? '';
+  const leftInfoHtml = type.hasSize === false
+    ? `<div class="obj-left-info"></div>`
+    : (() => {
+        const grain   = type.sizes[type.size];
+        const dotSize = Math.round(Math.min(12, Math.max(3, grain.max * 0.5)));
+        return `<div class="obj-left-info">
+          <div class="obj-sizes">
+            ${['S', 'M', 'L'].map(s =>
+              `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
+            ).join('')}
+          </div>
+          <div class="size-grain-info">
+            <span class="size-grain-dot" style="width:${dotSize}px;height:${dotSize}px"></span>
+            <span class="size-grain-label">${grain.min}〜${grain.max}mm</span>
+          </div>
+        </div>`;
+      })();
   card.innerHTML = `
     <div class="obj-name-row">
       <span class="obj-name">${type.name}${tipAttr}</span>
@@ -183,18 +196,7 @@ function appendObjCard(list, type) {
       <button class="fav-btn${favActive}" data-fav-type="material" data-fav-id="${type.id}" aria-label="お気に入り">★</button>
     </div>
     <div class="obj-main-row">
-      <div class="obj-size-row">
-        <div class="obj-sizes">
-          ${['S', 'M', 'L'].map(s =>
-            `<button class="obj-size-btn${type.size === s ? ' active' : ''}" data-idx="${i}" data-size="${s}">${s}</button>`
-          ).join('')}
-        </div>
-        <div class="size-grain-info">
-          <span class="size-grain-dot" style="width:${dotSize}px;height:${dotSize}px"></span>
-          <span class="size-grain-label">${grain.min}〜${grain.max}mm</span>
-          ${sizeHint ? `<span class="size-grain-hint">· ${sizeHint}</span>` : ''}
-        </div>
-      </div>
+      ${leftInfoHtml}
       <div class="ratio-row">
         <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
         <span class="ratio-val${type.weight === 0 ? ' ratio-val-zero' : ''}" data-idx="${i}">${type.weight.toFixed(1)}</span>
