@@ -267,9 +267,20 @@ body.guide-page {
   padding: 5px 12px;
   flex: 1;
   justify-content: center;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-family: sans-serif;
+  transition: background 120ms;
 }
 .mat-size-chip + .mat-size-chip {
   border-left: 1px solid #E5E7EB;
+}
+.mat-size-chip:hover {
+  background: #F3F4F6;
+}
+.mat-size-chip.active {
+  background: #EFF6FF;
 }
 
 .mat-size-label {
@@ -278,12 +289,18 @@ body.guide-page {
   color: #9CA3AF;
   letter-spacing: 0.06em;
 }
+.mat-size-chip.active .mat-size-label {
+  color: #1D4ED8;
+}
 
 .mat-size-range {
   font-size: 12px;
   color: #374151;
   font-weight: 500;
   white-space: nowrap;
+}
+.mat-size-chip.active .mat-size-range {
+  color: #1D4ED8;
 }
 
 /* ── パラメータセクション ── */

@@ -1,5 +1,25 @@
 // 資材ガイドページ描画スクリプト
 
+// ── サイズ補正（analysis.js と同じロジック）──
+const GUIDE_SIZE_EFFECT = {
+  S: { drainage: -12, waterRetention:  12, aeration: -10, nutrientRetention:  8 },
+  M: { drainage:   0, waterRetention:   0, aeration:   0, nutrientRetention:  0 },
+  L: { drainage:  12, waterRetention: -12, aeration:  10, nutrientRetention: -8 },
+};
+
+function getAdjustedParamsForGuide(mat, size) {
+  const effect = GUIDE_SIZE_EFFECT[size] ?? GUIDE_SIZE_EFFECT.M;
+  const sens   = mat.sizeSensitivity ?? 0.5;
+  const p      = mat.params;
+  const clamp  = v => Math.min(100, Math.max(0, Math.round(v)));
+  return {
+    drainage:          clamp(p.drainage          + effect.drainage          * sens),
+    waterRetention:    clamp(p.waterRetention    + effect.waterRetention    * sens),
+    aeration:          clamp(p.aeration          + effect.aeration          * sens),
+    nutrientRetention: clamp(p.nutrientRetention + effect.nutrientRetention * sens),
+  };
+}
+
 const BASIC_PARAMS = [
   { key: 'drainage',          label: '排水性', color: '#0284C7' },
   { key: 'waterRetention',    label: '保水性', color: '#16A34A' },
@@ -30,13 +50,14 @@ function getSummaryLabel(params) {
 }
 
 // ── HTML部品 ──
-function barRow(label, value, color, isAdv = false) {
+function barRow(label, value, color, isAdv = false, paramKey = '') {
   const trackClass = isAdv ? 'mat-adv-bar-track' : 'mat-bar-track';
   const fillStyle  = isAdv
     ? `style="width:${value}%"`
     : `style="width:${value}%; background:${color}"`;
   const fillClass  = isAdv ? 'mat-adv-bar-fill' : 'mat-bar-fill';
-  return `<div class="mat-bar-row">
+  const dataParam  = paramKey ? ` data-param="${paramKey}"` : '';
+  return `<div class="mat-bar-row"${dataParam}>
       <span class="mat-bar-label">${label}</span>
       <div class="${trackClass}"><div class="${fillClass}" ${fillStyle}></div></div>
       <span class="mat-bar-pct">${value}%</span>
@@ -47,10 +68,10 @@ function sizeRow(sizes) {
   if (!sizes) return '';
   const chips = ['S', 'M', 'L']
     .filter(s => sizes[s])
-    .map(s => `<div class="mat-size-chip">
+    .map(s => `<button class="mat-size-chip${s === 'M' ? ' active' : ''}" data-size="${s}">
         <span class="mat-size-label">${s}</span>
         <span class="mat-size-range">${sizes[s].min}〜${sizes[s].max}mm</span>
-      </div>`)
+      </button>`)
     .join('');
   return chips ? `<div class="mat-sizes">${chips}</div>` : '';
 }
@@ -65,7 +86,7 @@ function renderCard(mat, favIds = new Set()) {
 
   const basicBars = BASIC_PARAMS
     .filter(p => mat.params[p.key] !== undefined)
-    .map(p => barRow(p.label, mat.params[p.key], p.color))
+    .map(p => barRow(p.label, mat.params[p.key], p.color, false, p.key))
     .join('');
 
   const advBars = ADV_PARAMS
@@ -165,6 +186,17 @@ grid.innerHTML = MATERIALS.map(mat => renderCard(mat, getFavoriteMaterialIds()))
 
 // カードグリッドのクリックイベント（お気に入り + アコーディオン）
 grid.addEventListener('click', e => {
+  // サイズ切り替え（カードごと）
+  const sizeChip = e.target.closest('.mat-size-chip');
+  if (sizeChip) {
+    const card = sizeChip.closest('.mat-card');
+    const size = sizeChip.dataset.size;
+    card.querySelectorAll('.mat-size-chip').forEach(c => c.classList.remove('active'));
+    sizeChip.classList.add('active');
+    updateCardBars(card, size);
+    return;
+  }
+
   // お気に入りボタン
   const favBtn = e.target.closest('.fav-btn');
   if (favBtn) {
@@ -192,6 +224,23 @@ grid.addEventListener('click', e => {
 let currentFilter = 'all';
 let currentSort   = '';
 let currentSearch = '';
+
+function updateCardBars(card, size) {
+  const mat = MATERIALS.find(m => m.id === card.dataset.id);
+  if (!mat) return;
+  const adj = getAdjustedParamsForGuide(mat, size);
+
+  const summaryEl = card.querySelector('.mat-summary');
+  if (summaryEl) summaryEl.textContent = getSummaryLabel(adj);
+
+  BASIC_PARAMS.forEach(p => {
+    const row = card.querySelector(`.mat-bar-row[data-param="${p.key}"]`);
+    if (!row || adj[p.key] === undefined) return;
+    const val = adj[p.key];
+    row.querySelector('.mat-bar-fill').style.width = `${val}%`;
+    row.querySelector('.mat-bar-pct').textContent = `${val}%`;
+  });
+}
 
 function applyControls() {
   const cards = Array.from(grid.querySelectorAll('.mat-card'));
