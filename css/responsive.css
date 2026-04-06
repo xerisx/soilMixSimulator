@@ -7,6 +7,7 @@
   #canvas-spacer { display: none; }
   #mobile-header { display: none; }
   #mobile-metrics-sticky { display: none; }
+  #mobile-cmp { display: none !important; }
 
   #app-header {
     display: flex;
@@ -297,8 +298,11 @@
     background: none !important;
   }
 
-  /* 分析タブは常に表示、比較タブはモバイル非表示 */
+  /* 分析タブは常に表示、比較タブはモバイル非表示（#mobile-cmp sticky カードで代替） */
   #rp-tab-analysis.rp-tab-content { display: flex; }
   #rp-tab-compare { display: none !important; }
-  #save-compare-area { display: none; }
+  /* タブナビはモバイルでは不要（分析のみ） */
+  #rp-tab-nav { display: none; }
+  /* 比較元保存ボタンをモバイルでも表示 */
+  #save-compare-area { display: block; }
 }

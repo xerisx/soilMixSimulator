@@ -321,3 +321,213 @@
   margin-bottom: 1px;
 }
 .cmp-summary-direction::before { content: none; }
+
+/* ════════════════════════════
+   モバイル専用 比較スティッキーカード (#mobile-cmp)
+   ════════════════════════════ */
+#mobile-cmp {
+  /* sticky は analysis.css の #mobile-metrics-sticky と同じ配置 */
+  position: sticky;
+  top: 14px;
+  z-index: 5;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+  margin-bottom: 2px;
+}
+/* hidden 属性を CSS の display: flex が上書きしないようにする */
+#mobile-cmp[hidden] { display: none !important; }
+
+/* ── ヘッダー行 ── */
+.mcmp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.mcmp-header-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.mcmp-header-sep {
+  font-size: 11px;
+  color: #D1D5DB;
+  font-family: sans-serif;
+}
+
+.mcmp-header-btns {
+  display: flex;
+  gap: 5px;
+}
+
+.mcmp-btn {
+  padding: 4px 9px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mcmp-btn:active { background: #F9FAFB; }
+.mcmp-btn-end { color: #9CA3AF; }
+.mcmp-btn-end:active { color: #EF4444; border-color: #FCA5A5; background: #FEF2F2; }
+
+/* ── まとめ ── */
+.mcmp-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.mcmp-direction {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  font-family: sans-serif;
+  margin: 0;
+}
+
+.mcmp-sum-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.mcmp-sum-chip {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: sans-serif;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #F9FAFB;
+}
+.mcmp-sum-chip.mcmp-diff-pos { background: #F0FDF4; }
+.mcmp-sum-chip.mcmp-diff-neg { background: #FEF2F2; }
+
+.mcmp-no-change {
+  font-size: 12px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  margin: 0;
+}
+
+/* ── 特性比較: 1行コンパクト ── */
+.mcmp-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.mcmp-metric-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mcmp-metric-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  font-family: sans-serif;
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.mcmp-ab-vals {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  font-size: 12px;
+  font-family: sans-serif;
+}
+
+.mcmp-a-val {
+  color: #94A3B8;
+  font-weight: 500;
+  min-width: 24px;
+  text-align: right;
+}
+
+.mcmp-arrow {
+  color: #D1D5DB;
+  font-size: 10px;
+}
+
+.mcmp-b-val {
+  color: #1E3A5F;
+  font-weight: 700;
+  min-width: 24px;
+}
+
+.mcmp-diff-val {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: sans-serif;
+  min-width: 46px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.mcmp-diff-pos  { color: #16A34A; }
+.mcmp-diff-neg  { color: #DC2626; }
+.mcmp-diff-zero { color: #D1D5DB; font-weight: 400; }
+
+/* ── 主な変化 ── */
+.mcmp-causes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.mcmp-causes-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: 2px;
+}
+
+.mcmp-cause-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  font-size: 12px;
+  font-family: sans-serif;
+}
+
+.mcmp-cause-pfx {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9CA3AF;
+}
+
+.mcmp-cause-name {
+  color: #374151;
+  font-weight: 500;
+}
+
+.mcmp-cause-top .mcmp-cause-name {
+  font-weight: 700;
+  color: #111827;
+}

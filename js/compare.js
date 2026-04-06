@@ -184,6 +184,122 @@ function updateComparePanel() {
 
   document.getElementById('cmp-update-btn')?.addEventListener('click', saveCompareBase);
   document.getElementById('cmp-clear-btn')?.addEventListener('click', clearCompareBase);
+
+  updateMobileCmp();
+}
+
+function updateMobileCmp() {
+  // モバイルのみ対象
+  if (window.innerWidth >= 768) return;
+
+  const el      = document.getElementById('mobile-cmp');
+  const sticky  = document.getElementById('mobile-metrics-sticky');
+  const rp      = document.getElementById('right-panel');
+  if (!el) return;
+
+  // 比較解除時: sticky を戻して終了
+  if (!compareBaseSnapshot) {
+    el.hidden = true;
+    if (sticky) sticky.hidden = false;
+    if (rp)    rp.hidden = false;
+    return;
+  }
+
+  const comp = calcComposite();
+  const B = comp ?? { drainage: 0, waterRetention: 0, aeration: 0, nutrientRetention: 0 };
+  const A = compareBaseSnapshot.metrics;
+
+  const METRICS = [
+    { key: 'drainage',          label: '排水性', icon: '↓' },
+    { key: 'waterRetention',    label: '保水性', icon: '●' },
+    { key: 'aeration',          label: '通気性', icon: '〜' },
+    { key: 'nutrientRetention', label: '保肥力', icon: '✦' },
+  ];
+  const THRESHOLD = 2;
+
+  // ── まとめ ──
+  const dirLine = getDirectionLine(A, B);
+  const sigMetrics = METRICS
+    .map(m => ({ ...m, diff: B[m.key] - A[m.key] }))
+    .filter(m => Math.abs(m.diff) > THRESHOLD)
+    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+  const sumItemsHtml = sigMetrics.map(m => {
+    const pos = m.diff > 0;
+    const str = pos ? `+${Math.round(m.diff)} ↑` : `${Math.round(m.diff)} ↓`;
+    const cls = pos ? 'mcmp-diff-pos' : 'mcmp-diff-neg';
+    return `<span class="mcmp-sum-chip ${cls}">${m.label} ${str}</span>`;
+  }).join('');
+
+  const summaryHtml = `
+    <div class="mcmp-summary">
+      ${dirLine ? `<p class="mcmp-direction">${dirLine}</p>` : ''}
+      ${sigMetrics.length > 0
+        ? `<div class="mcmp-sum-chips">${sumItemsHtml}</div>`
+        : (!dirLine ? '<p class="mcmp-no-change">大きな変化はありません</p>' : '')
+      }
+    </div>`;
+
+  // ── 特性比較: コンパクト1行形式 ──
+  const metricsHtml = METRICS.map(m => {
+    const a = A[m.key];
+    const b = B[m.key];
+    const diff = b - a;
+    let diffStr, diffClass;
+    if (diff > THRESHOLD)        { diffStr = `+${diff} ↑`; diffClass = 'mcmp-diff-pos'; }
+    else if (diff < -THRESHOLD)  { diffStr = `${diff} ↓`;  diffClass = 'mcmp-diff-neg'; }
+    else                         { diffStr = '─';           diffClass = 'mcmp-diff-zero'; }
+
+    return `<div class="mcmp-metric-row">
+      <span class="mcmp-metric-label">${m.icon} ${m.label}</span>
+      <span class="mcmp-ab-vals">
+        <span class="mcmp-a-val">${a}</span>
+        <span class="mcmp-arrow">→</span>
+        <span class="mcmp-b-val">${b}</span>
+      </span>
+      <span class="mcmp-diff-val ${diffClass}">${diffStr}</span>
+    </div>`;
+  }).join('');
+
+  // ── 主な変化 ──
+  const top3 = calcMatDiffs();
+  const causesHtml = top3.length > 0 ? `
+    <div class="mcmp-causes">
+      <span class="mcmp-causes-title">主な変化</span>
+      ${top3.map((m, i) => {
+        const cls = m.diff > 0 ? 'mcmp-diff-pos' : 'mcmp-diff-neg';
+        const str = m.diff > 0 ? `+${m.diff}%↑` : `${m.diff}%↓`;
+        return `<span class="mcmp-cause-item${i === 0 ? ' mcmp-cause-top' : ''}">
+          ${i === 0 ? '<span class="mcmp-cause-pfx">主因</span>' : ''}
+          <span class="mcmp-cause-name">${m.name}</span>
+          <span class="${cls}">${str}</span>
+        </span>`;
+      }).join('')}
+    </div>` : '';
+
+  el.innerHTML = `
+    <div class="mcmp-header">
+      <div class="mcmp-header-left">
+        <span class="cmp-lbl-badge cmp-lbl-a">A 基準</span>
+        <span class="mcmp-header-sep">/</span>
+        <span class="cmp-lbl-badge cmp-lbl-b">B 現在</span>
+      </div>
+      <div class="mcmp-header-btns">
+        <button class="mcmp-btn" id="mcmp-update-btn">基準を更新</button>
+        <button class="mcmp-btn mcmp-btn-end" id="mcmp-clear-btn">比較終了</button>
+      </div>
+    </div>
+    ${summaryHtml}
+    <div class="mcmp-metrics">${metricsHtml}</div>
+    ${causesHtml}`;
+
+  // 表示切り替え
+  el.hidden = false;
+  if (sticky) sticky.hidden = true;
+  if (rp)    rp.hidden = true;
+
+  document.getElementById('mcmp-update-btn')?.addEventListener('click', saveCompareBase);
+  document.getElementById('mcmp-clear-btn')?.addEventListener('click', clearCompareBase);
 }
 
 function getDirectionLine(A, B) {
