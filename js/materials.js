@@ -47,6 +47,7 @@ const MATERIALS = [
       density:     0.0007,
       restitution: 0,
     },
+    sizeSensitivity: 0.5,
     params: {
       drainage:         75,
       waterRetention:   45,
@@ -101,6 +102,7 @@ const MATERIALS = [
       density:     0.0022,
       restitution: 0,
     },
+    sizeSensitivity: 1.0,
     params: {
       drainage:         88,
       waterRetention:   25,
@@ -161,6 +163,7 @@ const MATERIALS = [
       density:     0.0019,
       restitution: 0,
     },
+    sizeSensitivity: 1.0,
     params: {
       drainage:         60,
       waterRetention:   65,
@@ -218,6 +221,7 @@ const MATERIALS = [
       density:     0.0009,
       restitution: 0,
     },
+    sizeSensitivity: 0.85,
     params: {
       drainage:         90,
       waterRetention:   30,
@@ -274,6 +278,7 @@ const MATERIALS = [
       density:     0.0021,
       restitution: 0,
     },
+    sizeSensitivity: 0.5,
     params: {
       drainage:         55,
       waterRetention:   55,
@@ -333,6 +338,7 @@ const MATERIALS = [
       density:     0.00045,
       restitution: 0,
     },
+    sizeSensitivity: 0.45,
     params: {
       drainage:         88,
       waterRetention:   30,
@@ -388,6 +394,7 @@ const MATERIALS = [
       density:     0.00055,
       restitution: 0,
     },
+    sizeSensitivity: 0.4,
     params: {
       drainage:         35,
       waterRetention:   85,
@@ -443,6 +450,7 @@ const MATERIALS = [
       density:     0.00065,
       restitution: 0,
     },
+    sizeSensitivity: 0.6,
     params: {
       drainage:         75,
       waterRetention:   50,
@@ -498,6 +506,7 @@ const MATERIALS = [
       density:     0.00075,
       restitution: 0,
     },
+    sizeSensitivity: 0.7,
     params: {
       drainage:         80,
       waterRetention:   30,
@@ -558,6 +567,7 @@ const MATERIALS = [
       density:     0.0015,
       restitution: 0,
     },
+    sizeSensitivity: 0.8,
     params: {
       drainage:         72,
       waterRetention:   50,
@@ -614,6 +624,7 @@ const MATERIALS = [
       density:     0.00045,
       restitution: 0,
     },
+    sizeSensitivity: 0.2,
     params: {
       drainage:         20,
       waterRetention:   95,
@@ -670,6 +681,7 @@ const MATERIALS = [
       density:     0.00075,
       restitution: 0,
     },
+    sizeSensitivity: 0.3,
     params: {
       drainage:         45,
       waterRetention:   75,
@@ -726,6 +738,7 @@ const MATERIALS = [
       density:     0.0005,
       restitution: 0,
     },
+    sizeSensitivity: 0.2,
     params: {
       drainage:         50,
       waterRetention:   95,

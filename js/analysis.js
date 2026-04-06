@@ -1,6 +1,29 @@
-// ── 資材タグ（params から自動生成） ──
+// ── サイズ補正 ──
+// M を基準(0)とし、S は保水寄り・L は排水/通気寄りに補正
+const BASE_SIZE_EFFECT = {
+  S: { drainage: -12, waterRetention:  12, aeration: -10, nutrientRetention:  8 },
+  M: { drainage:   0, waterRetention:   0, aeration:   0, nutrientRetention:  0 },
+  L: { drainage:  12, waterRetention: -12, aeration:  10, nutrientRetention: -8 },
+};
+
+// 資材のサイズ補正後のパラメータを返す（0〜100にクランプ）
+function getAdjustedParams(type) {
+  const effect = BASE_SIZE_EFFECT[type.size] ?? BASE_SIZE_EFFECT.M;
+  const sens   = type.sizeSensitivity ?? 0.5;
+  const p      = type.params;
+  const clamp  = v => Math.min(100, Math.max(0, Math.round(v)));
+  return {
+    drainage:          clamp(p.drainage          + effect.drainage          * sens),
+    waterRetention:    clamp(p.waterRetention    + effect.waterRetention    * sens),
+    aeration:          clamp(p.aeration          + effect.aeration          * sens),
+    nutrientRetention: clamp(p.nutrientRetention + effect.nutrientRetention * sens),
+    organic:           p.organic,
+  };
+}
+
+// ── 資材タグ（サイズ補正後の params から自動生成） ──
 function getMaterialTags(type) {
-  const p = type.params;
+  const p = getAdjustedParams(type);
   const tags = [p.organic ? '有機' : '無機'];
   if (p.drainage          >= 70) tags.push('排水');
   if (p.aeration          >= 78) tags.push('通気');
@@ -14,7 +37,7 @@ function getMaterialTags(type) {
 function calcComposite() {
   const total = objectTypes.reduce((s, t) => s + t.weight, 0);
   if (total === 0) return null;
-  const avg = key => objectTypes.reduce((s, t) => s + t.params[key] * t.weight, 0) / total;
+  const avg = key => objectTypes.reduce((s, t) => s + getAdjustedParams(t)[key] * t.weight, 0) / total;
   const organicWeight = objectTypes.reduce((s, t) => s + (t.params.organic ? t.weight : 0), 0);
   return {
     drainage:         Math.round(avg('drainage')),
@@ -89,9 +112,9 @@ function updateInfluence() {
 
   const rows = PARAMS.map(p => {
     const tops = [...active]
-      .sort((a, b) => (b.params[p.key] ?? 0) - (a.params[p.key] ?? 0))
+      .sort((a, b) => (getAdjustedParams(b)[p.key] ?? 0) - (getAdjustedParams(a)[p.key] ?? 0))
       .slice(0, 2)
-      .filter(t => (t.params[p.key] ?? 0) >= 60);
+      .filter(t => (getAdjustedParams(t)[p.key] ?? 0) >= 60);
     if (tops.length === 0) return null;
     const names = tops
       .map(t => `<span class="inf-mat"><span class="inf-mat-dot" style="background:${t.color}"></span>${t.name}</span>`)

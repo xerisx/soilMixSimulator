@@ -219,6 +219,7 @@ function appendObjCard(list, type) {
       if (dotEl)   { dotEl.style.width = newDot + 'px'; dotEl.style.height = newDot + 'px'; }
       if (labelEl) labelEl.textContent = `${newGrain.min}〜${newGrain.max}mm`;
       if (hintEl)  hintEl.textContent  = SIZE_HINTS[newSize] ? `· ${SIZE_HINTS[newSize]}` : '';
+      updateGraphs();
     });
   });
 
