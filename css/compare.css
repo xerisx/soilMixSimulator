@@ -1,0 +1,323 @@
+/* ── 比較元保存ボタン ── */
+#save-compare-area {
+  padding-top: 2px;
+}
+
+.save-compare-btn {
+  width: 100%;
+  padding: 9px 16px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 8px;
+  background: #F8FAFC;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.save-compare-btn:hover {
+  border-color: #1D4ED8;
+  color: #1D4ED8;
+  background: #EFF6FF;
+}
+
+/* ════════════════════════════
+   比較タブ: コンテンツ
+   ════════════════════════════ */
+.cmp-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #F8FAFC;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.cmp-header-labels {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cmp-lbl-badge {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: sans-serif;
+  padding: 2px 9px;
+  border-radius: 5px;
+}
+.cmp-lbl-badge.cmp-lbl-a { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+.cmp-lbl-badge.cmp-lbl-b { background: #DBEAFE; color: #1D4ED8; border: 1px solid #93C5FD; }
+
+.cmp-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cmp-action-btn {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 7px;
+  background: #FFFFFF;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cmp-action-btn:hover { background: #F9FAFB; border-color: #D1D5DB; }
+.cmp-action-clear { color: #9CA3AF; }
+.cmp-action-clear:hover { color: #EF4444; border-color: #FCA5A5; background: #FEF2F2; }
+
+.cmp-block {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.cmp-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cmp-metric-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #F3F4F6;
+}
+.cmp-metric-row:last-child { padding-bottom: 0; border-bottom: none; }
+
+.cmp-metric-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  font-family: sans-serif;
+}
+
+.cmp-metric-vals {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cmp-val-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cmp-val-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: sans-serif;
+  width: 14px;
+  flex-shrink: 0;
+}
+.cmp-val-lbl.cmp-lbl-a { color: #94A3B8; }
+.cmp-val-lbl.cmp-lbl-b { color: #3B82F6; }
+
+.cmp-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #E5E7EB;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.cmp-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 300ms ease;
+}
+.cmp-bar-a { background: #94A3B8; }
+.cmp-bar-b { background: #3B82F6; }
+
+.cmp-val-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  font-family: sans-serif;
+  min-width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.cmp-diff-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 3px;
+}
+
+.cmp-diff-val {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: sans-serif;
+  letter-spacing: 0.01em;
+}
+.cmp-diff-pos  { color: #16A34A; }
+.cmp-diff-neg  { color: #DC2626; }
+.cmp-diff-zero { color: #9CA3AF; font-weight: 500; font-size: 12px; }
+
+.cmp-matdiff-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.cmp-matdiff-top {
+  background: #F9FAFB;
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin: 0 -6px;
+}
+
+.cmp-matdiff-name {
+  font-size: 13px;
+  color: #374151;
+  font-family: sans-serif;
+  font-weight: 500;
+}
+
+/* ── 比較: 空状態 ── */
+.cmp-empty {
+  background: #F8FAFC;
+  border: 1.5px dashed #E5E7EB;
+  border-radius: 12px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.cmp-empty-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  font-family: sans-serif;
+}
+
+.cmp-empty-sub {
+  font-size: 12px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  line-height: 1.65;
+  margin-bottom: 4px;
+}
+
+/* ── 比較: メトリクス行ヘッダー ── */
+.cmp-metric-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+/* ── 比較: 結論ラベル ── */
+.cmp-verdict {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: sans-serif;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cmp-verdict-b  { background: #DBEAFE; color: #1D4ED8; }
+.cmp-verdict-a  { background: #F1F5F9; color: #475569; }
+.cmp-verdict-eq { background: #F3F4F6; color: #9CA3AF; }
+
+/* ── 比較: まとめブロック ── */
+.cmp-summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cmp-summary-item {
+  font-size: 13px;
+  color: #374151;
+  font-family: sans-serif;
+  line-height: 1.5;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.cmp-summary-item::before {
+  content: '·';
+  color: #D1D5DB;
+  margin-right: 5px;
+  flex-shrink: 0;
+}
+
+.cmp-sum-pos { color: #16A34A; font-weight: 700; }
+.cmp-sum-neg { color: #DC2626; font-weight: 700; }
+
+/* ── 比較: ヘッダー右グループ（差分値 + verdict） ── */
+.cmp-metric-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ── 比較: A/B行の強弱 ── */
+.cmp-row-a .cmp-bar-track { height: 6px; }
+.cmp-row-a .cmp-val-num   { color: #B0BAC8; font-weight: 500; font-size: 12px; }
+
+.cmp-row-b .cmp-bar-track { height: 10px; }
+.cmp-row-b .cmp-val-num   { color: #111827; font-weight: 800; }
+
+/* ── 比較: 主因ラベル ── */
+.cmp-matdiff-name-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cmp-cause-prefix {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  flex-shrink: 0;
+}
+
+.cmp-matdiff-top .cmp-matdiff-name { font-weight: 700; color: #111827; }
+
+/* ── 比較: まとめ 方向性ライン ── */
+.cmp-summary-direction {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  font-family: sans-serif;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #F3F4F6;
+  margin-bottom: 1px;
+}
+.cmp-summary-direction::before { content: none; }

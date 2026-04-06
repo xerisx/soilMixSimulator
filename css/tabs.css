@@ -1,0 +1,86 @@
+/* ── タブナビ ── */
+#tab-nav {
+  display: flex;
+  gap: 4px;
+  background: #F3F4F6;
+  padding: 4px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 7px 8px;
+  border: none;
+  background: transparent;
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: sans-serif;
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all 0.15s;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+.tab-btn.active {
+  background: #FFFFFF;
+  color: #111827;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ── タブコンテンツ ── */
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+/* ════════════════════════════
+   右パネル: 分析/比較タブナビ
+   ════════════════════════════ */
+#rp-tab-nav {
+  display: none; /* モバイルでは非表示 */
+  flex-shrink: 0;
+}
+
+.rp-tab-btn {
+  flex: 1;
+  padding: 7px 8px;
+  border: none;
+  background: transparent;
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: sans-serif;
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.rp-tab-btn.active {
+  background: #FFFFFF;
+  color: #111827;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ── 右パネル: タブコンテンツ ── */
+.rp-tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rp-tab-content.active {
+  display: flex;
+}
+
+/* モバイル: 分析タブは常に表示 → responsive.css の @media (max-width: 767px) に記載 */

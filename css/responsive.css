@@ -1,0 +1,304 @@
+/* ════════════════════════════
+   デスクトップ (min-width: 768px)
+   ════════════════════════════ */
+@media (min-width: 768px) {
+  body { overflow: hidden; }
+  #canvas-guide { display: flex; }
+  #canvas-spacer { display: none; }
+  #mobile-header { display: none; }
+  #mobile-metrics-sticky { display: none; }
+
+  #app-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 12px 16px 10px 18px;
+    border-bottom: 1px solid #E5E7EB;
+    flex-shrink: 0;
+  }
+
+  #panel {
+    position: fixed;
+    top: 0; bottom: 0;
+    left: 0; right: auto;
+    width: 30vw;
+    border-top: none;
+    border-right: 1px solid #E5E7EB;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.04);
+    /* 2層構造: スクロール領域 + 固定ボタン領域 */
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    overflow-y: visible;
+  }
+
+  /* 上部固定エリア */
+  #panel-fixed-top {
+    flex-shrink: 0;
+    padding: 12px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-bottom: 1px solid #E5E7EB;
+    background: #FFFFFF;
+  }
+
+  #panel-scroll {
+    flex: 1;
+    min-height: 0; /* flex内でoverflowを効かせるために必須 */
+    overflow-y: auto;
+    padding: 12px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  #panel-scroll::-webkit-scrollbar       { width: 3px; }
+  #panel-scroll::-webkit-scrollbar-track { background: transparent; }
+  #panel-scroll::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 2px; }
+
+  /* center-actions: 鉢の直下に段組み配置（JS で top を動的設定） */
+  #center-actions {
+    position: fixed;
+    top: 65vh;  /* JS が実行されるまでの初期フォールバック */
+    bottom: auto;
+    left: 30vw;
+    right: 30vw;
+    max-width: 300px;
+    margin: 0 auto;
+    z-index: 150;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* 1段目: 主CTA — 全幅 */
+  #center-actions .act-start {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  /* 2段目: 追加投入 + トントン — 横並び均等 */
+  #center-actions .act-group-ops {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+
+  #center-actions .act-group-ops .act-btn {
+    flex: 1;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* 3段目: 鉢を空にする — テキストリンク風の補助操作 */
+  #center-actions .act-group-reset {
+    border-top: none;
+    padding-top: 0;
+    margin-left: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  #center-actions .act-group-reset .act-reset {
+    background: transparent;
+    border: 1px solid #D1D5DB;
+    box-shadow: none;
+    color: #6B7280;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 18px;
+    width: auto;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+
+  #center-actions .act-group-reset .act-reset:hover {
+    background: #F9FAFB;
+    border-color: #9CA3AF;
+    color: #374151;
+  }
+
+  /* sec-actions: 配合リセットのみの左パネル下部 */
+  #sec-actions {
+    flex-shrink: 0;
+    padding: 12px 16px 20px;
+    border-top: 1px solid #E5E7EB;
+    background: #FFFFFF;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  }
+
+  #right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: fixed;
+    top: 0; bottom: 0;
+    right: 0;
+    width: 30vw;
+    background: #FFFFFF;
+    border-left: 1px solid #E5E7EB;
+    padding: 20px 16px 24px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.04);
+  }
+  #right-panel > * { flex-shrink: 0; }
+  #right-panel::-webkit-scrollbar       { width: 4px; }
+  #right-panel::-webkit-scrollbar-track { background: transparent; }
+  #right-panel::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 2px; }
+
+  #sec-pot     { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+  .tab-content { gap: 16px; }
+  .btn-group   { flex-wrap: wrap; gap: 6px; }
+  #obj-list    { flex-direction: column; overflow-x: visible; overflow-y: visible; gap: 10px; padding-bottom: 0; }
+  .obj-card    { flex: none; width: 100%; min-width: unset; align-items: stretch; }
+  .obj-icon    { text-align: center; }
+  .obj-size-row { flex-wrap: nowrap; }
+  .act-group   { gap: 8px; }
+  .act-btn     { width: 100%; text-align: center; }
+
+  #rp-tab-nav {
+    display: flex;
+    gap: 4px;
+    background: #F3F4F6;
+    padding: 4px;
+    border-radius: 10px;
+  }
+}
+
+/* ════════════════════════════
+   モバイル (max-width: 767px)
+   ════════════════════════════ */
+@media (max-width: 767px) {
+  #mix-ratio-panel { display: none !important; }
+
+  /* 鉢サイズ: ctrl-label + pot-hint を1行目に、btn-group を2行目に */
+  #sec-pot             { gap: 2px 6px; }
+  #sec-pot .ctrl-label { order: 1; font-size: 13px; }
+  #pot-hint            { order: 2; font-size: 10px; color: #B0BAC8; }
+  #sec-pot .btn-group  { order: 3; width: 100%; gap: 6px; }
+  #sec-pot .size-btn   { flex: 1; padding: 5px 0; font-size: 13px; }
+
+  /* 有機物率カード: コンパクト化 */
+  .organic-block               { gap: 5px; padding: 9px 12px; }
+  .organic-block .chart-label  { font-size: 12px; }
+  .split-bar-wrap              { gap: 3px; }
+  .split-bar-ends              { display: none; }        /* 両端ラベルは非表示 */
+  .split-bar-footer            { gap: 6px; }
+  .split-label                 { font-size: 12px; }
+  .split-vals                  { font-size: 11px; }
+
+  /* 保肥力カード: 1行に近いコンパクト表示 */
+  .nutrient-block              { padding: 7px 12px; gap: 0; }
+  .nutrient-block .bar-icon    { font-size: 10px; color: #D97706; }
+  .nutrient-block .bar-label   { font-size: 11px; color: #6B7280; }
+  .nutrient-block .bar-track   { height: 5px; }
+  .nutrient-block .bar-pct     { font-size: 11px; color: #6B7280; }
+
+  /* フッター導線: 詰める */
+  #disclaimer-wrap  { padding-top: 6px; }
+  #guide-link       { padding-bottom: 4px; font-size: 11px; }
+  #feedback-link    { padding-top: 8px; font-size: 11px; margin-top: 0; }
+
+  /* 貢献資材カード: 密度を上げる */
+  #influence-block   { padding: 8px 11px; gap: 4px; }
+  .inf-title         { font-size: 10px; font-weight: 600; letter-spacing: 0.03em; margin: 0 0 1px; }
+  .inf-row           { font-size: 11px; gap: 4px; }
+  .inf-param         { font-size: 11px; min-width: 44px; }
+  .inf-mat           { gap: 3px; font-size: 11px; }
+  .inf-mat-dot       { width: 6px; height: 6px; }
+
+  /* 詳細パラメータ アコーディオン */
+  .detail-toggle-btn  { padding: 7px 12px; font-size: 12px; }
+  .detail-toggle-label{ font-size: 12px; }
+  .detail-inner       { padding: 10px 12px; gap: 8px; }
+  .detail-bar-row     { gap: 6px; }
+  .detail-section     { gap: 4px; }
+  .gran-rows          { gap: 4px; padding-left: 6px; }
+  .detail-label       { font-size: 11px; width: 54px; }
+  .gran-label         { font-size: 11px; width: 24px; }
+  .detail-inner .tip-icon { width: 12px; height: 12px; font-size: 9px; margin-left: 2px; }
+
+  .act-btn                                { padding: 0 12px; font-size: 13px; }
+  #center-actions #startBtn,
+  #center-actions .act-group-ops .act-btn {
+    height: 40px;
+    padding: 0 10px;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .size-btn     { padding: 6px 12px; font-size: 14px; }
+  .ctrl-label   { font-size: 14px; }
+  #canvas-guide { display: none; }
+
+  /* 縦リスト・アコーディオン構成 */
+  #obj-list { flex-direction: column; overflow-x: hidden; gap: 10px; padding-bottom: 0; }
+  .obj-card { flex: none; width: 100%; min-width: unset; padding: 9px 12px; gap: 6px; }
+  .obj-name { font-size: 14px; }
+  .obj-size-btn     { padding: 4px 8px; font-size: 12px; }
+  .size-grain-label { font-size: 10px; }
+  .size-grain-hint  { display: none; }
+  .ratio-val        { font-size: 13px; min-width: 28px; }
+
+  /* ── ボタン状態制御（モバイル） ── */
+  /* 未投入: 追加投入・トントン・リセットを隠す */
+  #center-actions .act-group-ops   { display: none; }
+  #center-actions .act-group-reset { display: none; }
+
+  /* 投入後: スタートを隠し、操作ボタンを表示 */
+  #center-actions.has-poured #startBtn        { display: none; }
+  #center-actions.has-poured .act-group-ops   { display: flex; }
+  #center-actions.has-poured .act-group-reset { display: block; }
+
+  /* ページ下端余白: 固定ボタン郡が最終コンテンツに重ならないように */
+  #panel { padding-bottom: 72px; }
+  /* margin-top:auto はデスクトップ専用（モバイルでは不要な空白になる） */
+  #feedback-link { margin-top: 0; }
+  /* sticky バーで代替するため、モバイルの分析パネル内バーブロックは非表示 */
+  #right-panel.rp-mobile .bars-block { display: none; }
+  /* モバイル: 各グラフバーを sticky バーと同じ 5px に統一 */
+  #right-panel.rp-mobile .bar-track       { height: 5px; border-radius: 3px; }
+  #right-panel.rp-mobile .split-bar-track { height: 5px; border-radius: 3px; }
+
+  /* 破壊系: リセットはテキストリンク風、全て0は非表示 */
+  #sec-actions { display: none; }
+  #center-actions .act-group-reset {
+    border-top: none;
+    padding-top: 0;
+  }
+  #resetBtn {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #B0BAC8 !important;
+    font-size: 12px !important;
+    padding: 4px 0 !important;
+    font-weight: 400;
+    text-align: center;
+    width: 100%;
+  }
+  #resetBtn:hover {
+    color: #6B7280 !important;
+    background: none !important;
+  }
+
+  /* 分析タブは常に表示、比較タブはモバイル非表示 */
+  #rp-tab-analysis.rp-tab-content { display: flex; }
+  #rp-tab-compare { display: none !important; }
+  #save-compare-area { display: none; }
+}

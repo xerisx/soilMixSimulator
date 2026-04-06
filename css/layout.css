@@ -1,0 +1,309 @@
+/* ── モバイル: 鉢エリアの高さを確保する透明スペーサー ── */
+#canvas-spacer {
+  height: 45vh; /* JS で potBottomY に基づいて上書きされる */
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════
+   モバイル（デフォルト）: 通常フロー パネル
+   ════════════════════════════ */
+#panel {
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#right-panel { display: none; }
+
+/* モバイル: tab-materials 内に移動された際のスタイル */
+#right-panel.rp-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: static;
+  width: auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  overflow-y: visible;
+}
+/* モバイル時はヘッダーを非表示 */
+#right-panel.rp-mobile .rp-header { display: none; }
+
+/* ── panel-fixed-top（モバイル: 縮まないよう固定） ── */
+#panel-fixed-top {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── panel-scroll（モバイルでは通常フロー、デスクトップではスクロール可能） ── */
+#panel-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── 鉢への操作ボタン（モバイル: パネルと独立した固定レイヤー） ── */
+#center-actions {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 200;
+  background: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+}
+
+#center-actions .act-start {
+  width: 100%;
+}
+
+#center-actions .act-group-ops {
+  margin-bottom: 6px;
+}
+
+#center-actions .act-group-reset {
+  padding-top: 12px;
+  border-top: 1px solid #F3F4F6;
+}
+
+#center-actions .act-group-reset .act-btn {
+  width: 100%;
+}
+
+/* ── 配合リセット（左パネル下部・縮まない） ── */
+#sec-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.act-group {
+  display: flex;
+  gap: 10px;
+}
+
+.act-group .act-btn {
+  flex: 1;
+}
+
+/* ── 鉢サイズ ── */
+#sec-pot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── 鉢サイズヒント ── */
+#pot-hint {
+  font-size: 11px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
+/* ── モバイル sticky ブランドヘッダー ── */
+#mobile-header {
+  position: sticky;
+  top: 0;
+  /* z-index はあえて設定しない: スクロールで panel(z-index:1) が上に被さる */
+  background: #FFFFFF;
+  border-bottom: 1px solid #EFEFEF;
+  padding: 5px 14px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+#mobile-logo {
+  height: 15px;
+  width: auto;
+  display: block;
+}
+
+#mobile-sub {
+  font-size: 8px;
+  color: #B0BAC8;
+  font-family: sans-serif;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* ── アプリヘッダー ── */
+#app-header { display: none; }
+
+#app-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+#app-sub {
+  font-size: 10px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding-left: 1px;
+}
+
+/* ── 左パネル内 資材ガイドリンク ── */
+#guide-link-panel {
+  display: block;
+  font-size: 12px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  text-align: center;
+  padding: 10px 0 4px;
+  text-decoration: none;
+  border-top: 1px solid #F3F4F6;
+  margin-top: 4px;
+  transition: color 0.15s;
+}
+#guide-link-panel:hover { color: #0284C7; }
+
+/* ── 資材ガイドリンク ── */
+#guide-link {
+  font-size: 12px;
+  color: #6B7280;
+  font-family: sans-serif;
+  text-align: center;
+  padding-bottom: 8px;
+}
+
+#guide-link a {
+  color: #0284C7;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+#guide-link a:hover {
+  text-decoration: underline;
+}
+
+/* ── フィードバックリンク ── */
+#feedback-link {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #F3F4F6;
+  font-size: 12px;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+#feedback-link a {
+  color: #6B7280;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+}
+
+#feedback-link a:hover {
+  color: #111827;
+  text-decoration: underline;
+}
+
+.x-logo {
+  width: 11px;
+  height: 11px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── ボタン補助テキスト ── */
+.act-btn-sub {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.75;
+  margin-top: 1px;
+  line-height: 1.2;
+}
+.act-tonton { line-height: 1.3; }
+
+/* ── キャンバス初期ガイド ── */
+#canvas-guide {
+  position: fixed;
+  top: 44%;
+  left: 30%;
+  width: 40%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
+}
+#canvas-guide[hidden] { display: none; }
+
+#canvas-guide-inner {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 16px 24px;
+  text-align: left;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
+
+.cg-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  font-family: sans-serif;
+  margin-bottom: 12px;
+}
+
+.cg-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  counter-reset: cg-step;
+  padding: 0;
+}
+
+.cg-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #6B7280;
+  font-family: sans-serif;
+  counter-increment: cg-step;
+}
+
+.cg-steps li::before {
+  content: counter(cg-step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #F3F4F6;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: sans-serif;
+  flex-shrink: 0;
+}
