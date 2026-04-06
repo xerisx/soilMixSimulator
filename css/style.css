@@ -320,7 +320,7 @@ canvas {
 #obj-list::-webkit-scrollbar-track { background: transparent; }
 #obj-list::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 2px; }
 
-/* ── 資材アコーディオン（モバイル） ── */
+/* ── 資材アコーディオン ── */
 .mat-accordion {
   display: flex;
   flex-direction: column;

@@ -912,10 +912,9 @@ function appendObjCard(list, type) {
 
   });
 
-  // モバイル: 値確定時（指を離した後）に境界を越えていたらアコーディオン間を移動
+  // 値確定時（指を離した後 / クリック後）に境界を越えていたらアコーディオン間を移動
   // お気に入りは常にactiveに留まるため対象外
   card.querySelector('.ratio-slider').addEventListener('change', (e) => {
-    if (window.innerWidth >= DESKTOP_BREAKPOINT) return;
     if (isFavorite('material', type.id)) return;
     const weight = objectTypes[Number(e.target.dataset.idx)].weight;
     const wasActive = card.closest('[data-accordion="active"]') !== null;
@@ -986,34 +985,27 @@ function renderObjList() {
 
   list.innerHTML = '';
 
-  const isMobile = window.innerWidth < DESKTOP_BREAKPOINT;
+  // お気に入り・使用中: 全お気に入り（上部）→ 非お気に入りでweight>0（下部）
+  const favActive    = objectTypes.filter(t => isFavorite('material', t.id) && t.weight > 0);
+  const favZero      = objectTypes.filter(t => isFavorite('material', t.id) && t.weight === 0);
+  const nonFavActive = objectTypes.filter(t => !isFavorite('material', t.id) && t.weight > 0);
+  const activeAll = [...favActive, ...favZero, ...nonFavActive];
 
-  if (isMobile) {
-    // お気に入り・使用中: 全お気に入り（上部）→ 非お気に入りでweight>0（下部）
-    const favActive    = objectTypes.filter(t => isFavorite('material', t.id) && t.weight > 0);
-    const favZero      = objectTypes.filter(t => isFavorite('material', t.id) && t.weight === 0);
-    const nonFavActive = objectTypes.filter(t => !isFavorite('material', t.id) && t.weight > 0);
-    const activeAll = [...favActive, ...favZero, ...nonFavActive];
+  // その他: weight===0 かつ非お気に入り
+  const inactive = sortedByFavorite(
+    objectTypes.filter(t => t.weight === 0 && !isFavorite('material', t.id)),
+    'material'
+  );
 
-    // その他: weight===0 かつ非お気に入り
-    const inactive = sortedByFavorite(
-      objectTypes.filter(t => t.weight === 0 && !isFavorite('material', t.id)),
-      'material'
-    );
+  // アコーディオン1: 使用中 / お気に入り
+  const activeSection = createMatAccordion(`使用中 / お気に入り（${activeAll.length}件）`, prevActiveOpen, 'active');
+  activeAll.forEach(type => appendObjCard(activeSection.body, type));
+  list.appendChild(activeSection.el);
 
-    // アコーディオン1: 使用中 / お気に入り
-    const activeSection = createMatAccordion(`使用中 / お気に入り（${activeAll.length}件）`, prevActiveOpen, 'active');
-    activeAll.forEach(type => appendObjCard(activeSection.body, type));
-    list.appendChild(activeSection.el);
-
-    // アコーディオン2: その他の資材
-    const inactiveSection = createMatAccordion(`その他の資材（${inactive.length}件）`, prevInactiveOpen, 'inactive');
-    inactive.forEach(type => appendObjCard(inactiveSection.body, type));
-    list.appendChild(inactiveSection.el);
-  } else {
-    // デスクトップ: お気に入り優先の従来順
-    sortedByFavorite(objectTypes, 'material').forEach(type => appendObjCard(list, type));
-  }
+  // アコーディオン2: その他の資材
+  const inactiveSection = createMatAccordion(`その他の資材（${inactive.length}件）`, prevInactiveOpen, 'inactive');
+  inactive.forEach(type => appendObjCard(inactiveSection.body, type));
+  list.appendChild(inactiveSection.el);
 }
 
 // ── 初期化 ──
