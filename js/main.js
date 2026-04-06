@@ -155,4 +155,5 @@ document.querySelectorAll('.rp-tab-btn').forEach(btn => {
   btn.addEventListener('click', () => switchRpTab(btn.dataset.rpTab));
 });
 document.getElementById('save-compare-btn')?.addEventListener('click', saveCompareBase);
+document.getElementById('mms-compare-btn')?.addEventListener('click', saveCompareBase);
 updateComparePanel();

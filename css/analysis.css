@@ -1,4 +1,5 @@
 /* ── モバイル: 3指標 sticky バー ── */
+#mobile-metrics-sticky[hidden] { display: none !important; }
 #mobile-metrics-sticky {
   position: sticky;
   top: 14px;
@@ -6,7 +7,7 @@
   background: #FFFFFF;
   border: 1px solid #E5E7EB;
   border-radius: 10px;
-  padding: 6px 12px 8px;
+  padding: 10px 12px 12px;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -14,12 +15,35 @@
   margin-bottom: 2px;
 }
 
+.mms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1px;
+}
+
 .mms-title {
   font-size: 9px;
   font-family: sans-serif;
   color: #C0C8D4;
   letter-spacing: 0.04em;
-  margin-bottom: 1px;
+}
+
+.mms-compare-btn {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: sans-serif;
+  color: #4F6EF7;
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+.mms-compare-btn:active {
+  background: #E0E7FF;
 }
 
 .mms-row {

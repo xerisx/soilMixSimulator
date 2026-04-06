@@ -247,6 +247,7 @@ function updateMobileCmp() {
         <button class="mcmp-btn mcmp-btn-end" id="mcmp-clear-btn">比較終了</button>
       </div>
     </div>
+    <p class="mcmpd-title">まとめ</p>
     ${dirLine ? `<p class="mcmp-direction">${dirLine}</p>` : ''}
     ${sigMetrics.length > 0
       ? `<div class="mcmp-sum-chips">${sumChipsHtml}</div>`
@@ -270,7 +271,7 @@ function updateMobileCmp() {
     let diffStr, diffClass;
     if (diff > THRESHOLD)        { diffStr = `+${diff} ↑`; diffClass = 'mcmp-diff-pos'; }
     else if (diff < -THRESHOLD)  { diffStr = `${diff} ↓`;  diffClass = 'mcmp-diff-neg'; }
-    else                         { diffStr = '─';           diffClass = 'mcmp-diff-zero'; }
+    else                         { diffStr = '差なし';       diffClass = 'mcmp-diff-zero'; }
 
     return `<div class="mcmp-metric-row">
       <div class="mcmp-metric-top">
@@ -305,7 +306,7 @@ function updateMobileCmp() {
     </div>` : '';
 
   detail.innerHTML = `
-    <p class="mcmpd-title">特性の詳細比較</p>
+    <p class="mcmpd-title">詳細</p>
     <div class="mcmp-metrics">${metricsHtml}</div>
     ${causesHtml}`;
 
