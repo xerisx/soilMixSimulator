@@ -103,32 +103,9 @@
     text-align: center;
   }
 
-  /* 3段目: 鉢を空にする — テキストリンク風の補助操作 */
+  /* PC では再投入ボタングループを非表示 */
   #center-actions .act-group-reset {
-    border-top: none;
-    padding-top: 0;
-    margin-left: 0;
-    display: flex;
-    justify-content: center;
-  }
-
-  #center-actions .act-group-reset .act-reset {
-    background: transparent;
-    border: 1px solid #D1D5DB;
-    box-shadow: none;
-    color: #6B7280;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 5px 18px;
-    width: auto;
-    border-radius: 8px;
-    text-decoration: none;
-  }
-
-  #center-actions .act-group-reset .act-reset:hover {
-    background: #F9FAFB;
-    border-color: #9CA3AF;
-    color: #374151;
+    display: none;
   }
 
   /* sec-actions: 配合リセットのみの左パネル下部 */
@@ -257,17 +234,17 @@
   .ratio-val        { font-size: 13px; min-width: 28px; }
 
   /* ── ボタン状態制御（モバイル） ── */
-  /* 未投入: 追加投入・トントン・リセットを隠す */
+  /* 未投入: 追加投入・トントン・再投入を隠す */
   #center-actions .act-group-ops   { display: none; }
   #center-actions .act-group-reset { display: none; }
 
-  /* 投入後: スタートを隠し、操作ボタンを表示 */
+  /* 投入後: スタートを隠し、操作ボタン・再投入を表示 */
   #center-actions.has-poured #startBtn        { display: none; }
   #center-actions.has-poured .act-group-ops   { display: flex; }
   #center-actions.has-poured .act-group-reset { display: block; }
 
-  /* ページ下端余白: 固定ボタン郡が最終コンテンツに重ならないように */
-  #panel { padding-bottom: 72px; }
+  /* ページ下端余白: 投入後は ops + reinvestBtn 分だけバー高さが増えるため大きめに確保 */
+  #panel { padding-bottom: 110px; }
   /* margin-top:auto はデスクトップ専用（モバイルでは不要な空白になる） */
   #feedback-link { margin-top: 0; }
   /* sticky バーで代替するため、モバイルの分析パネル内バーブロックは非表示 */
@@ -276,26 +253,28 @@
   #right-panel.rp-mobile .bar-track       { height: 5px; border-radius: 3px; }
   #right-panel.rp-mobile .split-bar-track { height: 5px; border-radius: 3px; }
 
-  /* 破壊系: リセットはテキストリンク風、全て0は非表示 */
+  /* 再投入ボタン: モバイルのみ表示、通常ボタンスタイル */
   #sec-actions { display: none; }
   #center-actions .act-group-reset {
     border-top: none;
     padding-top: 0;
   }
-  #resetBtn {
-    background: none !important;
-    border: none !important;
+  #reinvestBtn {
+    background: #F3F4F6 !important;
+    border: 1px solid #D1D5DB !important;
     box-shadow: none !important;
-    color: #B0BAC8 !important;
-    font-size: 12px !important;
-    padding: 4px 0 !important;
-    font-weight: 400;
+    color: #374151 !important;
+    font-size: 13px !important;
+    padding: 8px 0 !important;
+    font-weight: 500;
     text-align: center;
     width: 100%;
+    border-radius: 8px;
   }
-  #resetBtn:hover {
-    color: #6B7280 !important;
-    background: none !important;
+  #reinvestBtn:hover {
+    background: #E5E7EB !important;
+    border-color: #9CA3AF !important;
+    color: #111827 !important;
   }
 
   /* 分析タブは常に表示、比較タブはモバイル非表示（#mobile-cmp sticky カードで代替） */

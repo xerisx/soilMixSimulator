@@ -1478,7 +1478,7 @@ canvas {
   /* 投入後: スタートを隠し、操作ボタンを表示 */
   #center-actions.has-poured #startBtn        { display: none; }
   #center-actions.has-poured .act-group-ops   { display: flex; }
-  #center-actions.has-poured .act-group-reset { display: block; }
+  #center-actions.has-poured .act-group-reset { display: none; }
 
   /* ページ下端余白: 固定ボタン郡が最終コンテンツに重ならないように */
   #panel { padding-bottom: 72px; }
@@ -1490,26 +1490,28 @@ canvas {
   #right-panel.rp-mobile .bar-track       { height: 5px; border-radius: 3px; }
   #right-panel.rp-mobile .split-bar-track { height: 5px; border-radius: 3px; }
 
-  /* 破壊系: リセットはテキストリンク風、全て0は非表示 */
+  /* 再投入ボタン: モバイルのみ表示、通常ボタンスタイル */
   #sec-actions { display: none; }
   #center-actions .act-group-reset {
     border-top: none;
     padding-top: 0;
   }
-  #resetBtn {
-    background: none !important;
-    border: none !important;
+  #reinvestBtn {
+    background: #F3F4F6 !important;
+    border: 1px solid #D1D5DB !important;
     box-shadow: none !important;
-    color: #B0BAC8 !important;
-    font-size: 12px !important;
-    padding: 4px 0 !important;
-    font-weight: 400;
+    color: #374151 !important;
+    font-size: 13px !important;
+    padding: 8px 0 !important;
+    font-weight: 500;
     text-align: center;
     width: 100%;
+    border-radius: 8px;
   }
-  #resetBtn:hover {
-    color: #6B7280 !important;
-    background: none !important;
+  #reinvestBtn:hover {
+    background: #E5E7EB !important;
+    border-color: #9CA3AF !important;
+    color: #111827 !important;
   }
 }
 

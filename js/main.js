@@ -66,6 +66,8 @@ applyPreset('balance');
 // ── 投入状態の切り替え ──
 function setPouredState(poured) {
   document.getElementById('center-actions')?.classList.toggle('has-poured', poured);
+  const startBtn = document.getElementById('startBtn');
+  if (startBtn) startBtn.textContent = poured ? '再投入' : '▶ 投入して開始';
 }
 
 // ── スタートボタン ──
@@ -137,14 +139,16 @@ document.getElementById('tontonBtn').addEventListener('click', () => {
   doTap();
 });
 
-// ── リセットボタン ──
-document.getElementById('resetBtn').addEventListener('click', () => {
+// ── 再投入ボタン（モバイルのみ表示） ──
+document.getElementById('reinvestBtn').addEventListener('click', () => {
+  if (isAllZero()) { showEmptyState(); return; }
   if (isAirView) {
     isAirView = false;
     document.getElementById('airBtn').classList.remove('active');
   }
   reset();
-  setPouredState(false);
+  startSpawning();
+  setPouredState(true);
 });
 
 // ── 全て0ボタン ──
