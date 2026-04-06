@@ -72,6 +72,7 @@ function updateComparePanel() {
         <button class="save-compare-btn" id="cmp-empty-save-btn">この配合を比較元にする</button>
       </div>`;
     document.getElementById('cmp-empty-save-btn')?.addEventListener('click', saveCompareBase);
+    updateMobileCmp();
     return;
   }
 
@@ -193,6 +194,7 @@ function updateMobileCmp() {
   if (window.innerWidth >= 768) return;
 
   const el      = document.getElementById('mobile-cmp');
+  const detail  = document.getElementById('mobile-cmp-detail');
   const sticky  = document.getElementById('mobile-metrics-sticky');
   const rp      = document.getElementById('right-panel');
   if (!el) return;
@@ -200,6 +202,7 @@ function updateMobileCmp() {
   // 比較解除時: sticky を戻して終了
   if (!compareBaseSnapshot) {
     el.hidden = true;
+    if (detail) detail.hidden = true;
     if (sticky) sticky.hidden = false;
     if (rp)    rp.hidden = false;
     return;
@@ -217,30 +220,49 @@ function updateMobileCmp() {
   ];
   const THRESHOLD = 2;
 
-  // ── まとめ ──
+  // ══ 固定パネル: 結論 + 上位チップのみ ══
   const dirLine = getDirectionLine(A, B);
   const sigMetrics = METRICS
     .map(m => ({ ...m, diff: B[m.key] - A[m.key] }))
     .filter(m => Math.abs(m.diff) > THRESHOLD)
-    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
+    .slice(0, 3);
 
-  const sumItemsHtml = sigMetrics.map(m => {
+  const sumChipsHtml = sigMetrics.map(m => {
     const pos = m.diff > 0;
     const str = pos ? `+${Math.round(m.diff)} ↑` : `${Math.round(m.diff)} ↓`;
     const cls = pos ? 'mcmp-diff-pos' : 'mcmp-diff-neg';
     return `<span class="mcmp-sum-chip ${cls}">${m.label} ${str}</span>`;
   }).join('');
 
-  const summaryHtml = `
-    <div class="mcmp-summary">
-      ${dirLine ? `<p class="mcmp-direction">${dirLine}</p>` : ''}
-      ${sigMetrics.length > 0
-        ? `<div class="mcmp-sum-chips">${sumItemsHtml}</div>`
-        : (!dirLine ? '<p class="mcmp-no-change">大きな変化はありません</p>' : '')
-      }
-    </div>`;
+  el.innerHTML = `
+    <div class="mcmp-header">
+      <div class="mcmp-header-left">
+        <span class="cmp-lbl-badge cmp-lbl-a">A 基準</span>
+        <span class="mcmp-header-sep">/</span>
+        <span class="cmp-lbl-badge cmp-lbl-b">B 現在</span>
+      </div>
+      <div class="mcmp-header-btns">
+        <button class="mcmp-btn" id="mcmp-update-btn">基準を更新</button>
+        <button class="mcmp-btn mcmp-btn-end" id="mcmp-clear-btn">比較終了</button>
+      </div>
+    </div>
+    ${dirLine ? `<p class="mcmp-direction">${dirLine}</p>` : ''}
+    ${sigMetrics.length > 0
+      ? `<div class="mcmp-sum-chips">${sumChipsHtml}</div>`
+      : `<p class="mcmp-no-change">大きな変化はありません</p>`
+    }`;
 
-  // ── 特性比較: コンパクト1行形式 ──
+  el.hidden = false;
+  if (sticky) sticky.hidden = true;
+  if (rp)    rp.hidden = true;
+
+  document.getElementById('mcmp-update-btn')?.addEventListener('click', saveCompareBase);
+  document.getElementById('mcmp-clear-btn')?.addEventListener('click', clearCompareBase);
+
+  // ══ 詳細エリア: 全特性 + 原因 ══
+  if (!detail) return;
+
   const metricsHtml = METRICS.map(m => {
     const a = A[m.key];
     const b = B[m.key];
@@ -251,17 +273,22 @@ function updateMobileCmp() {
     else                         { diffStr = '─';           diffClass = 'mcmp-diff-zero'; }
 
     return `<div class="mcmp-metric-row">
-      <span class="mcmp-metric-label">${m.icon} ${m.label}</span>
-      <span class="mcmp-ab-vals">
-        <span class="mcmp-a-val">${a}</span>
-        <span class="mcmp-arrow">→</span>
-        <span class="mcmp-b-val">${b}</span>
-      </span>
-      <span class="mcmp-diff-val ${diffClass}">${diffStr}</span>
+      <div class="mcmp-metric-top">
+        <span class="mcmp-metric-label">${m.icon} ${m.label}</span>
+        <span class="mcmp-ab-vals">
+          <span class="mcmp-a-val">${a}</span>
+          <span class="mcmp-arrow">→</span>
+          <span class="mcmp-b-val">${b}</span>
+        </span>
+        <span class="mcmp-diff-val ${diffClass}">${diffStr}</span>
+      </div>
+      <div class="mcmp-mini-bars">
+        <div class="mcmp-mini-track"><div class="mcmp-mini-fill mcmp-mini-a" style="width:${a}%"></div></div>
+        <div class="mcmp-mini-track"><div class="mcmp-mini-fill mcmp-mini-b" style="width:${b}%"></div></div>
+      </div>
     </div>`;
   }).join('');
 
-  // ── 主な変化 ──
   const top3 = calcMatDiffs();
   const causesHtml = top3.length > 0 ? `
     <div class="mcmp-causes">
@@ -277,29 +304,12 @@ function updateMobileCmp() {
       }).join('')}
     </div>` : '';
 
-  el.innerHTML = `
-    <div class="mcmp-header">
-      <div class="mcmp-header-left">
-        <span class="cmp-lbl-badge cmp-lbl-a">A 基準</span>
-        <span class="mcmp-header-sep">/</span>
-        <span class="cmp-lbl-badge cmp-lbl-b">B 現在</span>
-      </div>
-      <div class="mcmp-header-btns">
-        <button class="mcmp-btn" id="mcmp-update-btn">基準を更新</button>
-        <button class="mcmp-btn mcmp-btn-end" id="mcmp-clear-btn">比較終了</button>
-      </div>
-    </div>
-    ${summaryHtml}
+  detail.innerHTML = `
+    <p class="mcmpd-title">特性の詳細比較</p>
     <div class="mcmp-metrics">${metricsHtml}</div>
     ${causesHtml}`;
 
-  // 表示切り替え
-  el.hidden = false;
-  if (sticky) sticky.hidden = true;
-  if (rp)    rp.hidden = true;
-
-  document.getElementById('mcmp-update-btn')?.addEventListener('click', saveCompareBase);
-  document.getElementById('mcmp-clear-btn')?.addEventListener('click', clearCompareBase);
+  detail.hidden = false;
 }
 
 function getDirectionLine(A, B) {

@@ -437,9 +437,40 @@
 
 .mcmp-metric-row {
   display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mcmp-metric-top {
+  display: flex;
   align-items: center;
   gap: 6px;
 }
+
+/* ── ミニ比較バー ── */
+.mcmp-mini-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 2px;
+}
+
+.mcmp-mini-track {
+  width: 100%;
+  height: 4px;
+  background: #F1F5F9;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.mcmp-mini-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 300ms ease;
+}
+
+.mcmp-mini-a { background: #CBD5E1; }
+.mcmp-mini-b { background: #3B82F6; }
 
 .mcmp-metric-label {
   font-size: 12px;
@@ -530,4 +561,30 @@
 .mcmp-cause-top .mcmp-cause-name {
   font-weight: 700;
   color: #111827;
+}
+
+/* ════════════════════════════
+   モバイル専用 比較詳細エリア (#mobile-cmp-detail)
+   ════════════════════════════ */
+#mobile-cmp-detail {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-bottom: 2px;
+}
+#mobile-cmp-detail[hidden] { display: none !important; }
+
+.mcmpd-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9CA3AF;
+  font-family: sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
 }
