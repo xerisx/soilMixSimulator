@@ -5,9 +5,9 @@ const ADD_COUNTS = { 1: 10, 2: 32, 3: 55, 4: 77, 5: 100 };
 
 // ── プリセット配合（resource ID → weight） ──
 const PRESETS = {
-  balance:  { akadama: 3, hyuga: 2, pumice: 1.5, berabon: 1 },
-  drainage: { hyuga: 3, pumice: 3, perlite: 2, berabon: 1 },
-  water:    { akadama: 3, vermiculite: 2, peatmoss: 2, berabon: 1 },
+  balance:  { akadama: 3, hyuga: 2, pumice: 1.5, coco_chip: 1 },
+  drainage: { hyuga: 3, pumice: 3, perlite: 2, coco_chip: 1 },
+  water:    { akadama: 3, vermiculite: 2, peatmoss: 2, coco_chip: 1 },
   nutrient: { zeolite: 3, vermiculite: 2, akadama: 2, humus: 1 },
 };
 

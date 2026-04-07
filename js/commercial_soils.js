@@ -8,7 +8,7 @@ const COMMERCIAL_SOILS = [
     description: '通気性・排水性重視',
     category: '観葉植物',
     materials: [
-      { id: 'berabon',  weight: 4, size: 'M' },
+      { id: 'coco_chip',  weight: 4, size: 'M' },
       { id: 'pumice',   weight: 2, size: 'M' },
       { id: 'perlite',  weight: 1, size: 'S' },
       { id: 'charcoal', weight: 1, size: 'S' },
@@ -43,7 +43,7 @@ const COMMERCIAL_SOILS = [
     description: 'やや保水寄り',
     category: '観葉植物',
     materials: [
-      { id: 'berabon',     weight: 2, size: 'M' },
+      { id: 'coco_chip',     weight: 2, size: 'M' },
       { id: 'akadama',     weight: 2, size: 'M' },
       { id: 'humus',       weight: 1, size: 'M' },
       { id: 'perlite',     weight: 1, size: 'S' },
@@ -67,7 +67,7 @@ const COMMERCIAL_SOILS = [
     category: '着生植物',
     materials: [
       { id: 'sphagnum', weight: 4, size: 'L' },
-      { id: 'berabon',  weight: 2, size: 'L' },
+      { id: 'coco_chip',  weight: 2, size: 'L' },
       { id: 'charcoal', weight: 1, size: 'S' },
     ],
   },
@@ -77,7 +77,7 @@ const COMMERCIAL_SOILS = [
     description: '高通気・着生ラン向け',
     category: '洋ラン',
     materials: [
-      { id: 'berabon',  weight: 3, size: 'M' },
+      { id: 'coco_chip',  weight: 3, size: 'M' },
       { id: 'pumice',   weight: 2, size: 'M' },
       { id: 'sphagnum', weight: 1, size: 'M' },
     ],

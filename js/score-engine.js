@@ -114,8 +114,8 @@ const MATERIAL_EXTRA = {
       { metric: 'aeration',          threshold: 0.50, slope: -30 },
     ],
   },
-  // 発酵バーク: 50%超で通気低下（有機物過多）
-  bark: {
+  // 発酵バークチップ: 50%超で通気低下（有機物過多）
+  bark_chip: {
     thresholdEffects: [
       { metric: 'aeration', threshold: 0.50, slope: -20 },
     ],
