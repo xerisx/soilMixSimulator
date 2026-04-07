@@ -3,31 +3,44 @@
 
 const COMMERCIAL_SOILS = [
   {
-    id: 'neko_chip_m',
-    name: 'ねこチップ（M）',
-    description: '通気性・排水性重視',
+    id: 'q_soil',
+    name: 'Q-soil',
+    description: 'アロイド向けに調整した、通気性が高く根が蒸れにくい配合',
     category: '観葉植物',
     materials: [
-      { id: 'coco_chip',  weight: 2, size: 'M' },
-      { id: 'hyuga', weight: 1, size: 'M' },
+      { id: 'coco_chip', weight: 3.5, size: 'M' },
+      { id: 'bark_chip', weight: 3, size: 'M' },
+      { id: 'hyuga',     weight: 2.5, size: 'L' },
+      { id: 'zeolite',   weight: 0.7, size: 'M' },
+      { id: 'charcoal',  weight: 0.5, size: 'M' },
+    ],
+  },
+  {
+    id: 'neko_chip_m',
+    name: 'ねこチップ（M）',
+    description: '軽量で乾きやすい、室内向けのシンプル配合',
+    category: '観葉植物',
+    materials: [
+      { id: 'coco_chip', weight: 2, size: 'M' },
+      { id: 'hyuga',     weight: 1, size: 'M' },
     ],
   },
   {
     id: 'aroid_mix',
     name: 'アロイド向け用土',
-    description: '通気性・排水性重視',
+    description: 'かなり乾きやすく、根が蒸れにくい配合',
     category: '観葉植物',
     materials: [
-      { id: 'coco_chip',  weight: 4, size: 'M' },
-      { id: 'pumice',   weight: 2, size: 'M' },
-      { id: 'perlite',  weight: 1, size: 'S' },
-      { id: 'charcoal', weight: 1, size: 'S' },
+      { id: 'coco_chip', weight: 4, size: 'M' },
+      { id: 'pumice',    weight: 2, size: 'M' },
+      { id: 'perlite',   weight: 1, size: 'S' },
+      { id: 'charcoal',  weight: 1, size: 'S' },
     ],
   },
   {
     id: 'succulent_mix',
     name: '多肉・塊根植物の土',
-    description: '排水性特化',
+    description: '非常に乾きやすい、無機質中心の配合',
     category: '多肉・塊根',
     materials: [
       { id: 'hyuga',   weight: 3, size: 'L' },
@@ -38,7 +51,7 @@ const COMMERCIAL_SOILS = [
   {
     id: 'general_houseplant',
     name: '観葉植物の土（一般向け）',
-    description: 'バランス型',
+    description: '扱いやすく、乾きすぎにくい定番配合',
     category: '観葉植物',
     materials: [
       { id: 'akadama',     weight: 3, size: 'M' },
@@ -50,79 +63,24 @@ const COMMERCIAL_SOILS = [
   {
     id: 'tropical_foliage',
     name: '熱帯植物の土',
-    description: 'やや保水寄り',
+    description: 'ややしっとり保ちやすい、葉物向けの配合',
     category: '観葉植物',
     materials: [
-      { id: 'coco_chip',     weight: 2, size: 'M' },
-      { id: 'akadama',     weight: 2, size: 'M' },
-      { id: 'humus',       weight: 1, size: 'M' },
-      { id: 'perlite',     weight: 1, size: 'S' },
-    ],
-  },
-  {
-    id: 'bulb_mix',
-    name: '球根植物の土',
-    description: 'やや排水寄り',
-    category: '球根',
-    materials: [
-      { id: 'akadama', weight: 3, size: 'M' },
-      { id: 'hyuga',   weight: 2, size: 'M' },
-      { id: 'humus',   weight: 1, size: 'S' },
+      { id: 'coco_chip', weight: 2, size: 'M' },
+      { id: 'akadama',   weight: 2, size: 'M' },
+      { id: 'humus',     weight: 1, size: 'M' },
+      { id: 'perlite',   weight: 1, size: 'S' },
     ],
   },
   {
     id: 'staghorn_fern',
     name: 'ビカクシダ・着生植物の土',
-    description: '保水性・通気性重視',
+    description: '水苔主体の着生向け配合（鉢用に調整）',
     category: '着生植物',
     materials: [
-      { id: 'sphagnum', weight: 4, size: 'L' },
-      { id: 'coco_chip',  weight: 2, size: 'L' },
-      { id: 'charcoal', weight: 1, size: 'S' },
-    ],
-  },
-  {
-    id: 'orchid_mix',
-    name: '洋ランの土',
-    description: '高通気・着生ラン向け',
-    category: '洋ラン',
-    materials: [
-      { id: 'coco_chip',  weight: 3, size: 'M' },
-      { id: 'pumice',   weight: 2, size: 'M' },
-      { id: 'sphagnum', weight: 1, size: 'M' },
-    ],
-  },
-  {
-    id: 'alpine_mix',
-    name: '山野草・ツツジの土',
-    description: '酸性・水はけよし',
-    category: '山野草',
-    materials: [
-      { id: 'kanuma', weight: 4, size: 'M' },
-      { id: 'akadama', weight: 2, size: 'M' },
-      { id: 'humus',   weight: 1, size: 'S' },
-    ],
-  },
-  {
-    id: 'blueberry_mix',
-    name: 'ブルーベリーの土',
-    description: '高保水・酸性',
-    category: '果樹',
-    materials: [
-      { id: 'peatmoss',    weight: 4, size: 'M' },
-      { id: 'kanuma',      weight: 2, size: 'M' },
-      { id: 'vermiculite', weight: 1, size: 'S' },
-    ],
-  },
-  {
-    id: 'cutting_mix',
-    name: '挿し木・育苗の土',
-    description: '無菌・軽量',
-    category: '育苗',
-    materials: [
-      { id: 'perlite',     weight: 3, size: 'M' },
-      { id: 'vermiculite', weight: 2, size: 'M' },
-      { id: 'peatmoss',    weight: 1, size: 'M' },
+      { id: 'sphagnum',  weight: 4, size: 'L' },
+      { id: 'coco_chip', weight: 2, size: 'L' },
+      { id: 'charcoal',  weight: 1, size: 'S' },
     ],
   },
 ];

@@ -19,13 +19,11 @@ const DESKTOP_BREAKPOINT = 768;
 // ── アプリ状態 ──
 let currentSize = '3';
 // MATERIALS（materials.js）からシミュレーション用の状態を初期化
-let objectTypes = MATERIALS
-  .filter(m => m.id !== 'sphagnum')
-  .map(m => ({
-    ...m,
-    size:   'M',
-    weight: 0,
-  }));
+let objectTypes = MATERIALS.map(m => ({
+  ...m,
+  size:   'M',
+  weight: 0,
+}));
 let cupBodies = [];
 let spawnInterval = null;
 let currentCupDims = null;
