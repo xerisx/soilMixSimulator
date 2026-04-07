@@ -43,18 +43,10 @@ function getMaterialTags(type) {
 }
 
 // ── グラフ計算 ──
+// 実装は score-engine.js の calcCompositeV2() に委譲。
+// 戻り値の形 { drainage, waterRetention, aeration, nutrientRetention, organic } は変わらない。
 function calcComposite() {
-  const total = objectTypes.reduce((s, t) => s + t.weight, 0);
-  if (total === 0) return null;
-  const avg = key => objectTypes.reduce((s, t) => s + getAdjustedParams(t)[key] * t.weight, 0) / total;
-  const organicWeight = objectTypes.reduce((s, t) => s + (t.params.organic ? t.weight : 0), 0);
-  return {
-    drainage:         Math.round(avg('drainage')),
-    waterRetention:   Math.round(avg('waterRetention')),
-    aeration:         Math.round(avg('aeration')),
-    organic:          Math.round(organicWeight / total * 100),
-    nutrientRetention: Math.round(avg('nutrientRetention')),
-  };
+  return calcCompositeV2();
 }
 
 function getEvalLabel(comp) {
