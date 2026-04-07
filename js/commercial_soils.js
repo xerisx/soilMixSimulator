@@ -3,6 +3,16 @@
 
 const COMMERCIAL_SOILS = [
   {
+    id: 'neko_chip_m',
+    name: 'ねこチップ（M）',
+    description: '通気性・排水性重視',
+    category: '観葉植物',
+    materials: [
+      { id: 'coco_chip',  weight: 2, size: 'M' },
+      { id: 'hyuga', weight: 1, size: 'M' },
+    ],
+  },
+  {
     id: 'aroid_mix',
     name: 'アロイド向け用土',
     description: '通気性・排水性重視',
