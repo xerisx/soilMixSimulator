@@ -151,8 +151,9 @@ document.getElementById('reinvestBtn').addEventListener('click', () => {
   setPouredState(true);
 });
 
-// ── 全て0ボタン ──
-document.getElementById('clearBtn').addEventListener('click', clearAllWeights);
+// ── 配合をリセットボタン（モバイル: mms-header / PC: pc-current-mix-header） ──
+document.getElementById('clearBtn')?.addEventListener('click', clearAllWeights);
+document.getElementById('pc-clear-btn')?.addEventListener('click', clearAllWeights);
 
 // ── 右パネル 分析/比較タブ ──
 document.querySelectorAll('.rp-tab-btn').forEach(btn => {
@@ -160,4 +161,5 @@ document.querySelectorAll('.rp-tab-btn').forEach(btn => {
 });
 document.getElementById('save-compare-btn')?.addEventListener('click', saveCompareBase);
 document.getElementById('mms-compare-btn')?.addEventListener('click', saveCompareBase);
+document.getElementById('pc-compare-btn')?.addEventListener('click', saveCompareBase);
 updateComparePanel();

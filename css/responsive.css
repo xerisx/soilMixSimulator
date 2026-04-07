@@ -8,6 +8,10 @@
   #mobile-header { display: none; }
   #mobile-metrics-sticky { display: none; }
   #mobile-cmp { display: none !important; }
+  /* PC: 比較元ボタンはヘッダー行に移動したため下部エリアを非表示 */
+  #save-compare-area { display: none; }
+  /* PC: 配合サマリーチップ（チップ形式）は不要 */
+  #mix-summary { display: none !important; }
 
   #app-header {
     display: flex;
@@ -161,6 +165,8 @@
    ════════════════════════════ */
 @media (max-width: 767px) {
   #mix-ratio-panel { display: none !important; }
+  /* PC用カードはモバイルでは非表示（mobile-metrics-stickyで代替） */
+  #pc-metrics-card { display: none !important; }
 
   /* 鉢サイズ: ctrl-label + pot-hint を1行目に、btn-group を2行目に */
   #sec-pot             { gap: 2px 6px; }
