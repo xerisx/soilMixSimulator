@@ -5,7 +5,7 @@ function positionCenterActions() {
   const el = document.getElementById('center-actions');
   if (!el || !currentCupDims) return;
   // 鉢の外底辺(bottomY + WALL_T)の直下 14px に top 端を合わせる
-  el.style.top    = (currentCupDims.bottomY + WALL_T + 14) + 'px';
+  el.style.top    = (currentCupDims.bottomY + (currentCupDims.wt ?? WALL_T) + 14) + 'px';
   el.style.bottom = 'auto';
 }
 
@@ -13,7 +13,7 @@ function adjustMobilePanelHeight() {
   if (window.innerWidth >= DESKTOP_BREAKPOINT) return;
   const spacer = document.getElementById('canvas-spacer');
   if (!spacer || !currentCupDims) return;
-  const potBottomY = currentCupDims.bottomY + WALL_T;
+  const potBottomY = currentCupDims.bottomY + (currentCupDims.wt ?? WALL_T);
   const header = document.getElementById('mobile-header');
   const headerH = header ? header.offsetHeight : 0;
   spacer.style.height = Math.max(potBottomY + 16 - headerH, 0) + 'px';

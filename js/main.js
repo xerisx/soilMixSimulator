@@ -104,35 +104,47 @@ document.getElementById('airBtn').addEventListener('click', () => {
 });
 
 // ── トントンボタン ──
+let tontonRunning = false;
 document.getElementById('tontonBtn').addEventListener('click', () => {
-  const TAPS     = 2;   // 叩く回数
-  const JOLT_PX  = 2;   // 瞬間移動量(px)
-  const SNAP_MS  = 30;  // 元に戻るまでの時間(ms)
-  const INTERVAL = 100; // 次の叩きまでの間隔(ms)
+  if (tontonRunning) return;
+  tontonRunning = true;
+
+  const isMobile = window.innerWidth < DESKTOP_BREAKPOINT;
+  const TAPS     = 2;                  // 叩く回数
+  const JOLT_PX  = isMobile ? 1 : 2;  // 瞬間移動量(px)
+  const SNAP_MS  = 30;                 // 元に戻るまでの時間(ms)
+  const INTERVAL = 100;                // 次の叩きまでの間隔(ms)
+  const VEL      = isMobile ? 3 : 5;  // 粒子への横速度
   let tapsDone = 0;
 
+  // アニメーション開始前の正位置を固定で記録する
+  const homePos = cupBodies.map(b => ({ x: b.position.x, y: b.position.y }));
+
   function doTap() {
-    if (cupBodies.length === 0) return;
-    const orig = cupBodies.map(b => ({ x: b.position.x, y: b.position.y }));
+    if (cupBodies.length === 0) { tontonRunning = false; return; }
     const dir = tapsDone % 2 === 0 ? 1 : -1;
 
     cupBodies.forEach((b, i) => {
-      Body.setPosition(b, { x: orig[i].x + dir * JOLT_PX, y: orig[i].y });
+      Body.setPosition(b, { x: homePos[i].x + dir * JOLT_PX, y: homePos[i].y });
     });
 
     Composite.allBodies(engine.world)
       .filter(b => b.isParticle)
       .forEach(b => {
         Body.setVelocity(b, {
-          x: dir * 5 + (Math.random() - 0.5) * 1,
+          x: dir * VEL + (Math.random() - 0.5) * 1,
           y: b.velocity.y,
         });
       });
 
     setTimeout(() => {
-      cupBodies.forEach((b, i) => Body.setPosition(b, orig[i]));
+      cupBodies.forEach((b, i) => Body.setPosition(b, homePos[i]));
       tapsDone++;
-      if (tapsDone < TAPS) setTimeout(doTap, INTERVAL);
+      if (tapsDone < TAPS) {
+        setTimeout(doTap, INTERVAL);
+      } else {
+        tontonRunning = false;
+      }
     }, SNAP_MS);
   }
 

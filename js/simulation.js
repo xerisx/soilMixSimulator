@@ -65,26 +65,27 @@ function makeTrapezoidWall(absVerts) {
 function buildCup() {
   const { topInnerW, botInnerW, cupHeight, topY, cx } = getCupDimensions();
   const bottomY = topY + cupHeight;
+  const wt = window.innerWidth < DESKTOP_BREAKPOINT ? 6 : WALL_T;
 
   const wallL = makeTrapezoidWall([
-    { x: cx - topInnerW / 2 - WALL_T, y: topY },
-    { x: cx - topInnerW / 2,           y: topY },
-    { x: cx - botInnerW / 2,           y: bottomY },
-    { x: cx - botInnerW / 2 - WALL_T,  y: bottomY },
+    { x: cx - topInnerW / 2 - wt, y: topY },
+    { x: cx - topInnerW / 2,      y: topY },
+    { x: cx - botInnerW / 2,      y: bottomY },
+    { x: cx - botInnerW / 2 - wt, y: bottomY },
   ]);
   const wallR = makeTrapezoidWall([
-    { x: cx + topInnerW / 2,           y: topY },
-    { x: cx + topInnerW / 2 + WALL_T,  y: topY },
-    { x: cx + botInnerW / 2 + WALL_T,  y: bottomY },
-    { x: cx + botInnerW / 2,           y: bottomY },
+    { x: cx + topInnerW / 2,      y: topY },
+    { x: cx + topInnerW / 2 + wt, y: topY },
+    { x: cx + botInnerW / 2 + wt, y: bottomY },
+    { x: cx + botInnerW / 2,      y: bottomY },
   ]);
   const bottom = Bodies.rectangle(
-    cx, bottomY + WALL_T / 2,
-    botInnerW + WALL_T * 2, WALL_T,
+    cx, bottomY + wt / 2,
+    botInnerW + wt * 2, wt,
     { isStatic: true, render: { fillStyle: '#B45309' } }
   );
 
-  currentCupDims = { topInnerW, botInnerW, cupHeight, topY, bottomY, cx };
+  currentCupDims = { topInnerW, botInnerW, cupHeight, topY, bottomY, cx, wt };
   cupBodies = [wallL, wallR, bottom];
   Composite.add(engine.world, cupBodies);
   positionCenterActions();
