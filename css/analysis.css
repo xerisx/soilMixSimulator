@@ -70,6 +70,182 @@
   color: #6B7280;
 }
 
+.mms-share-btn {
+  font-size: 10px;
+  font-weight: 500;
+  font-family: sans-serif;
+  color: #0369A1;
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+.mms-share-btn:active {
+  background: #E0F2FE;
+}
+
+/* ── 共有モーダル ── */
+#share-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+}
+#share-modal[hidden] { display: none !important; }
+
+.share-modal-box {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 22px 20px 18px;
+  width: min(92vw, 340px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.share-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: sans-serif;
+  color: #1E293B;
+  margin-bottom: -8px;
+}
+
+.share-modal-desc {
+  font-size: 12px;
+  font-family: sans-serif;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+/* コピー: 主役 */
+.share-copy-btn {
+  width: 100%;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: sans-serif;
+  background: #16A34A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 0;
+  cursor: pointer;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background 0.15s;
+}
+.share-copy-btn:hover  { background: #15803D; }
+.share-copy-btn:active { background: #166534; }
+.share-copy-btn.copied {
+  background: #0284C7;
+}
+
+/* URL表示: 補助 */
+.share-url-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.share-url-label {
+  font-size: 10px;
+  font-family: sans-serif;
+  color: #9CA3AF;
+  letter-spacing: 0.03em;
+}
+.share-url-input {
+  width: 100%;
+  font-size: 11px;
+  font-family: monospace;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #6B7280;
+  background: #F9FAFB;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
+}
+
+/* SNS: 補助 */
+.share-sns-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.share-sns-label {
+  font-size: 10px;
+  font-family: sans-serif;
+  color: #9CA3AF;
+  letter-spacing: 0.03em;
+}
+.share-sns-row {
+  display: flex;
+  gap: 8px;
+}
+.share-sns-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: sans-serif;
+  text-decoration: none;
+  border-radius: 7px;
+  padding: 8px 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.share-sns-x    { background: #18181B; color: #FFFFFF; }
+.share-sns-x:hover { background: #000000; }
+.share-sns-line { background: #06C755; color: #FFFFFF; }
+.share-sns-line:hover { background: #05A847; }
+
+.share-modal-close {
+  align-self: center;
+  font-size: 12px;
+  font-family: sans-serif;
+  color: #9CA3AF;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: -4px;
+}
+.share-modal-close:hover { color: #6B7280; }
+
+/* ── トースト ── */
+#share-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: #1E293B;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-family: sans-serif;
+  padding: 8px 20px;
+  border-radius: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 300;
+  white-space: nowrap;
+}
+#share-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ── PC: 現在の配合カード ── */
 #pc-metrics-card {
   background: #FFFFFF;

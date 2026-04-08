@@ -61,8 +61,9 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
   btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
 });
 
-// 初期状態: バランスプリセットを適用
+// 初期状態: バランスプリセットを適用 → URLハッシュがあれば上書き復元
 applyPreset('balance');
+initShareRestore();
 
 // ── 投入状態の切り替え ──
 function setPouredState(poured) {
@@ -167,6 +168,15 @@ document.getElementById('reinvestBtn').addEventListener('click', () => {
 // ── 配合をリセットボタン（モバイル: mms-header / PC: pc-current-mix-header） ──
 document.getElementById('clearBtn')?.addEventListener('click', clearAllWeights);
 document.getElementById('pc-clear-btn')?.addEventListener('click', clearAllWeights);
+
+// ── 共有ボタン ──
+document.getElementById('mms-share-btn')?.addEventListener('click', showShareModal);
+document.getElementById('pc-share-btn')?.addEventListener('click', showShareModal);
+
+// モーダル背景クリックで閉じる
+document.getElementById('share-modal')?.addEventListener('click', e => {
+  if (e.target === document.getElementById('share-modal')) closeShareModal();
+});
 
 // ── 右パネル 分析/比較タブ ──
 document.querySelectorAll('.rp-tab-btn').forEach(btn => {

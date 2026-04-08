@@ -24,6 +24,37 @@
   </div>
   <div id="tooltip" role="tooltip"></div>
 
+  <!-- 共有モーダル -->
+  <div id="share-modal" hidden>
+    <div class="share-modal-box">
+      <div class="share-modal-title">配合を共有</div>
+      <p class="share-modal-desc">このURLを送ると同じ配合を再現できます</p>
+
+      <button id="share-copy-btn" class="share-copy-btn" onclick="copyShareURL()">共有URLをコピー</button>
+
+      <div class="share-url-section">
+        <span class="share-url-label">共有URL（確認用）</span>
+        <input id="share-url-input" class="share-url-input" type="text" readonly onclick="this.select()">
+      </div>
+
+      <div class="share-sns-section">
+        <span class="share-sns-label">SNSで共有</span>
+        <div class="share-sns-row">
+          <a id="share-x-btn" class="share-sns-btn share-sns-x" href="#" target="_blank" rel="noopener noreferrer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L2.146 2.25h6.916l4.269 5.638L18.244 2.25Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"/></svg>
+            Xで共有
+          </a>
+          <a id="share-line-btn" class="share-sns-btn share-sns-line" href="#" target="_blank" rel="noopener noreferrer">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+            LINEで共有
+          </a>
+        </div>
+      </div>
+
+      <button class="share-modal-close" onclick="closeShareModal()">閉じる</button>
+    </div>
+  </div>
+
   <!-- モバイル: sticky ブランドヘッダー（スクロールでパネルに隠れる） -->
   <div id="mobile-header">
     <img id="mobile-logo" src="assets/logo.png" alt="QSOIL">
@@ -82,6 +113,7 @@
             <div class="mms-header-actions">
               <button id="mms-compare-btn" class="mms-compare-btn">比較元にする</button>
               <button id="clearBtn" class="mms-reset-btn">↺ 配合をリセット</button>
+              <button id="mms-share-btn" class="mms-share-btn">共有</button>
             </div>
           </div>
           <div class="mms-row">
@@ -178,6 +210,7 @@
         <div class="mms-header-actions">
           <button id="pc-compare-btn" class="mms-compare-btn">比較元にする</button>
           <button id="pc-clear-btn" class="mms-reset-btn">↺ 配合をリセット</button>
+          <button id="pc-share-btn" class="mms-share-btn">共有</button>
         </div>
       </div>
       <!-- バーグラフ -->
@@ -328,6 +361,7 @@
   <script src="js/score-engine.js"></script>
   <script src="js/compare.js"></script>
   <script src="js/ui-controls.js"></script>
+  <script src="js/share.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
