@@ -345,6 +345,30 @@ function applyInteractionEffects(scores, active, total, ps) {
   return result;
 }
 
+// ─── 鉢サイズ補正 ──────────────────────────────────────────────────────────
+//
+// 同じ用土・同じ粒径でも、鉢が小さいほど土の深さが浅く排水しやすい。
+// 鉢が大きいほど底部に定常水位（perched water table）が生じやすく保水しやすい。
+// currentSize は state.js で管理（1=3cm〜5=15cm）。
+//
+const POT_SIZE_EFFECT = {
+  1: { drainage: +8, waterRetention:  -8, aeration: +4 },
+  2: { drainage: +4, waterRetention:  -4, aeration: +2 },
+  3: { drainage:  0, waterRetention:   0, aeration:  0 }, // 基準（直径9cm）
+  4: { drainage: -4, waterRetention:  +4, aeration: -2 },
+  5: { drainage: -8, waterRetention:  +8, aeration: -4 },
+};
+
+function applyPotSizeCorrection(scores) {
+  const effect = POT_SIZE_EFFECT[currentSize] ?? POT_SIZE_EFFECT[3];
+  return {
+    drainage:          clampScore(scores.drainage          + effect.drainage),
+    waterRetention:    clampScore(scores.waterRetention    + effect.waterRetention),
+    aeration:          clampScore(scores.aeration          + effect.aeration),
+    nutrientRetention: scores.nutrientRetention,
+  };
+}
+
 // ─── メイン ───────────────────────────────────────────────────────────────
 
 /**
@@ -364,10 +388,11 @@ function calcCompositeV2() {
 
   const ps = getParticleSizeRatios(active, total);
 
-  let scores = calcBaseScores(active, total);          // Step 1
-  scores = applyParticleSizeCorrections(scores, ps);   // Step 2
-  scores = applyThresholdEffects(scores, active, total); // Step 3
+  let scores = calcBaseScores(active, total);               // Step 1
+  scores = applyParticleSizeCorrections(scores, ps);        // Step 2
+  scores = applyThresholdEffects(scores, active, total);    // Step 3
   scores = applyInteractionEffects(scores, active, total, ps); // Step 4
+  scores = applyPotSizeCorrection(scores);                  // Step 5
 
   return {
     drainage:          Math.round(scores.drainage),
