@@ -94,8 +94,9 @@ function buildCup() {
 }
 
 function clearDynamicBodies() {
+  // isParticle でフィルタ: 段階的固定化により isStatic 化された粒子も除去する
   Composite.allBodies(engine.world)
-    .filter(b => !b.isStatic)
+    .filter(b => b.isParticle)
     .forEach(b => Composite.remove(engine.world, b));
 }
 
@@ -199,14 +200,17 @@ function spawnShape(x, y) {
   const type = pickObjectType();
   if (!type) return null;
   const size = getObjectSizePx(type);
+  // 細粒（Sサイズ）は collision サイズを 1.15 倍にして詰まりすぎを防ぐ。
+  // 描画との差は数 px 以下で視覚的にほぼ無視できる。
+  const physicsSize = (type.size === 'S') ? size * 1.15 : size;
   let body;
   if (type.shapeVariants?.length) {
     const verts = type.shapeVariants[Math.floor(Math.random() * type.shapeVariants.length)];
-    body = spawnPoly(x, y, size, verts, type.color, type.physics);
+    body = spawnPoly(x, y, physicsSize, verts, type.color, type.physics);
   } else if (type.shape === 'circle') {
-    body = spawnCircle(x, y, size, type.color, type.physics);
+    body = spawnCircle(x, y, physicsSize, type.color, type.physics);
   } else {
-    body = spawnBox(x, y, size, type.color, type.physics);
+    body = spawnBox(x, y, physicsSize, type.color, type.physics);
   }
   if (body && isAirView) {
     body._origFill = body.render.fillStyle;
@@ -341,6 +345,49 @@ Events.on(render, 'afterRender', () => {
   ctx.closePath();
   ctx.fill();
   ctx.restore();
+});
+
+// ── 下層粒子の段階的固定化 ──
+// 目的: 2D物理の限界で後続粒子に押し潰されやすい下層粒子を順次 isStatic 化し、
+//       鉢底付近の過密圧縮を抑える。底側から徐々に固まるため自然な堆積感になる。
+//
+// 閾値の根拠:
+//   FREEZE_VEL_THRESH  0.5px/frame → 事実上停止とみなせる速度
+//   FREEZE_ANG_THRESH  0.02rad/frame → ほぼ回転なしとみなせる角速度
+//   FREEZE_DELAY_MS    1500ms → 瞬間的な静止を誤検知しないための待機時間
+//   FREEZE_ZONE_RATIO  0.35  → 鉢高さの下側 35% を固定対象ゾーンとする
+//                              （上層は自由に動けるようにして不自然さを防ぐ）
+const FREEZE_VEL_THRESH  = 0.5;
+const FREEZE_ANG_THRESH  = 0.02;
+const FREEZE_DELAY_MS    = 1200;  // 1.2秒静止で固定（トントン廃止により全粒子が対象）
+const FREEZE_ZONE_RATIO  = 1.0;   // 鉢全体を対象（底層だけでなく全粒子を最終固定状態にする）
+
+Events.on(engine, 'afterUpdate', () => {
+  if (!currentCupDims) return;
+  const { bottomY, cupHeight } = currentCupDims;
+  const now = performance.now();
+  // 下側 FREEZE_ZONE_RATIO 分を固定対象ゾーンとする
+  const freezeZoneTopY = bottomY - cupHeight * FREEZE_ZONE_RATIO;
+
+  Composite.allBodies(engine.world)
+    .filter(b => b.isParticle && !b.isStatic)
+    .forEach(b => {
+      const spd    = Math.hypot(b.velocity.x, b.velocity.y);
+      const angSpd = Math.abs(b.angularVelocity);
+      const inZone = b.position.y > freezeZoneTopY;
+
+      if (inZone && spd < FREEZE_VEL_THRESH && angSpd < FREEZE_ANG_THRESH) {
+        if (!b._stillSince) {
+          b._stillSince = now;
+        } else if (now - b._stillSince > FREEZE_DELAY_MS) {
+          Body.setStatic(b, true);
+          // isStatic 化により次回以降このフィルタから外れる
+        }
+      } else {
+        // 動き出したらタイマーリセット
+        b._stillSince = null;
+      }
+    });
 });
 
 // rAF はモバイルのスクロール中に throttle されて止まるため setInterval で駆動する

@@ -45,8 +45,6 @@ canvas {
 .act-air:hover     { background: #E0F2FE; }
 .act-air.active    { background: #0284C7; color: #FFFFFF; border-color: #0284C7; }
 .act-air.active:hover { background: #0369A1; }
-.act-tonton       { background: #D97706; color: #FFFFFF; font-weight: 600; }
-.act-tonton:hover { background: #B45309; }
 .act-reset        { background: #FFF7ED; color: #92400E; border: 1.5px solid #FED7AA; font-size: 13px; padding: 7px 14px; font-weight: 400; }
 .act-reset:hover  { background: #FFEDD5; border-color: #FDBA74; color: #78350F; }
 .act-clear        { background: #F9FAFB; color: #9CA3AF; border: 1.5px solid #E5E7EB; font-size: 13px; padding: 7px 14px; font-weight: 400; }
