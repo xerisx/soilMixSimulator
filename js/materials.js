@@ -745,7 +745,7 @@ const MATERIALS = [
     params: {
       drainage:         50,
       waterRetention:   95,
-      aeration:         80,
+      aeration:         65,
       organic:          true,
       nutrientRetention: 55,
     },

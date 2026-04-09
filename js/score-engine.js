@@ -110,7 +110,7 @@ const MATERIAL_EXTRA = {
   // 腐葉土: 20%超で保肥ブースト、50%超で通気低下
   humus: {
     thresholdEffects: [
-      { metric: 'nutrientRetention', threshold: 0.20, slope:  20 },
+      { metric: 'nutrientRetention', threshold: 0.20, slope:  28 },
       { metric: 'aeration',          threshold: 0.50, slope: -30 },
     ],
   },
