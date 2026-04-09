@@ -189,6 +189,13 @@ function updateGraphs() {
   updateInfluence();
   renderMixRatio();
   updateComparePanel();
+
+  // 共有ボタンの活性制御
+  const hasAny = objectTypes.some(t => t.weight > 0);
+  ['mms-share-btn', 'pc-share-btn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = !hasAny;
+  });
 }
 
 // ── 配合割合（パネル内） ──

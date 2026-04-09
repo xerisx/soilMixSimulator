@@ -87,6 +87,24 @@
   background: #E0F2FE;
 }
 
+/* ── PC 共有CTAラッパー ── */
+#pc-share-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+#pc-share-wrap .act-share {
+  width: 60%;
+  height: 36px;
+  font-size: 12px;
+  padding: 0 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
 /* ── 共有モーダル ── */
 #share-modal {
   position: fixed;

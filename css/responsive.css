@@ -12,6 +12,8 @@
   #save-compare-area { display: none; }
   /* PC: 配合サマリーチップ（チップ形式）は不要 */
   #mix-summary { display: none !important; }
+  /* PC: モバイル用共有ラッパーは非表示 */
+  #mobile-share-wrap { display: none !important; }
 
   #app-header {
     display: flex;
@@ -165,8 +167,27 @@
    ════════════════════════════ */
 @media (max-width: 767px) {
   #mix-ratio-panel { display: none !important; }
-  /* PC用カードはモバイルでは非表示（mobile-metrics-stickyで代替） */
+  /* PC用カードとPC共有CTAはモバイルでは非表示（mobile-metrics-stickyで代替） */
   #pc-metrics-card { display: none !important; }
+  #pc-share-wrap   { display: none !important; }
+
+  /* モバイル: 共有ラッパー — PCと同様に配合カード直下に中央寄せ配置 */
+  #mobile-share-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+  }
+  #mobile-share-wrap .act-share {
+    width: 88%;
+    height: 32px;
+    font-size: 13px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 8px;
+  }
 
   /* 鉢サイズ: ctrl-label + pot-hint を1行目に、btn-group を2行目に */
   #sec-pot             { gap: 2px 6px; }
