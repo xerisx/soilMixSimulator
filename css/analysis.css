@@ -143,29 +143,41 @@
   line-height: 1.5;
 }
 
-/* コピー: 主役 */
-.share-copy-btn {
+/* 画像保存: 補助CTA */
+.share-img-btn {
   width: 100%;
-  font-size: 15px;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
   font-family: sans-serif;
-  background: #16A34A;
-  color: #FFFFFF;
-  border: none;
+  background: #F0F9FF;
+  color: #0369A1;
+  border: 1.5px solid #BAE6FD;
   border-radius: 8px;
-  padding: 13px 0;
+  padding: 10px 0;
   cursor: pointer;
-  text-align: center;
   touch-action: manipulation;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
-.share-copy-btn:hover  { background: #15803D; }
-.share-copy-btn:active { background: #166534; }
-.share-copy-btn.copied {
-  background: #0284C7;
+.share-img-btn:hover  { background: #E0F2FE; border-color: #7DD3FC; }
+.share-img-btn:active { background: #BAE6FD; }
+.share-img-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.share-img-note {
+  font-size: 11px;
+  font-family: sans-serif;
+  color: #9CA3AF;
+  text-align: center;
+  margin: -8px 0 0;
+  line-height: 1.5;
 }
 
-/* URL表示: 補助 */
+/* URL表示 */
 .share-url-section {
   display: flex;
   flex-direction: column;
@@ -177,8 +189,14 @@
   color: #9CA3AF;
   letter-spacing: 0.03em;
 }
+.share-url-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .share-url-input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   font-size: 11px;
   font-family: monospace;
   border: 1px solid #E5E7EB;
@@ -207,6 +225,28 @@
 .share-sns-row {
   display: flex;
   gap: 8px;
+}
+.share-url-copy-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.share-url-copy-btn:hover  { background: #E2E8F0; color: #334155; }
+.share-url-copy-btn:active { background: #CBD5E1; }
+.share-url-copy-btn.copied {
+  background: #DCFCE7;
+  color: #16A34A;
+  border-color: #BBF7D0;
 }
 .share-sns-btn {
   flex: 1;

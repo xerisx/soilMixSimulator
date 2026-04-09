@@ -182,13 +182,9 @@ function copyShareURL() {
 
   const done = () => {
     if (btn) {
-      btn.textContent = 'コピーしました';
       btn.classList.add('copied');
       clearTimeout(btn._copyTimer);
-      btn._copyTimer = setTimeout(() => {
-        btn.textContent = '共有URLをコピー';
-        btn.classList.remove('copied');
-      }, 1500);
+      btn._copyTimer = setTimeout(() => btn.classList.remove('copied'), 1500);
     }
   };
 
