@@ -172,6 +172,7 @@
   #pc-share-wrap   { display: none !important; }
 
   /* モバイル: 共有ラッパー — PCと同様に配合カード直下に中央寄せ配置 */
+  #mobile-share-wrap[hidden] { display: none !important; }
   #mobile-share-wrap {
     display: flex;
     justify-content: center;

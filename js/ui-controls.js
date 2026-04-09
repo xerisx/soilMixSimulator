@@ -34,6 +34,8 @@ function switchTab(tabId) {
   });
   const presetBar = document.getElementById('preset-bar');
   if (presetBar) presetBar.hidden = (tabId === 'commercial');
+  const shareWrap = document.getElementById('mobile-share-wrap');
+  if (shareWrap) shareWrap.hidden = (tabId === 'commercial');
 }
 
 // ── 市販の用土リスト描画 ──

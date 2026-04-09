@@ -103,38 +103,39 @@
 
     <!-- 中央スクロールエリア -->
     <div id="panel-scroll">
+      <!-- モバイル: 3指標スティッキーバー（両タブ共通） -->
+      <div id="mobile-metrics-sticky">
+        <div class="mms-header">
+          <span class="mms-title">現在の配合</span>
+          <div class="mms-header-actions">
+            <button id="mms-compare-btn" class="mms-compare-btn">比較元にする</button>
+            <button id="clearBtn" class="mms-reset-btn">↺ 配合をリセット</button>
+          </div>
+        </div>
+        <div class="mms-row">
+          <span class="mms-label">↓ 排水性</span>
+          <div class="mms-track"><div class="mms-fill bar-drainage" id="mms-bar-drainage"></div></div>
+          <span class="mms-pct" id="mms-pct-drainage">--</span>
+        </div>
+        <div class="mms-row">
+          <span class="mms-label">● 保水性</span>
+          <div class="mms-track"><div class="mms-fill bar-water" id="mms-bar-water"></div></div>
+          <span class="mms-pct" id="mms-pct-water">--</span>
+        </div>
+        <div class="mms-row">
+          <span class="mms-label">〜 通気性</span>
+          <div class="mms-track"><div class="mms-fill bar-aeration" id="mms-bar-aeration"></div></div>
+          <span class="mms-pct" id="mms-pct-aeration">--</span>
+        </div>
+      </div>
+      <!-- モバイル: 共有CTA（現在の配合カード直下） -->
+      <div id="mobile-share-wrap">
+        <button id="mms-share-btn" class="act-btn act-share"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> 共有する</button>
+      </div>
+
       <!-- 資材タブ -->
       <div id="tab-materials" class="tab-content active">
         <div id="base-label"></div>
-        <!-- モバイル: 3指標スティッキーバー -->
-        <div id="mobile-metrics-sticky">
-          <div class="mms-header">
-            <span class="mms-title">現在の配合</span>
-            <div class="mms-header-actions">
-              <button id="mms-compare-btn" class="mms-compare-btn">比較元にする</button>
-              <button id="clearBtn" class="mms-reset-btn">↺ 配合をリセット</button>
-            </div>
-          </div>
-          <div class="mms-row">
-            <span class="mms-label">↓ 排水性</span>
-            <div class="mms-track"><div class="mms-fill bar-drainage" id="mms-bar-drainage"></div></div>
-            <span class="mms-pct" id="mms-pct-drainage">--</span>
-          </div>
-          <div class="mms-row">
-            <span class="mms-label">● 保水性</span>
-            <div class="mms-track"><div class="mms-fill bar-water" id="mms-bar-water"></div></div>
-            <span class="mms-pct" id="mms-pct-water">--</span>
-          </div>
-          <div class="mms-row">
-            <span class="mms-label">〜 通気性</span>
-            <div class="mms-track"><div class="mms-fill bar-aeration" id="mms-bar-aeration"></div></div>
-            <span class="mms-pct" id="mms-pct-aeration">--</span>
-          </div>
-        </div>
-        <!-- モバイル: 共有CTA（現在の配合カード直下） -->
-        <div id="mobile-share-wrap">
-          <button id="mms-share-btn" class="act-btn act-share"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> 共有する</button>
-        </div>
         <!-- モバイル専用 比較スティッキーカード -->
         <div id="mobile-cmp" hidden></div>
         <!-- モバイル専用 比較詳細エリア -->
