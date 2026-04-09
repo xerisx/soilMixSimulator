@@ -107,11 +107,16 @@ function getObjectSizePx(type) {
 }
 
 function pickObjectType() {
-  const total = objectTypes.reduce((s, t) => s + t.weight, 0);
+  const effWeight = t => {
+    const range = t.sizes?.[t.size ?? 'M'];
+    const vol = range ? Math.pow((range.min + range.max) / 2, 2) : Math.pow(5, 2);
+    return t.weight / vol;
+  };
+  const total = objectTypes.reduce((s, t) => s + effWeight(t), 0);
   if (total === 0) return null;
   let r = Math.random() * total;
   for (const t of objectTypes) {
-    r -= t.weight;
+    r -= effWeight(t);
     if (r <= 0) return t;
   }
   return objectTypes[objectTypes.length - 1];
