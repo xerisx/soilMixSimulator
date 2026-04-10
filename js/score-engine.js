@@ -349,14 +349,21 @@ function applyInteractionEffects(scores, active, total, ps) {
 //
 // 同じ用土・同じ粒径でも、鉢が小さいほど土の深さが浅く排水しやすい。
 // 鉢が大きいほど底部に定常水位（perched water table）が生じやすく保水しやすい。
-// currentSize は state.js で管理（1=3cm〜5=15cm）。
+// currentSize は state.js で管理（1=3cm〜10=30cm）。
+// 前半（1〜5号）ほど変化が大きく、後半（6〜10号）は逓減する対数的カーブ。
+// waterRetention をやや強め、aeration は控えめの非対称設計。
 //
 const POT_SIZE_EFFECT = {
-  1: { drainage: +8, waterRetention:  -8, aeration: +4 },
-  2: { drainage: +4, waterRetention:  -4, aeration: +2 },
-  3: { drainage:  0, waterRetention:   0, aeration:  0 }, // 基準（直径9cm）
-  4: { drainage: -4, waterRetention:  +4, aeration: -2 },
-  5: { drainage: -8, waterRetention:  +8, aeration: -4 },
+  1:  { drainage:  +8, waterRetention:  -9, aeration: +4 },
+  2:  { drainage:  +4, waterRetention:  -5, aeration: +2 },
+  3:  { drainage:   0, waterRetention:   0, aeration:  0 }, // 基準（直径9cm）
+  4:  { drainage:  -3, waterRetention:  +3, aeration: -1 },
+  5:  { drainage:  -5, waterRetention:  +6, aeration: -2 },
+  6:  { drainage:  -7, waterRetention:  +8, aeration: -3 },
+  7:  { drainage:  -8, waterRetention:  +9, aeration: -4 },
+  8:  { drainage:  -9, waterRetention: +10, aeration: -4 },
+  9:  { drainage: -10, waterRetention: +11, aeration: -5 },
+  10: { drainage: -11, waterRetention: +12, aeration: -5 },
 };
 
 function applyPotSizeCorrection(scores) {
