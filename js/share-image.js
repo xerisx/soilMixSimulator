@@ -5,10 +5,6 @@
 const SHR = {
   W: 750, H: 1583,  // 9:19
 
-  // 植物写真のパス（なければグラデーションプレースホルダー）
-  // PHOTO_PATH: 'assets/plant.jpg',
-  PHOTO_PATH: 'https://images.unsplash.com/photo-1728809658006-9152dc1410eb?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-
   // 上部セクション
   TOP_H:         632,  // 上部全体の高さ (60 + 512 + 60)
   STRIP_L:       148,  // 左ストリップ幅（用土タイプ回転テキスト）
@@ -17,10 +13,11 @@ const SHR = {
 
   // 用土タイプ（スコアから判定）
   SOIL_TYPES: {
-    AIRY:     { color: '#4FB3E8', bestFor: 'DRY CONDITIONS'    },
-    WET:      { color: '#2ECBA1', bestFor: 'MOISTURE LOVING'   },
-    RICH:     { color: '#9B7EE8', bestFor: 'HEAVY FEEDING'     },
-    BALANCED: { color: '#3DD68C', bestFor: 'GENERAL PURPOSE'   },
+    SUCCULENT: { color: '#F5A623', bestFor: 'DRY & BRIGHT',        photoCount: 7 },
+    EPIPHYTE:  { color: '#9B7EE8', bestFor: 'CHUNKY & BREATHABLE', photoCount: 4 },
+    TROPICAL:  { color: '#2ECBA1', bestFor: 'HUMID & LUSH',        photoCount: 3 },
+    FERTILE:   { color: '#4FB3E8', bestFor: 'RICH & PRODUCTIVE',   photoCount: 2 },
+    BALANCED:  { color: '#3DD68C', bestFor: 'GENERAL PURPOSE',     photoCount: 3 },
   },
 
   // 指標
@@ -74,13 +71,17 @@ function shrRoundRect(ctx, x, y, w, h, r) {
 
 // ── 画像ロード（Promise）──
 function shrLoadImage(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload  = () => resolve(img);
-    img.onerror = reject;
-    img.src     = src;
-  });
+  return fetch(src)
+    .then(r => r.blob())
+    .then(blob => {
+      const objectUrl = URL.createObjectURL(blob);
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload  = () => { URL.revokeObjectURL(objectUrl); resolve(img); };
+        img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('img load failed')); };
+        img.src = objectUrl;
+      });
+    });
 }
 
 // ── object-fit:cover 相当で描画 ──
@@ -115,10 +116,19 @@ function shrCheckerboard(ctx, x, y, w, h, unit) {
 function shrGetSoilType(comp) {
   if (!comp) return 'BALANCED';
   const { drainage, waterRetention, aeration, nutrientRetention } = comp;
-  if (drainage >= 68 && aeration >= 62) return 'AIRY';
-  if (waterRetention >= 65)             return 'WET';
-  if (nutrientRetention >= 62)          return 'RICH';
+  if (drainage >= 70 && waterRetention <= 30) return 'SUCCULENT';
+  if (aeration >= 70)                          return 'EPIPHYTE';
+  if (waterRetention >= 55)                    return 'TROPICAL';
+  if (nutrientRetention >= 60)                 return 'FERTILE';
   return 'BALANCED';
+}
+
+// ── タイプに対応する写真パスをランダムに返す ──
+function shrGetRandomPhotoPath(soilTypeName) {
+  const { photoCount } = SHR.SOIL_TYPES[soilTypeName];
+  const n = Math.floor(Math.random() * photoCount) + 1;
+  const key = soilTypeName.toLowerCase();
+  return `assets/${key}/${key}-${n}.jpg`;
 }
 
 // ── テキスト描画状態を一括設定 ──
@@ -359,7 +369,9 @@ async function buildShareCanvas() {
 
   // 上部セクション（市松 + 用土タイプ + 写真）
   let photoImg = null;
-  try { photoImg = await shrLoadImage(SHR.PHOTO_PATH); } catch (_) {}
+  try { photoImg = await shrLoadImage(shrGetRandomPhotoPath(soilTypeName)); } catch (e) {
+    console.warn('[share-image] photo load failed:', e);
+  }
   shrDrawTopSection(ctx, soilTypeName, accentColor, photoImg, {
     W, TOP_H, STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG, STRIPE_UNIT,
   });
