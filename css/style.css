@@ -548,7 +548,7 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1px;
+  gap: 4px;
 }
 
 #mobile-logo {
@@ -577,7 +577,7 @@ canvas {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
+    gap: 6px;
     padding: 12px 16px 10px 18px;
     border-bottom: 1px solid #E5E7EB;
     flex-shrink: 0;
@@ -597,6 +597,21 @@ canvas {
   letter-spacing: 0.04em;
   line-height: 1;
   padding-left: 1px;
+}
+
+/* ── ベータバッジ ── */
+.beta-badge {
+  display: inline-block;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #9CA3AF;
+  border: 1px solid #D1D5DB;
+  border-radius: 3px;
+  padding: 0 3px;
+  line-height: 1.6;
+  vertical-align: middle;
+  font-family: sans-serif;
 }
 
 /* ── 共通: ラベル ── */
