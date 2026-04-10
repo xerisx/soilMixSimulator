@@ -2,7 +2,7 @@
 #tab-nav {
   display: flex;
   gap: 4px;
-  background: #F3F4F6;
+  background: var(--bg-subtle, #ECEEF2);
   padding: 4px;
   border-radius: 10px;
   flex-shrink: 0;
@@ -28,7 +28,7 @@
   background: #FFFFFF;
   color: #111827;
   font-weight: 700;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.10);
 }
 
 /* ── タブコンテンツ ── */

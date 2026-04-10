@@ -16,7 +16,7 @@ body.guide-page {
 /* ── ヘッダー ── */
 .guide-header {
   background: #FFFFFF;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid #D8DCE1;
   padding: 0 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
@@ -69,7 +69,7 @@ body.guide-page {
   max-width: 260px;
   height: 36px;
   padding: 0 12px;
-  border: 1.5px solid #E5E7EB;
+  border: 1.5px solid #D8DCE1;
   border-radius: 8px;
   font-size: 13px;
   color: #111827;
@@ -77,20 +77,20 @@ body.guide-page {
   outline: none;
   font-family: sans-serif;
 }
-#guide-search:focus { border-color: #93C5FD; }
+#guide-search:focus { border-color: #BAE6FD; }
 #guide-search::placeholder { color: #9CA3AF; }
 
 .guide-filter-group {
   display: flex;
   gap: 4px;
   padding-right: 6px;
-  border-right: 1px solid #E5E7EB;
+  border-right: 1px solid #D8DCE1;
 }
 
 .guide-filter-btn {
   height: 36px;
   padding: 0 14px;
-  border: 1.5px solid #E5E7EB;
+  border: 1.5px solid #D8DCE1;
   border-radius: 8px;
   background: #FFFFFF;
   font-size: 13px;
@@ -100,18 +100,18 @@ body.guide-page {
   font-family: sans-serif;
   transition: background 120ms, border-color 120ms, color 120ms;
 }
-.guide-filter-btn:hover { background: #F9FAFB; color: #374151; }
+.guide-filter-btn:hover { background: #F2F4F7; color: #374151; }
 .guide-filter-btn.active {
-  background: #EFF6FF;
-  border-color: #93C5FD;
-  color: #1D4ED8;
+  background: #F0F9FF;
+  border-color: #BAE6FD;
+  color: #0284C7;
   font-weight: 600;
 }
 
 #guide-sort {
   height: 36px;
   padding: 0 10px;
-  border: 1.5px solid #E5E7EB;
+  border: 1.5px solid #D8DCE1;
   border-radius: 8px;
   background: #FFFFFF;
   font-size: 13px;
@@ -120,10 +120,10 @@ body.guide-page {
   font-family: sans-serif;
   outline: none;
 }
-#guide-sort:focus { border-color: #93C5FD; }
+#guide-sort:focus { border-color: #BAE6FD; }
 #guide-sort.is-sorting {
-  border-color: #93C5FD;
-  color: #1D4ED8;
+  border-color: #BAE6FD;
+  color: #0284C7;
   font-weight: 500;
 }
 
@@ -133,7 +133,7 @@ body.guide-page {
   color: #9CA3AF;
   white-space: nowrap;
   padding-left: 12px;
-  border-left: 1px solid #E5E7EB;
+  border-left: 1px solid #D8DCE1;
 }
 
 /* ── メインコンテンツ ── */
@@ -163,10 +163,10 @@ body.guide-page {
 /* ── 資材カード ── */
 .mat-card {
   background: #FFFFFF;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #D8DCE1;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
 /* カラーアクセント（上端） */
@@ -205,8 +205,8 @@ body.guide-page {
   font-size: 12px;
   font-weight: 600;
   color: #374151;
-  background: #F3F4F6;
-  border: 1px solid #D1D5DB;
+  background: #ECEEF2;
+  border: 1px solid #D8DCE1;
   border-radius: 6px;
   padding: 3px 8px;
   display: inline-block;
@@ -246,7 +246,7 @@ body.guide-page {
   letter-spacing: 0.01em;
 }
 .mat-badge-organic   { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
-.mat-badge-inorganic { background: #F1F5F9; color: #334155; border: 1px solid #94A3B8; }
+.mat-badge-inorganic { background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; }
 
 /* 説明文 */
 .mat-desc {
@@ -261,8 +261,8 @@ body.guide-page {
   display: flex;
   align-items: center;
   gap: 0;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
+  background: #F2F4F7;
+  border: 1px solid #D8DCE1;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -281,13 +281,13 @@ body.guide-page {
   transition: background 120ms;
 }
 .mat-size-chip + .mat-size-chip {
-  border-left: 1px solid #E5E7EB;
+  border-left: 1px solid #D8DCE1;
 }
 .mat-size-chip:hover {
-  background: #F3F4F6;
+  background: #ECEEF2;
 }
 .mat-size-chip.active {
-  background: #EFF6FF;
+  background: #F0F9FF;
 }
 
 .mat-size-label {
@@ -297,7 +297,7 @@ body.guide-page {
   letter-spacing: 0.06em;
 }
 .mat-size-chip.active .mat-size-label {
-  color: #1D4ED8;
+  color: #0284C7;
 }
 
 .mat-size-range {
@@ -307,7 +307,7 @@ body.guide-page {
   white-space: nowrap;
 }
 .mat-size-chip.active .mat-size-range {
-  color: #1D4ED8;
+  color: #0284C7;
 }
 
 /* ── パラメータセクション ── */
@@ -344,7 +344,7 @@ body.guide-page {
 .mat-bar-track {
   flex: 1;
   height: 10px;
-  background: #E5E7EB;
+  background: #D8DCE1;
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -367,7 +367,7 @@ body.guide-page {
 .mat-adv-bar-track {
   flex: 1;
   height: 8px;
-  background: #F1F5F9;
+  background: #ECEEF2;
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -375,7 +375,7 @@ body.guide-page {
 .mat-adv-bar-fill {
   height: 100%;
   border-radius: 9999px;
-  background: #A78BFA;
+  background: #7C3AED;
 }
 
 /* ── 詳しい説明アコーディオン ── */
@@ -397,7 +397,7 @@ body.guide-page {
   width: fit-content;
   text-decoration: underline;
   text-decoration-style: dotted;
-  text-decoration-color: #D1D5DB;
+  text-decoration-color: #D8DCE1;
   text-underline-offset: 3px;
 }
 .mat-detail-toggle:hover {
@@ -420,7 +420,7 @@ body.guide-page {
 /* 区切り線 */
 .mat-divider {
   height: 1px;
-  background: #F3F4F6;
+  background: #EAECF0;
   border: none;
   margin: 0;
 }

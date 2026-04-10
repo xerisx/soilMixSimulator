@@ -13,8 +13,8 @@
   /* Backgrounds */
   --bg-body:   #F8FAFC;
   --bg-panel:  #FFFFFF;
-  --bg-card:   #F9FAFB;
-  --bg-subtle: #F3F4F6;
+  --bg-card:   #F2F4F7;   /* #F9FAFB → 白との差を明確化 */
+  --bg-subtle: #ECEEF2;   /* #F3F4F6 → 1段濃く */
 
   /* Text */
   --text-1:   #111827;
@@ -24,8 +24,8 @@
   --text-dis: #C4C9D4;
 
   /* Borders */
-  --border:   #E5E7EB;
-  --border-2: #F3F4F6;
+  --border:   #D8DCE1;   /* #E5E7EB → 視認できる濃さに */
+  --border-2: #EAECF0;   /* #F3F4F6 → 区切り線として認識できる濃さに */
   --border-3: #EFEFEF;
 
   /* Brand accent (意味色: ライト・ダーク共通で判別できるよう調整) */
@@ -57,20 +57,20 @@ html[data-theme="dark"] {
   /* Backgrounds */
   --bg-body:   #0D1117;
   --bg-panel:  #161B22;
-  --bg-card:   #1C2430;  /* 青みがかることでパネルとの階層差を明確化 */
-  --bg-subtle: #21262D;
+  --bg-card:   #181D26;   /* #1C2430 → わずかに暗く、パネルとの差を整理 */
+  --bg-subtle: #1C2230;   /* #21262D → カードより沈んだ領域 */
 
   /* Text */
   --text-1:   #E6EDF3;
   --text-2:   #C9D1D9;
-  --text-3:   #8B949E;
-  --text-4:   #586069;
+  --text-3:   #7C8A95;   /* #8B949E → サブテキストをさらに沈める */
+  --text-4:   #4E5861;   /* #586069 → 最低優先情報を後退 */
   --text-dis: #3D4450;
 
   /* Borders */
-  --border:   #2A3442;  /* やや明度・彩度を上げてカード境界を視認しやすく */
-  --border-2: #21262D;
-  --border-3: #21262D;
+  --border:   #232B38;   /* #2A3442 → 薄く、主張を抑える */
+  --border-2: #1E2530;   /* #21262D → さらに薄く */
+  --border-3: #1E2530;
 
   /* Brand accent (ダーク背景での視認性に最適化) */
   --green:      #3FB950;
@@ -155,6 +155,40 @@ html[data-theme="dark"] .theme-toggle:hover {
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
+}
+
+
+/* ─────────────── 比較モードバッジ ─────────────── */
+.cmp-mode-badge {
+  display: none;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: sans-serif;
+  letter-spacing: 0.02em;
+  color: #1D4ED8;
+  background: #DBEAFE;
+  border: 1px solid #93C5FD;
+  padding: 2px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cmp-mode-badge.visible {
+  display: inline-flex;
+  align-items: center;
+}
+html[data-theme="dark"] .cmp-mode-badge {
+  color: var(--blue);
+  background: var(--blue-bg);
+  border-color: var(--blue-brd);
+}
+
+/* 右パネルヘッダー: タイトル+バッジのグループ */
+.rp-header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 
@@ -392,22 +426,28 @@ html[data-theme="dark"] .act-start {
 }
 html[data-theme="dark"] .act-start:hover {
   background: var(--green-dark);
-  box-shadow: 0 0 16px rgba(63,185,80,0.35);
+  box-shadow: 0 4px 14px rgba(63,185,80,0.38);
+}
+html[data-theme="dark"] .act-start:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 6px rgba(63,185,80,0.18);
 }
 
 html[data-theme="dark"] .act-share         { background: var(--blue-bg);  color: var(--blue);   border-color: var(--blue-brd); }
-html[data-theme="dark"] .act-share:hover   { background: #082040; }
-html[data-theme="dark"] .act-share:active  { background: #0A2A50; }
+html[data-theme="dark"] .act-share:hover:not(:disabled)  { background: #082040; box-shadow: 0 0 0 3px rgba(88,166,255,0.18); border-color: var(--blue); }
+html[data-theme="dark"] .act-share:active:not(:disabled) { background: #0A2A50; transform: scale(0.97); box-shadow: none; }
 html[data-theme="dark"] .act-share:disabled {
   background: var(--bg-subtle);
   color: var(--text-4);
   border-color: var(--border);
 }
 
-html[data-theme="dark"] .act-air          { background: var(--blue-bg);  color: var(--blue);   border-color: var(--blue-brd); }
-html[data-theme="dark"] .act-air:hover    { background: #082040; }
-html[data-theme="dark"] .act-air.active   { background: var(--blue); color: #FFFFFF; border-color: var(--blue); }
-html[data-theme="dark"] .act-air.active:hover { background: var(--blue-dark); }
+html[data-theme="dark"] .act-air                 { background: var(--blue-bg);  color: var(--blue);   border-color: var(--blue-brd); }
+html[data-theme="dark"] .act-air:hover:not(.active)    { background: #082040; box-shadow: 0 2px 8px rgba(88,166,255,0.15); }
+html[data-theme="dark"] .act-air:active:not(.active)   { transform: scale(0.97); box-shadow: none; }
+html[data-theme="dark"] .act-air.active           { background: var(--blue); color: #FFFFFF; border-color: var(--blue); }
+html[data-theme="dark"] .act-air.active:hover     { background: var(--blue-dark); box-shadow: 0 4px 10px rgba(88,166,255,0.30); }
+html[data-theme="dark"] .act-air.active:active    { transform: scale(0.97); box-shadow: none; }
 
 html[data-theme="dark"] .act-reset        { background: var(--orange-bg);  color: var(--orange);  border-color: var(--orange-brd); }
 html[data-theme="dark"] .act-reset:hover  { background: #261500; border-color: var(--orange); color: var(--orange); }

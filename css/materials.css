@@ -169,11 +169,27 @@
   flex-direction: column;
   align-items: stretch;
   gap: 5px;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
+  background: var(--bg-card, #F2F4F7);
+  border: 1px solid var(--border, #D8DCE1);
   border-radius: 12px;
   padding: 8px 10px;
   min-width: 140px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+
+/* PC のみ: スライダー操作中ハイライト */
+@media (min-width: 768px) {
+  /* スライダー操作中: 親行をハイライト */
+  .ratio-row:has(.ratio-slider:focus-visible) {
+    background: rgba(22, 163, 74, 0.06);
+    border-radius: 6px;
+    padding: 2px 3px;
+    margin: -2px -3px;
+  }
+  html[data-theme="dark"] .ratio-row:has(.ratio-slider:focus-visible) {
+    background: rgba(63, 185, 80, 0.08);
+  }
 }
 
 .obj-name-row {
@@ -349,11 +365,11 @@
 
 .mat-tag {
   display: inline-block;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   font-family: sans-serif;
-  padding: 1px 5px;
-  border-radius: 9999px;
+  padding: 2px 6px;
+  border-radius: 4px;
   line-height: 1.6;
 }
 .mat-tag[data-tag="有機"]     { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
@@ -363,3 +379,97 @@
 .mat-tag[data-tag="保水"]     { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
 .mat-tag[data-tag="保肥"]     { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
 .mat-tag[data-tag="バランス"] { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }
+
+/* ── モバイル: スライダーカスタムスタイル（タッチターゲット拡大） ── */
+@media (max-width: 767px) {
+  /* タッチ領域の最小高さ確保 */
+  .ratio-row { min-height: 44px; }
+  /* 数値表示を操作結果として強調（コントラスト・サイズ向上） */
+  .ratio-val { color: #111827; font-size: 16px; }
+  .ratio-val-zero { color: #D1D5DB; }
+
+  .ratio-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    /* --fill-pct はJSで動的更新。入力済み部分を左(薄)→右(濃)のグラデーション */
+    background: linear-gradient(
+      to right,
+      #22C55E 0%,
+      #16A34A var(--fill-pct, 0%),
+      #D8DCE1 var(--fill-pct, 0%)
+    );
+    border-radius: 3px;
+    outline: none;
+    accent-color: #16A34A;
+  }
+  /* 0状態: 「未使用」が一目でわかるよう thumb を薄く */
+  .ratio-slider.is-zero::-webkit-slider-thumb {
+    background: #9CA3AF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    opacity: 0.6;
+  }
+  .ratio-slider.is-zero::-moz-range-thumb {
+    background: #9CA3AF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    opacity: 0.6;
+  }
+  /* webkit track は親のグラデーションを透過させる */
+  .ratio-slider::-webkit-slider-runnable-track {
+    height: 6px;
+    background: transparent;
+    border-radius: 3px;
+  }
+  .ratio-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #16A34A;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 1px 4px rgba(22,163,74,0.35);
+    cursor: pointer;
+    margin-top: -8px;
+    /* アクティブ時アニメーション用 */
+    transition: width 0.1s ease, height 0.1s ease, margin-top 0.1s ease,
+                background 0.1s ease, box-shadow 0.1s ease;
+  }
+  /* アクティブ: 拡大・影強化・色濃く → 触った瞬間に「反応した」と伝える */
+  .ratio-slider:active::-webkit-slider-thumb {
+    width: 25px;
+    height: 25px;
+    margin-top: -9.5px;
+    background: #15803D;
+    box-shadow: 0 4px 12px rgba(22,163,74,0.55);
+  }
+  .ratio-slider::-moz-range-track {
+    height: 6px;
+    background: #D8DCE1;
+    border-radius: 3px;
+  }
+  .ratio-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #16A34A;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 1px 4px rgba(22,163,74,0.35);
+    cursor: pointer;
+    transition: width 0.1s ease, height 0.1s ease,
+                background 0.1s ease, box-shadow 0.1s ease;
+  }
+  .ratio-slider:active::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #15803D;
+    box-shadow: 0 4px 12px rgba(22,163,74,0.55);
+  }
+  .ratio-slider::-moz-range-progress {
+    height: 6px;
+    background: linear-gradient(to right, #22C55E, #16A34A);
+    border-radius: 3px;
+  }
+  .ratio-slider:disabled::-webkit-slider-thumb { background: #9CA3AF; box-shadow: none; }
+  .ratio-slider:disabled::-moz-range-thumb     { background: #9CA3AF; box-shadow: none; }
+}

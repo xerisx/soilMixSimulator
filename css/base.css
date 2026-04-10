@@ -30,25 +30,30 @@ canvas {
   font-family: sans-serif;
   cursor: pointer;
   border-radius: 8px;
-  transition: all 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s, color 0.15s;
   touch-action: manipulation;
   white-space: nowrap;
   font-weight: 500;
 }
 .act-start        { background: #16A34A; color: #FFFFFF; font-size: 17px; font-weight: 700; }
-.act-start:hover  { background: #15803D; }
+.act-start:hover  { background: #15803D; box-shadow: 0 4px 12px rgba(22,163,74,0.25); }
+.act-start:active { transform: scale(0.97); box-shadow: 0 1px 4px rgba(22,163,74,0.10); }
 .act-share          { background: #EFF6FF; color: #2563EB; border: 1.5px solid #BFDBFE; font-weight: 600; }
-.act-share:hover    { background: #DBEAFE; }
-.act-share:active   { background: #BFDBFE; }
+.act-share:hover:not(:disabled)    { background: #DBEAFE; border-color: #93C5FD; box-shadow: 0 0 0 3px rgba(37,99,235,0.10); }
+.act-share:active:not(:disabled)   { background: #BFDBFE; transform: scale(0.97); box-shadow: none; }
 .act-share:disabled { background: #F3F4F6; color: #C4C9D4; border-color: #E5E7EB; cursor: not-allowed; }
 .act-air           { background: #F0F9FF; color: #0284C7; border: 1.5px solid #BAE6FD; font-weight: 600; }
-.act-air:hover     { background: #E0F2FE; }
+.act-air:hover:not(.active)     { background: #E0F2FE; box-shadow: 0 2px 8px rgba(2,132,199,0.15); }
+.act-air:active:not(.active)    { transform: scale(0.97); box-shadow: none; }
 .act-air.active    { background: #0284C7; color: #FFFFFF; border-color: #0284C7; }
-.act-air.active:hover { background: #0369A1; }
+.act-air.active:hover { background: #0369A1; box-shadow: 0 4px 10px rgba(2,132,199,0.25); }
+.act-air.active:active { transform: scale(0.97); box-shadow: none; }
 .act-reset        { background: #FFF7ED; color: #92400E; border: 1.5px solid #FED7AA; font-size: 13px; padding: 7px 14px; font-weight: 400; }
 .act-reset:hover  { background: #FFEDD5; border-color: #FDBA74; color: #78350F; }
+.act-reset:active { transform: scale(0.97); }
 .act-clear        { background: #F9FAFB; color: #9CA3AF; border: 1.5px solid #E5E7EB; font-size: 13px; padding: 7px 14px; font-weight: 400; }
 .act-clear:hover  { background: #F3F4F6; color: #6B7280; border-color: #D1D5DB; }
+.act-clear:active { transform: scale(0.97); }
 
 /* ── お気に入りボタン ── */
 .fav-btn {
@@ -61,13 +66,21 @@ canvas {
   border-radius: 6px;
   line-height: 1;
   flex-shrink: 0;
-  transition: background 150ms, color 150ms;
+  transition: background 150ms, color 150ms, transform 120ms;
   touch-action: manipulation;
 }
 
 .fav-btn:hover        { color: #D97706; }
-.fav-btn.active       { color: #D97706; background: #FEF3C7; }
+.fav-btn:active       { transform: scale(0.82); }
+.fav-btn.active       { color: #D97706; background: #FEF3C7; animation: fav-pop 0.22s ease; }
 .fav-btn.active:hover { color: #B45309; }
+
+@keyframes fav-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.35); }
+  70%  { transform: scale(0.90); }
+  100% { transform: scale(1); }
+}
 
 /* ── 全て0 空状態オーバーレイ ── */
 #loading-state {

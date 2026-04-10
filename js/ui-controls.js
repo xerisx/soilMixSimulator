@@ -207,6 +207,12 @@ function appendObjCard(list, type) {
   `;
   list.appendChild(card);
 
+  // モバイルスライダー初期状態: fill グラデーションと is-zero クラスをセット
+  const sliderEl = card.querySelector('.ratio-slider');
+  const initPct = (type.weight / Number(sliderEl.max)) * 100;
+  sliderEl.style.setProperty('--fill-pct', initPct + '%');
+  sliderEl.classList.toggle('is-zero', type.weight === 0);
+
   card.querySelectorAll('.obj-size-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const idx = Number(btn.dataset.idx);
@@ -234,6 +240,10 @@ function appendObjCard(list, type) {
     const valEl = card.querySelector('.ratio-val');
     valEl.textContent = newWeight.toFixed(1);
     valEl.classList.toggle('ratio-val-zero', newWeight === 0);
+    // モバイルスライダー: fill グラデーションと is-zero クラスを即時更新
+    const pct = (newWeight / Number(e.target.max)) * 100;
+    e.target.style.setProperty('--fill-pct', pct + '%');
+    e.target.classList.toggle('is-zero', newWeight === 0);
     selectedCommercialSoil = null;
     activePreset = null;
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
