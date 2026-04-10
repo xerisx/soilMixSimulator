@@ -228,38 +228,50 @@ function setParticleControlsDisabled(disabled) {
   });
 }
 
-function startSpawning() {
-  if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
-  setParticleControlsDisabled(true);
-
-  const { topInnerW, topY, cx } = getCupDimensions();
+function fillInstantly() {
+  if (!currentCupDims) return;
+  const { topInnerW, topY, cx } = currentCupDims;
+  const TICK      = 1000 / 60;
   const spawnXMin = cx - topInnerW / 2 + 20;
   const spawnXMax = cx + topInnerW / 2 - 20;
 
-  spawnInterval = setInterval(() => {
-    const now = performance.now();
-    const bodies = Composite.allBodies(engine.world);
-
-    // 生成から400ms以上経過したボディが鉢上端より上にある → 溢れと判定
-    const overflowed = bodies.some(b =>
-      !b.isStatic &&
-      b.spawnTime !== undefined &&
-      now - b.spawnTime > 400 &&
-      b.position.y < topY
-    );
-    if (overflowed) {
-      clearInterval(spawnInterval);
-      spawnInterval = null;
-      setParticleControlsDisabled(false);
-      return;
+  // レンダリングせずに物理演算を高速進行:
+  // 4ステップごとに6粒子を生成しながら落下・堆積させ、
+  // 鉢の上端を超えたら溢れと判定して停止する。
+  for (let step = 0; step < 700; step++) {
+    if (step % 4 === 0) {
+      for (let n = 0; n < 6; n++) {
+        const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
+        const body = spawnShape(x, topY - 20 - n * 14);
+        if (body) Body.setVelocity(body, { x: 0, y: 22 });
+      }
     }
 
-    for (let n = 0; n < 4; n++) {
-      const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
-      const body = spawnShape(x, topY - 60 - n * 18);
-      if (body) Body.setVelocity(body, { x: 0, y: 14 });
+    Engine.update(engine, TICK);
+
+    // 低速（落ち着いた）粒子が鉢上端に達したら溢れと判定
+    // 落下中の粒子（高速）は誤検知を防ぐため除外する
+    if (step > 30) {
+      const overflowed = Composite.allBodies(engine.world).some(b =>
+        b.isParticle && !b.isStatic &&
+        b.position.y < topY - 8 &&
+        Math.hypot(b.velocity.x, b.velocity.y) < 4
+      );
+      if (overflowed) {
+        // 沈静化のための追加ステップ
+        for (let s = 0; s < 180; s++) Engine.update(engine, TICK);
+        break;
+      }
     }
-  }, 80);
+  }
+
+  // 鉢上端より上の粒子を除去、残りを静的化
+  Composite.allBodies(engine.world)
+    .filter(b => b.isParticle && !b.isStatic)
+    .forEach(b => {
+      if (b.position.y < topY) Composite.remove(engine.world, b);
+      else Body.setStatic(b, true);
+    });
 }
 
 function reset() {

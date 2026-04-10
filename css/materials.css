@@ -78,17 +78,31 @@
 }
 
 /* ── 鉢サイズボタン ── */
+/* 5号+6号見切れが初期表示。横スクロールで6〜10号を表示 */
+#sec-pot .btn-group {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+#sec-pot .btn-group::-webkit-scrollbar { display: none; }
+
 .size-btn {
-  padding: 8px 16px;
+  flex-shrink: 0;
+  width: 46px;
+  text-align: center;
+  padding: 6px 0;
   border: 1.5px solid #E5E7EB;
   background: #FFFFFF;
   color: #374151;
-  font-size: 16px;
+  font-size: 14px;
   font-family: sans-serif;
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.15s;
   touch-action: manipulation;
+  scroll-snap-align: start;
 }
 .size-btn.active             { background: #16A34A; color: #FFFFFF; border-color: #16A34A; }
 .size-btn:hover:not(.active) { border-color: #16A34A; color: #16A34A; background: #F0FDF4; }
