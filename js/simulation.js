@@ -262,6 +262,90 @@ function startSpawning() {
   }, 80);
 }
 
+function fillInstantly() {
+  if (!currentCupDims) return;
+  const { topInnerW, botInnerW, cupHeight, topY, cx } = currentCupDims;
+  const TICK      = 1000 / 60;
+  const spawnXMin = cx - topInnerW / 2 + 20;
+  const spawnXMax = cx + topInnerW / 2 - 20;
+
+  // 鉢断面積と平均粒径から必要粒子数を推定し、バッチサイズをスケーリング
+  const potArea    = (topInnerW + botInnerW) / 2 * cupHeight;
+  const pxPerMm    = topInnerW / POT_DIAMETERS[currentSize] / 10;
+  const activeTypes = objectTypes.filter(t => t.weight > 0);
+  let totalW = 0, weightedMidMm = 0;
+  activeTypes.forEach(t => {
+    const range = t.sizes[t.size || 'M'];
+    weightedMidMm += (range.min + range.max) / 2 * t.weight;
+    totalW += t.weight;
+  });
+  const avgRadiusPx    = (totalW > 0 ? weightedMidMm / totalW : 6) * pxPerMm / 2;
+  const estimatedCount = Math.ceil(potArea * 0.80 / (Math.PI * avgRadiusPx * avgRadiusPx));
+
+  // 物理安定性のため上限は 30 粒子/バッチ
+  const batchSize = Math.max(6, Math.min(30, Math.ceil(estimatedCount / 175)));
+  // スポーン完了に必要なステップ（沈静化バッファ800を確保するため上限を設ける）
+  const rawStepsToSpawn = Math.ceil(estimatedCount / batchSize) * 4;
+  const MAX_STEPS       = Math.min(3000, rawStepsToSpawn + 800);
+  const stepsToSpawn    = Math.min(rawStepsToSpawn, MAX_STEPS - 800);
+
+  isFilling = true;
+  _fillStep  = 0;
+
+  for (let step = 0; step < MAX_STEPS; step++) {
+    _fillStep = step;
+    // スポーン完了ステップで生成を停止（残りは沈静化フェーズ）
+    if (step % 4 === 0 && step < stepsToSpawn) {
+      for (let n = 0; n < batchSize; n++) {
+        const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
+        // 最大10層に収める（バッチが多くても上空に散らばりすぎない）
+        const y = topY - 20 - (n % 10) * 14;
+        const body = spawnShape(x, y);
+        if (body) {
+          body._spawnStep = step;
+          Body.setVelocity(body, { x: 0, y: 22 });
+          // 即時充填は均一充填を優先するため摩擦を低減（アニメーション落下には影響しない）
+          body.friction = 0.1;
+          body.frictionStatic = 0.05;
+        }
+      }
+    }
+
+    Engine.update(engine, TICK);
+
+    // スポーンから50ステップ以上経過した粒子が鉢上端に達したら溢れと判定
+    // isStatic 粒子は除外（フリーズ済み粒子による誤発火を防ぐ）
+    if (step > 30) {
+      const overflowed = Composite.allBodies(engine.world).some(b =>
+        b.isParticle &&
+        !b.isStatic &&
+        b.position.y < topY - 8 &&
+        (step - (b._spawnStep ?? 0)) > 50 &&
+        Math.hypot(b.velocity.x, b.velocity.y) < 4
+      );
+      if (overflowed) {
+        // _fillStep を進めながら沈静化（フリーズタイマーを正常に動かすため）
+        for (let s = 1; s <= 1000; s++) {
+          _fillStep = step + s;
+          Engine.update(engine, TICK);
+        }
+        break;
+      }
+    }
+  }
+
+  isFilling = false;
+  _fillStep  = 0;
+
+  // 鉢上端より上の粒子を除去、残りを静的化
+  Composite.allBodies(engine.world)
+    .filter(b => b.isParticle && !b.isStatic)
+    .forEach(b => {
+      if (b.position.y < topY) Composite.remove(engine.world, b);
+      else Body.setStatic(b, true);
+    });
+}
+
 function reset() {
   if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
   setParticleControlsDisabled(false);
@@ -362,11 +446,17 @@ const FREEZE_ANG_THRESH  = 0.02;
 const FREEZE_DELAY_MS    = 1200;  // 1.2秒静止で固定（トントン廃止により全粒子が対象）
 const FREEZE_ZONE_RATIO  = 1.0;   // 鉢全体を対象（底層だけでなく全粒子を最終固定状態にする）
 
+// fillInstantly() 実行中フラグ + 現在ステップカウンタ
+// afterUpdate 内で performance.now() を使うと同期ループでもリアルタイムで進み
+// 中空衝突で一時的に速度が落ちた粒子が即フリーズしてしまう。
+// isFilling 中はステップベースで静止を判定することでこれを回避する。
+let isFilling = false;
+let _fillStep  = 0;  // fillInstantly() ループの現在 step を保持
+
 Events.on(engine, 'afterUpdate', () => {
   if (!currentCupDims) return;
   const { bottomY, cupHeight } = currentCupDims;
   const now = performance.now();
-  // 下側 FREEZE_ZONE_RATIO 分を固定対象ゾーンとする
   const freezeZoneTopY = bottomY - cupHeight * FREEZE_ZONE_RATIO;
 
   Composite.allBodies(engine.world)
@@ -377,15 +467,18 @@ Events.on(engine, 'afterUpdate', () => {
       const inZone = b.position.y > freezeZoneTopY;
 
       if (inZone && spd < FREEZE_VEL_THRESH && angSpd < FREEZE_ANG_THRESH) {
-        if (!b._stillSince) {
-          b._stillSince = now;
-        } else if (now - b._stillSince > FREEZE_DELAY_MS) {
-          Body.setStatic(b, true);
-          // isStatic 化により次回以降このフィルタから外れる
+        if (isFilling) {
+          // 低摩擦設定のため衝突による一時停止は少ない。
+          // 40ステップ静止で即時固定し、静的床を作って重なりを防ぐ
+          if (b._stillSinceStep === undefined) b._stillSinceStep = _fillStep;
+          else if (_fillStep - b._stillSinceStep > 40) Body.setStatic(b, true);
+        } else {
+          if (!b._stillSince) b._stillSince = now;
+          else if (now - b._stillSince > FREEZE_DELAY_MS) Body.setStatic(b, true);
         }
       } else {
-        // 動き出したらタイマーリセット
-        b._stillSince = null;
+        b._stillSince     = null;
+        b._stillSinceStep = undefined;
       }
     });
 });

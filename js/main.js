@@ -72,12 +72,26 @@ function setPouredState(poured) {
   if (startBtn) startBtn.textContent = poured ? '再投入' : '▶ 投入して開始';
 }
 
+// ── 充填実行（サイズに応じてアニメーション / 即時計算を切り替え） ──
+function runFill() {
+  if (Number(currentSize) <= 5) {
+    startSpawning();
+  } else {
+    const el = document.getElementById('loading-state');
+    el.removeAttribute('hidden');
+    setTimeout(() => {
+      fillInstantly();
+      el.setAttribute('hidden', '');
+    }, 30);
+  }
+}
+
 // ── スタートボタン ──
 document.getElementById('startBtn').addEventListener('click', () => {
   if (isAllZero()) { showEmptyState(); return; }
   document.getElementById('canvas-guide')?.setAttribute('hidden', '');
   reset();
-  startSpawning();
+  runFill();
   setPouredState(true);
 });
 
@@ -162,7 +176,7 @@ document.getElementById('reinvestBtn').addEventListener('click', () => {
     document.getElementById('airBtn').classList.remove('active');
   }
   reset();
-  startSpawning();
+  runFill();
   setPouredState(true);
 });
 
