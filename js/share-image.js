@@ -228,12 +228,12 @@ async function buildShareCanvas() {
 
   // ── セクションヘッダー ──
   ctx.fillStyle    = SHR.MUTED2;
-  ctx.font         = `500 14px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
+  ctx.font         = `500 17px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
   ctx.textBaseline = 'middle';
   ctx.textAlign    = 'left';
-  ctx.fillText('トップ資材', PAD, curY + 8);
-  ctx.fillText('配合スコア', COL2_X, curY + 8);
-  curY += 34;
+  ctx.fillText('TOP MATERIALS', PAD, curY + 8);
+  ctx.fillText('COMPOSITION', COL2_X, curY + 8);
+  curY += 24;
 
   // ── リスト ──
   const sorted  = [...usedMats].sort((a, b) => b.weight - a.weight);
@@ -331,7 +331,7 @@ async function buildShareCanvas() {
 
   // SOIL SCORE
   ctx.fillStyle    = SHR.MUTED2;
-  ctx.font         = `500 14px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.font         = `500 17px "Hiragino Sans","Yu Gothic",sans-serif`;
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign    = 'left';
   ctx.fillText('STRENGTH', PAD, curY + 18);
@@ -349,7 +349,7 @@ async function buildShareCanvas() {
   // BEST FOR (SOIL SCOREの下・右寄せ)
   const bestForLabelY = divY + 32;
   ctx.fillStyle    = SHR.MUTED2;
-  ctx.font         = `500 14px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.font         = `500 17px "Hiragino Sans","Yu Gothic",sans-serif`;
   ctx.textAlign    = 'left';
   ctx.fillText('BEST FOR', PAD, bestForLabelY);
 
