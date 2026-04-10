@@ -17,10 +17,10 @@ const SHR = {
 
   // 用土タイプ（スコアから判定）
   SOIL_TYPES: {
-    AIRY:     { color: '#6B9EC4', bestFor: 'CACTI & SUCCULENTS' },
-    WET:      { color: '#4E9E7E', bestFor: 'FERNS & TROPICALS'  },
-    RICH:     { color: '#8C7FBD', bestFor: 'AROIDS'             },
-    BALANCED: { color: '#5A9E6A', bestFor: 'ALL PLANTS'         },
+    AIRY:     { color: '#4FB3E8', bestFor: 'DRY CONDITIONS'    },
+    WET:      { color: '#2ECBA1', bestFor: 'MOISTURE LOVING'   },
+    RICH:     { color: '#9B7EE8', bestFor: 'HEAVY FEEDING'     },
+    BALANCED: { color: '#3DD68C', bestFor: 'GENERAL PURPOSE'   },
   },
 
   // 指標
@@ -32,10 +32,10 @@ const SHR = {
     nutrientRetention: '保肥力',
   },
   METRIC_COLORS: {
-    drainage:          '#6B9EC4',
-    waterRetention:    '#4E9E7E',
-    aeration:          '#8595A8',
-    nutrientRetention: '#B8973A',
+    drainage:          '#4FB3E8',
+    waterRetention:    '#2ECBA1',
+    aeration:          '#94A3B8',
+    nutrientRetention: '#F5A623',
   },
 
   BG:      '#222222',
@@ -45,6 +45,16 @@ const SHR = {
   DIVIDER: '#2A2A2A',
   SLATE:   '#64748B',
 };
+
+// ── テキスト省略（maxWidth を超える場合は「…」付きで切る）──
+function shrEllipsis(ctx, text, maxWidth) {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let t = text;
+  while (t.length > 0 && ctx.measureText(t + '…').width > maxWidth) {
+    t = t.slice(0, -1);
+  }
+  return t + '…';
+}
 
 // ── 角丸矩形パス ──
 function shrRoundRect(ctx, x, y, w, h, r) {
@@ -116,6 +126,9 @@ async function buildShareCanvas() {
   const usedMats = objectTypes.filter(t => t.weight > 0);
   if (!usedMats.length) throw new Error('no-mats');
 
+  // Archivo Black をロード（未ロードの場合に備えて待機）
+  await document.fonts.load('900 140px "Archivo Black"');
+
   const comp = calcComposite();
   const { W, H, TOP_H, STRIP_L, PHOTO_H_IMG, STRIPE_UNIT } = SHR;
 
@@ -144,14 +157,14 @@ async function buildShareCanvas() {
 
   // ── 左ストリップ: 用土タイプ（回転テキスト）── ※写真より先に描画して写真の下に潜り込む
   {
-    const OVERLAP  = 130;  // メインビジュアルへの食い込み量
+    const OVERLAP  = 122;  // メインビジュアルへの食い込み量
     const stripCx  = STRIP_L - OVERLAP + (STRIP_L / 2);  // やや右寄り
     const stripCy  = PHOTO_TOP + PHOTO_H_IMG / 2;
 
     // フォントサイズ: テキスト長に合わせて自動調整（上限を大きく）
     const maxH = PHOTO_H_IMG - 20;
     let fontSize = 140;
-    ctx.font = `900 ${fontSize}px "Hiragino Sans","Yu Gothic",sans-serif`;
+    ctx.font = `italic 900 ${fontSize}px "Archivo Black","Hiragino Sans",sans-serif`;
     const tw = ctx.measureText(soilTypeName).width;
     if (tw > maxH) fontSize = Math.floor(fontSize * maxH / tw);
 
@@ -159,13 +172,13 @@ async function buildShareCanvas() {
     ctx.translate(stripCx, stripCy);
     ctx.rotate(-Math.PI / 2);
 
-    ctx.font         = `900 ${fontSize}px "Hiragino Sans","Yu Gothic",sans-serif`;
+    ctx.font         = `italic 900 ${fontSize}px "Archivo Black","Hiragino Sans",sans-serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
 
     // 白縁取り
     ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth   = fontSize * 0.06;
+    ctx.lineWidth   = fontSize * 0.05;
     ctx.lineJoin    = 'round';
     ctx.strokeText(soilTypeName, 0, 0);
 
@@ -258,7 +271,8 @@ async function buildShareCanvas() {
 
       ctx.fillStyle = SHR.TEXT;
       ctx.font      = NAME_FONT;
-      ctx.fillText(mat.name + szLb, PAD + RANK_W + 8, midY);
+      const nameMaxW = COL_W - RANK_W - 8 - 44;
+      ctx.fillText(shrEllipsis(ctx, mat.name + szLb, nameMaxW), PAD + RANK_W + 8, midY);
 
       ctx.fillStyle = SHR.MUTED2;
       ctx.font      = SUB_FONT;
@@ -320,7 +334,7 @@ async function buildShareCanvas() {
   ctx.font         = `500 14px "Hiragino Sans","Yu Gothic",sans-serif`;
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign    = 'left';
-  ctx.fillText('SOIL SCORE', PAD, curY + 18);
+  ctx.fillText('STRENGTH', PAD, curY + 18);
 
   ctx.fillStyle    = SHR.TEXT;
   ctx.font         = `900 90px "Hiragino Sans","Yu Gothic",sans-serif`;
@@ -336,31 +350,31 @@ async function buildShareCanvas() {
   const bestForLabelY = divY + 32;
   ctx.fillStyle    = SHR.MUTED2;
   ctx.font         = `500 14px "Hiragino Sans","Yu Gothic",sans-serif`;
-  ctx.textAlign    = 'right';
-  ctx.fillText('BEST FOR', W - PAD, bestForLabelY);
+  ctx.textAlign    = 'left';
+  ctx.fillText('BEST FOR', PAD, bestForLabelY);
 
-  ctx.fillStyle = accentColor;
+  ctx.fillStyle = SHR.TEXT;
   let bestForSize = 76;
   ctx.font = `900 ${bestForSize}px "Hiragino Sans","Yu Gothic",sans-serif`;
-  while (ctx.measureText(bestFor).width > W - PAD * 2 && bestForSize > 20) {
+  while (ctx.measureText(bestFor).width > W - PAD * 2 && bestForSize > 10) {
     bestForSize -= 2;
     ctx.font = `900 ${bestForSize}px "Hiragino Sans","Yu Gothic",sans-serif`;
   }
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText(bestFor, W - PAD, bestForLabelY + bestForSize + 4);
+  ctx.fillText(bestFor, PAD, bestForLabelY + bestForSize + 10);
 
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 
   // ── フッター ──
   const footerY = H - 52;
   ctx.fillStyle    = SHR.TEXT;
-  ctx.font         = `900 28px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.font         = `900 22px "Hiragino Sans","Yu Gothic",sans-serif`;
   ctx.textBaseline = 'middle';
   ctx.textAlign    = 'left';
-  ctx.fillText('Q Soil', PAD, footerY + 26);
+  ctx.fillText('Qsoil', PAD, footerY + 26);
 
   ctx.fillStyle = SHR.MUTED2;
-  ctx.font      = `500 20px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.font      = `500 15px "Hiragino Sans","Yu Gothic",sans-serif`;
   ctx.textAlign = 'right';
   ctx.fillText('QSOIL.JP / 用土配合シミュレータ', W - PAD, footerY + 26);
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
