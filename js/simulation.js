@@ -228,6 +228,40 @@ function setParticleControlsDisabled(disabled) {
   });
 }
 
+function startSpawning() {
+  if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
+  setParticleControlsDisabled(true);
+
+  const { topInnerW, topY, cx } = getCupDimensions();
+  const spawnXMin = cx - topInnerW / 2 + 20;
+  const spawnXMax = cx + topInnerW / 2 - 20;
+
+  spawnInterval = setInterval(() => {
+    const now = performance.now();
+    const bodies = Composite.allBodies(engine.world);
+
+    // 生成から400ms以上経過したボディが鉢上端より上にある → 溢れと判定
+    const overflowed = bodies.some(b =>
+      !b.isStatic &&
+      b.spawnTime !== undefined &&
+      now - b.spawnTime > 400 &&
+      b.position.y < topY
+    );
+    if (overflowed) {
+      clearInterval(spawnInterval);
+      spawnInterval = null;
+      setParticleControlsDisabled(false);
+      return;
+    }
+
+    for (let n = 0; n < 4; n++) {
+      const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
+      const body = spawnShape(x, topY - 60 - n * 18);
+      if (body) Body.setVelocity(body, { x: 0, y: 14 });
+    }
+  }, 80);
+}
+
 function fillInstantly() {
   if (!currentCupDims) return;
   const { topInnerW, topY, cx } = currentCupDims;

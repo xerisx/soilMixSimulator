@@ -77,7 +77,7 @@ document.getElementById('startBtn').addEventListener('click', () => {
   if (isAllZero()) { showEmptyState(); return; }
   document.getElementById('canvas-guide')?.setAttribute('hidden', '');
   reset();
-  fillInstantly();
+  (Number(currentSize) <= 5 ? startSpawning : fillInstantly)();
   setPouredState(true);
 });
 
@@ -162,7 +162,7 @@ document.getElementById('reinvestBtn').addEventListener('click', () => {
     document.getElementById('airBtn').classList.remove('active');
   }
   reset();
-  fillInstantly();
+  (Number(currentSize) <= 5 ? startSpawning : fillInstantly)();
   setPouredState(true);
 });
 
