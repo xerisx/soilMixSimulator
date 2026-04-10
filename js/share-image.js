@@ -28,20 +28,93 @@ const SHR = {
     aeration:          '通気性',
     nutrientRetention: '保肥力',
   },
-  METRIC_COLORS: {
+  METRIC_COLORS_DARK: {
     drainage:          '#4FB3E8',
     waterRetention:    '#2ECBA1',
     aeration:          '#94A3B8',
     nutrientRetention: '#F5A623',
   },
+  METRIC_COLORS_LIGHT: {
+    drainage:          '#1A7AB8',
+    waterRetention:    '#0E8B6A',
+    aeration:          '#4A5C70',
+    nutrientRetention: '#B87000',
+  },
+  // buildShareCanvas() でパターンに応じて上書きされる
+  METRIC_COLORS: null,
 
-  BG:      '#222222',
-  TEXT:    '#FFFFFF',
-  MUTED:   '#555555',
-  MUTED2:  '#888888',
-  DIVIDER: '#2A2A2A',
-  SLATE:   '#64748B',
+  BG:          '#222222',
+  TEXT:        '#FFFFFF',
+  MUTED:       '#555555',
+  MUTED2:      '#888888',
+  DIVIDER:     '#2A2A2A',
+  CHECKER_ALT: '#FFFFFF',
+  SLATE:       '#64748B',
 };
+
+// ── カラーパターン定義 ──
+const COLOR_PATTERNS = [
+  {
+    name: 'dark',
+    BG: '#222222', TEXT: '#FFFFFF', MUTED: '#555555', MUTED2: '#888888', DIVIDER: '#2A2A2A', CHECKER_ALT: '#FFFFFF',
+    isDark: true,
+  },
+  {
+    name: 'white',
+    BG: '#FFFFFF', TEXT: '#1A1A1A', MUTED: '#CCCCCC', MUTED2: '#999999', DIVIDER: '#E8E8E8', CHECKER_ALT: '#111111',
+    isDark: false,
+  },
+  {
+    name: 'cream',
+    BG: '#F2EDE4', TEXT: '#2A1F14', MUTED: '#C4B5A5', MUTED2: '#8A7A6A', DIVIDER: '#DDD4C6', CHECKER_ALT: '#3D2B1F',
+    isDark: false,
+  },
+  {
+    name: 'pop-yellow',
+    BG: '#F5E03A', TEXT: '#1A1400', MUTED: '#8A7A00', MUTED2: '#5A5000', DIVIDER: '#DAC820', CHECKER_ALT: '#FF6B6B',
+    isDark: false,
+  },
+  {
+    name: 'pop-coral',
+    BG: '#FF6B6B', TEXT: '#FFFFFF', MUTED: '#FF9999', MUTED2: '#FFBBBB', DIVIDER: '#E05050', CHECKER_ALT: '#F5E03A',
+    isDark: false,
+  },
+  {
+    name: 'forest',
+    BG: '#162218', TEXT: '#E8F5E9', MUTED: '#3A5C3E', MUTED2: '#7AAB80', DIVIDER: '#1E3022', CHECKER_ALT: '#3DD68C',
+    isDark: true,
+  },
+  {
+    name: 'deep-indigo',
+    BG: '#0F1028', TEXT: '#E8EEFF', MUTED: '#2A2D5C', MUTED2: '#7A80B8', DIVIDER: '#161830', CHECKER_ALT: '#9B7EE8',
+    isDark: true,
+  },
+  {
+    name: 'charcoal',
+    BG: '#2A2A30', TEXT: '#F0F0F4', MUTED: '#48485A', MUTED2: '#8888A0', DIVIDER: '#363642', CHECKER_ALT: '#D0D0E0',
+    isDark: true,
+  },
+  {
+    name: 'mint',
+    BG: '#E8F5F0', TEXT: '#0D2D20', MUTED: '#9BBFB3', MUTED2: '#5A8A7A', DIVIDER: '#C8E8DE', CHECKER_ALT: '#0D3D28',
+    isDark: false,
+  },
+  {
+    name: 'lavender',
+    BG: '#EDE8F5', TEXT: '#1A1028', MUTED: '#B8AACC', MUTED2: '#7A6A99', DIVIDER: '#D8D0EC', CHECKER_ALT: '#2D1A5C',
+    isDark: false,
+  },
+  {
+    name: 'rose',
+    BG: '#F5E8EC', TEXT: '#2A0F18', MUTED: '#CCA8B4', MUTED2: '#8A5A68', DIVIDER: '#E8D0D8', CHECKER_ALT: '#5C1A2E',
+    isDark: false,
+  },
+  {
+    name: 'sand',
+    BG: '#E8DCC8', TEXT: '#2A1F0A', MUTED: '#C0A878', MUTED2: '#8A7248', DIVIDER: '#D8CCB0', CHECKER_ALT: '#3D2D08',
+    isDark: false,
+  },
+];
 
 // ── テキスト省略（maxWidth を超える場合は「…」付きで切る）──
 function shrEllipsis(ctx, text, maxWidth) {
@@ -106,7 +179,7 @@ function shrCheckerboard(ctx, x, y, w, h, unit) {
     for (let c = 0; c < cols; c++) {
       const cx = x + c * unit;
       if (cx >= x + w) break;
-      ctx.fillStyle = (r + c) % 2 === 0 ? SHR.BG : '#FFFFFF';
+      ctx.fillStyle = (r + c) % 2 === 0 ? SHR.BG : SHR.CHECKER_ALT;
       ctx.fillRect(cx, cy, Math.min(unit, x + w - cx), cellH);
     }
   }
@@ -335,12 +408,19 @@ function shrDrawFooter(ctx, { W, H, PAD }) {
 }
 
 // ── コアレンダリング: 750×1583px の canvas を返す ──
-async function buildShareCanvas() {
+// themeId を指定するとそのパターンを使用。省略時はランダム。
+async function buildShareCanvas(themeId) {
   const usedMats = objectTypes.filter(t => t.weight > 0);
   if (!usedMats.length) throw new Error('no-mats');
 
   // Archivo Black をロード（未ロードの場合に備えて待機）
   await document.fonts.load('900 140px "Archivo Black"');
+
+  // カラーパターン選択
+  const palette = (themeId && COLOR_PATTERNS.find(p => p.name === themeId))
+    ?? COLOR_PATTERNS[Math.floor(Math.random() * COLOR_PATTERNS.length)];
+  Object.assign(SHR, palette);
+  SHR.METRIC_COLORS = palette.isDark ? SHR.METRIC_COLORS_DARK : SHR.METRIC_COLORS_LIGHT;
 
   const comp = calcComposite();
   const { W, H, TOP_H, STRIP_L, PHOTO_H_IMG, STRIPE_UNIT } = SHR;
@@ -405,6 +485,18 @@ async function buildShareCanvas() {
   return canvas;
 }
 
+// ── Blob 生成（share.js から呼び出す）──
+function generateShareBlob(themeId) {
+  return buildShareCanvas(themeId).then(canvas =>
+    new Promise((resolve, reject) =>
+      canvas.toBlob(
+        blob => blob ? resolve(blob) : reject(new Error('blob-failed')),
+        'image/png'
+      )
+    )
+  );
+}
+
 // ── 画像ダウンロード ──
 async function generateShareImage() {
   const btn = document.getElementById('share-img-btn');
@@ -465,6 +557,6 @@ async function previewShareImage() {
     wrap.innerHTML = `<p class="shr-prev-msg">${msg}</p>`;
     if (e.message !== 'no-mats') console.error('[share-image preview] error:', e);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '再描画'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'シャッフル'; }
   }
 }

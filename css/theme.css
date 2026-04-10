@@ -620,56 +620,65 @@ html[data-theme="dark"] #disclaimer-summary:hover { color: var(--text-4); }
 html[data-theme="dark"] #disclaimer               { color: var(--text-4); }
 
 /* ─────────────── 共有モーダル ─────────────── */
-html[data-theme="dark"] #share-modal {
-  background: var(--modal-overlay);
-}
+html[data-theme="dark"] #share-modal { background: var(--modal-overlay); }
 
 html[data-theme="dark"] .share-modal-box {
   background: var(--bg-panel);
   box-shadow: 0 8px 32px rgba(0,0,0,0.50);
 }
 
-html[data-theme="dark"] .share-modal-title { color: var(--text-1); }
-html[data-theme="dark"] .share-modal-close       { color: var(--text-4); }
-html[data-theme="dark"] .share-modal-close:hover { color: var(--text-3); }
+html[data-theme="dark"] .share-modal-title       { color: var(--text-1); }
+html[data-theme="dark"] .share-modal-close-x      { color: var(--text-4); }
+html[data-theme="dark"] .share-modal-close-x:hover { color: var(--text-3); }
+html[data-theme="dark"] .share-modal-close        { color: var(--text-4); }
+html[data-theme="dark"] .share-modal-close:hover  { color: var(--text-3); }
+
+html[data-theme="dark"] .share-section-label { color: var(--text-4); }
+html[data-theme="dark"] .share-shuffle-btn        { color: var(--blue); border-color: var(--blue-brd); }
+html[data-theme="dark"] .share-shuffle-btn:hover  { background: var(--blue-bg); border-color: var(--blue); }
+html[data-theme="dark"] .share-action-save-link   { color: var(--text-4); }
+html[data-theme="dark"] .share-action-save-link:hover { color: var(--text-3); }
+
+html[data-theme="dark"] .share-preview-wrap { background: #1E293B; }
+html[data-theme="dark"] .share-preview-msg  { color: var(--text-3); }
+
+html[data-theme="dark"] .share-action-primary {
+  background: var(--bg-card);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+}
+html[data-theme="dark"] .share-action-primary:hover { background: var(--bg-subtle); }
+
+html[data-theme="dark"] .share-action-secondary {
+  background: var(--bg-subtle);
+  color: var(--text-2);
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .share-action-secondary:hover { background: var(--border); }
+
+html[data-theme="dark"] .share-action-note { color: var(--text-4); }
 
 html[data-theme="dark"] .share-url-input {
   background: var(--bg-card);
   border-color: var(--border);
   color: var(--text-3);
 }
-
-html[data-theme="dark"] .share-url-label,
-html[data-theme="dark"] .share-sns-label { color: var(--text-4); }
+html[data-theme="dark"] .share-url-label { color: var(--text-4); }
 
 html[data-theme="dark"] .share-url-copy-btn {
   background: var(--bg-subtle);
   color: var(--text-3);
   border-color: var(--border);
 }
-
 html[data-theme="dark"] .share-url-copy-btn:hover {
   background: var(--border);
   color: var(--text-2);
 }
-
 html[data-theme="dark"] .share-url-copy-btn.copied {
   background: var(--green-bg);
   color: var(--green);
   border-color: var(--green-brd);
 }
-
-html[data-theme="dark"] .share-img-btn {
-  background: var(--bg-card);
-  color: var(--blue);
-  border-color: var(--blue-brd);
-}
-
-html[data-theme="dark"] .share-img-btn:hover  { background: var(--blue-bg); }
-html[data-theme="dark"] .share-img-btn:active { background: #082040; }
-
-html[data-theme="dark"] .share-preview-link       { color: var(--text-4); }
-html[data-theme="dark"] .share-preview-link:hover { color: var(--text-3); }
 
 /* ─────────────── 比較保存ボタン ─────────────── */
 html[data-theme="dark"] .save-compare-btn {
