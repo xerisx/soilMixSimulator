@@ -21,12 +21,19 @@ body.guide-page {
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
+/* 戻るリンク + テーマトグルを横並びに */
+.guide-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+}
+
 .guide-back {
   display: inline-block;
   font-size: 13px;
   color: #6B7280;
   text-decoration: none;
-  padding: 10px 0 0;
 }
 .guide-back:hover { color: #374151; }
 
@@ -414,6 +421,7 @@ body.guide-page {
 .mat-divider {
   height: 1px;
   background: #F3F4F6;
+  border: none;
   margin: 0;
 }
 

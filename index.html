@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/tabs.css">
@@ -15,11 +16,14 @@
   <link rel="stylesheet" href="css/analysis.css">
   <link rel="stylesheet" href="css/compare.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <!-- FOUC防止: テーマ即時適用 -->
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <canvas id="canvas"></canvas>
   <div id="loading-state" hidden>
     <div id="loading-state-inner">
+      <div id="loading-spinner"></div>
       <p id="loading-state-msg">計算中...</p>
       <p id="loading-state-sub">少々お待ちください</p>
     </div>
@@ -74,8 +78,14 @@
 
   <!-- モバイル: sticky ブランドヘッダー（スクロールでパネルに隠れる） -->
   <div id="mobile-header">
-    <img id="mobile-logo" src="assets/logo.png" alt="QSOIL">
-    <span id="mobile-sub">用土配合シミュレータ</span>
+    <div class="mobile-header-brand">
+      <img id="mobile-logo" src="assets/logo.png" alt="QSOIL">
+      <span id="mobile-sub">用土配合シミュレータ <span class="beta-badge">【Beta】</span></span>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="ダーク/ライト切り替え">
+      <svg class="theme-icon theme-icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="theme-icon theme-icon-sun"  width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
   </div>
 
   <!-- モバイル: 鉢エリア分の高さを確保する透明スペーサー（JS で高さを設定） -->
@@ -85,7 +95,7 @@
   <div id="panel">
     <header id="app-header">
       <img id="app-logo" src="assets/logo.png" alt="QSOIL">
-      <span id="app-sub">用土配合シミュレータ</span>
+      <span id="app-sub">用土配合シミュレータ <span class="beta-badge">【Beta】</span></span>
     </header>
 
     <!-- 上部固定エリア: タブ + 鉢サイズ -->
@@ -176,7 +186,7 @@
 
   <!-- 鉢への操作ボタン: モバイルではパネルと独立した固定レイヤー / デスクトップでは鉢の下に浮遊 -->
   <div id="center-actions">
-    <button id="startBtn" class="act-btn act-start">▶ 投入して開始</button>
+    <button id="startBtn" class="act-btn act-start">投入して開始</button>
     <div class="act-group act-group-ops">
       <button id="airBtn"    class="act-btn act-air">空気層を見る</button>
     </div>
@@ -201,6 +211,10 @@
   <div id="right-panel">
     <header class="rp-header">
       <h2 class="rp-title">配合分析</h2>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="ダーク/ライト切り替え">
+        <svg class="theme-icon theme-icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="theme-icon theme-icon-sun"  width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
     </header>
 
     <!-- 右パネル: 分析/比較タブナビ -->

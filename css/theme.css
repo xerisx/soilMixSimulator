@@ -1,0 +1,962 @@
+/* ═══════════════════════════════════════════════════════════════
+   theme.css — ダークモード テーマ変数 & コンポーネント上書きルール
+   ═══════════════════════════════════════════════════════════════
+
+   将来的に sepia / high-contrast テーマを追加する場合は
+   html[data-theme="sepia"] { ... } ブロックを追加するだけでよい。
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────
+   CSS デザイントークン: ライトモード（デフォルト）
+   ───────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg-body:   #F8FAFC;
+  --bg-panel:  #FFFFFF;
+  --bg-card:   #F9FAFB;
+  --bg-subtle: #F3F4F6;
+
+  /* Text */
+  --text-1:   #111827;
+  --text-2:   #374151;
+  --text-3:   #6B7280;
+  --text-4:   #9CA3AF;
+  --text-dis: #C4C9D4;
+
+  /* Borders */
+  --border:   #E5E7EB;
+  --border-2: #F3F4F6;
+  --border-3: #EFEFEF;
+
+  /* Brand accent (意味色: ライト・ダーク共通で判別できるよう調整) */
+  --green:      #16A34A;
+  --green-dark: #15803D;
+  --green-bg:   #F0FDF4;
+  --green-brd:  #BBF7D0;
+  --blue:       #0284C7;
+  --blue-dark:  #0369A1;
+  --blue-bg:    #F0F9FF;
+  --blue-brd:   #BAE6FD;
+  --orange:     #D97706;
+  --orange-bg:  #FEF3C7;
+  --orange-brd: #FED7AA;
+  --purple:     #7C3AED;
+  --purple-bg:  #F5F3FF;
+  --purple-brd: #DDD6FE;
+
+  /* Overlays */
+  --overlay-bg:    rgba(255,255,255,0.82);
+  --guide-bg:      rgba(255,255,255,0.78);
+  --modal-overlay: rgba(0,0,0,0.45);
+}
+
+/* ─────────────────────────────────────────────
+   CSS デザイントークン: ダークモード
+   ───────────────────────────────────────────── */
+html[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-body:   #0D1117;
+  --bg-panel:  #161B22;
+  --bg-card:   #1C2430;  /* 青みがかることでパネルとの階層差を明確化 */
+  --bg-subtle: #21262D;
+
+  /* Text */
+  --text-1:   #E6EDF3;
+  --text-2:   #C9D1D9;
+  --text-3:   #8B949E;
+  --text-4:   #586069;
+  --text-dis: #3D4450;
+
+  /* Borders */
+  --border:   #2A3442;  /* やや明度・彩度を上げてカード境界を視認しやすく */
+  --border-2: #21262D;
+  --border-3: #21262D;
+
+  /* Brand accent (ダーク背景での視認性に最適化) */
+  --green:      #3FB950;
+  --green-dark: #2EA043;
+  --green-bg:   #0A1F10;
+  --green-brd:  #1A4731;
+  --blue:       #58A6FF;
+  --blue-dark:  #388BFD;
+  --blue-bg:    #051B30;
+  --blue-brd:   #1F3A5F;
+  --orange:     #FFA657;
+  --orange-bg:  #1C0F00;
+  --orange-brd: #5C3500;
+  --purple:     #BC8CFF;
+  --purple-bg:  #1A0B36;
+  --purple-brd: #3D1A75;
+
+  /* Overlays */
+  --overlay-bg:    rgba(13,17,23,0.90);
+  --guide-bg:      rgba(22,27,34,0.92);
+  --modal-overlay: rgba(0,0,0,0.65);
+}
+
+
+/* ═══════════════════════════════════════════════
+   テーマトグルボタン（PC / モバイル 共通）
+   ═══════════════════════════════════════════════ */
+
+/* rp-header に flex 配置（PC: 配合分析タイトル + トグルボタン） */
+.rp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #6B7280;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  touch-action: manipulation;
+  padding: 0;
+}
+
+.theme-toggle:hover {
+  background: #F3F4F6;
+  border-color: #9CA3AF;
+  color: #374151;
+}
+
+/* アイコン表示切り替え: ライト → 月を表示、ダーク → 太陽を表示 */
+.theme-icon-moon { display: block; }
+.theme-icon-sun  { display: none;  }
+
+html[data-theme="dark"] .theme-icon-moon { display: none;  }
+html[data-theme="dark"] .theme-icon-sun  { display: block; }
+
+/* ダーク時のトグルボタン: 周囲に馴染む完全フラットスタイル */
+html[data-theme="dark"] .theme-toggle {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-4);
+}
+
+html[data-theme="dark"] .theme-toggle:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: transparent;
+  color: var(--text-3);
+}
+
+/* モバイルヘッダー内のブランドグループ */
+.mobile-header-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   ロゴ: ダーク背景で視認できるよう反転
+   ═══════════════════════════════════════════════ */
+html[data-theme="dark"] #mobile-logo,
+html[data-theme="dark"] #app-logo {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+
+/* ═══════════════════════════════════════════════
+   ダークモード: グローバル上書き
+   ═══════════════════════════════════════════════ */
+
+/* ── Body ── */
+html[data-theme="dark"] body {
+  background: var(--bg-body);
+  color: var(--text-2);
+}
+
+/* ── 左パネル ── */
+html[data-theme="dark"] #panel {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.30);
+}
+
+html[data-theme="dark"] #panel-fixed-top {
+  background: var(--bg-panel);
+  border-color: var(--border);
+}
+
+/* ── 右パネル ── */
+html[data-theme="dark"] #right-panel {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  box-shadow: -2px 0 12px rgba(0,0,0,0.30);
+}
+
+/* ── モバイルヘッダー ── */
+html[data-theme="dark"] #mobile-header {
+  background: var(--bg-panel);
+  border-color: var(--border-3);
+}
+
+html[data-theme="dark"] #mobile-sub,
+html[data-theme="dark"] #app-sub {
+  color: var(--text-4);
+}
+
+/* ── 下部アクションバー (モバイル固定) ── */
+html[data-theme="dark"] #center-actions {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.30);
+}
+
+/* ── アプリヘッダー (PC) ── */
+html[data-theme="dark"] #app-header {
+  border-color: var(--border);
+}
+
+/* ── 左パネル下部アクション (PC) ── */
+html[data-theme="dark"] #sec-actions {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.20);
+}
+
+/* ─────────────── ラベル・テキスト ─────────────── */
+html[data-theme="dark"] .ctrl-label      { color: var(--text-3); }
+html[data-theme="dark"] .rp-title        { color: var(--text-1); }
+html[data-theme="dark"] .chart-label     { color: var(--text-2); }
+html[data-theme="dark"] .bar-label       { color: var(--text-3); }
+html[data-theme="dark"] .detail-label    { color: var(--text-3); }
+html[data-theme="dark"] .gran-label      { color: var(--text-4); }
+html[data-theme="dark"] .bar-icon        { color: var(--text-4); }
+html[data-theme="dark"] .split-label     { color: var(--text-2); }
+html[data-theme="dark"] .split-vals      { color: var(--text-4); }
+html[data-theme="dark"] .bar-pct         { color: var(--text-1); }
+html[data-theme="dark"] .mms-pct         { color: var(--text-1); }
+html[data-theme="dark"] .ratio-val       { color: var(--text-2); }
+html[data-theme="dark"] .ratio-val-zero  { color: var(--text-4); }
+html[data-theme="dark"] .preset-label    { color: var(--text-4); }
+html[data-theme="dark"] .mms-title       { color: var(--text-4); }
+html[data-theme="dark"] .mratio-label    { color: var(--text-4); }
+html[data-theme="dark"] .cmp-section-title { color: var(--text-4); }
+html[data-theme="dark"] .inf-title       { color: var(--text-4); }
+html[data-theme="dark"] .mcmp-causes-title { color: var(--text-4); }
+
+/* ─────────────── 区切り線 ─────────────── */
+html[data-theme="dark"] .rp-header         { border-color: var(--border); }
+html[data-theme="dark"] #guide-link-panel  { border-color: var(--border-2); color: var(--text-4); }
+html[data-theme="dark"] #feedback-link     { border-color: var(--border-2); color: var(--text-4); }
+html[data-theme="dark"] #disclaimer-wrap   { border-color: var(--border-2); }
+html[data-theme="dark"] #feedback-link a         { color: var(--text-3); }
+html[data-theme="dark"] #feedback-link a:hover   { color: var(--text-1); }
+html[data-theme="dark"] #guide-link a            { color: var(--blue); }
+html[data-theme="dark"] #guide-link              { color: var(--text-4); }
+html[data-theme="dark"] #guide-link-panel:hover  { color: var(--blue); }
+
+/* ─────────────── タブナビ ─────────────── */
+html[data-theme="dark"] #tab-nav,
+html[data-theme="dark"] #rp-tab-nav {
+  background: var(--bg-subtle);
+}
+
+html[data-theme="dark"] .tab-btn,
+html[data-theme="dark"] .rp-tab-btn {
+  color: var(--text-3);
+  background: transparent;
+}
+
+html[data-theme="dark"] .tab-btn.active,
+html[data-theme="dark"] .rp-tab-btn.active {
+  background: var(--bg-panel);
+  color: var(--text-1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.30);
+}
+
+/* ─────────────── 鉢サイズボタン ─────────────── */
+html[data-theme="dark"] .size-btn {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] .size-btn.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #FFFFFF;
+}
+
+html[data-theme="dark"] .size-btn:hover:not(.active) {
+  border-color: var(--green);
+  color: var(--green);
+  background: var(--green-bg);
+}
+
+/* ─────────────── プリセットボタン ─────────────── */
+html[data-theme="dark"] .preset-btn {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-3);
+}
+
+html[data-theme="dark"] .preset-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--text-2);
+  border-color: var(--text-4);
+}
+
+html[data-theme="dark"] .preset-btn.active {
+  background: var(--blue-bg);
+  border-color: var(--blue-brd);
+  color: var(--blue);
+}
+
+/* ─────────────── 資材カード ─────────────── */
+html[data-theme="dark"] .obj-card {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+html[data-theme="dark"] .obj-name { color: var(--text-1); }
+
+html[data-theme="dark"] .obj-size-btn {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] .obj-size-btn.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #FFFFFF;
+}
+
+html[data-theme="dark"] .obj-size-btn:hover:not(.active):not(:disabled) {
+  border-color: var(--green);
+  color: var(--green);
+  background: var(--green-bg);
+}
+
+html[data-theme="dark"] .size-grain-label { color: var(--text-1); }
+html[data-theme="dark"] .size-grain-hint  { color: var(--text-4); }
+html[data-theme="dark"] .size-grain-dot   { background: var(--text-4); }
+
+/* ─────────────── 資材アコーディオン ─────────────── */
+html[data-theme="dark"] .mat-accordion-header {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+}
+
+html[data-theme="dark"] .mat-accordion-arrow { color: var(--text-4); }
+
+/* ─────────────── 市販の用土 ─────────────── */
+html[data-theme="dark"] .commercial-item {
+  background: var(--bg-panel);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .commercial-item:hover,
+html[data-theme="dark"] .commercial-item.selected {
+  border-color: var(--purple);
+  background: var(--purple-bg);
+}
+
+html[data-theme="dark"] .commercial-name    { color: var(--text-1); }
+html[data-theme="dark"] .commercial-desc    { color: var(--text-4); }
+
+html[data-theme="dark"] #base-label {
+  color: var(--purple);
+  background: var(--purple-bg);
+  border-color: var(--purple-brd);
+}
+
+/* ─────────────── 資材タグ ─────────────── */
+html[data-theme="dark"] .mat-tag[data-tag="有機"]     { background: #0A1F10; color: #3FB950; border-color: #1A4731; }
+html[data-theme="dark"] .mat-tag[data-tag="無機"]     { background: var(--bg-subtle); color: var(--text-3); border-color: var(--border); }
+html[data-theme="dark"] .mat-tag[data-tag="排水"]     { background: var(--blue-bg);   color: var(--blue);   border-color: var(--blue-brd); }
+html[data-theme="dark"] .mat-tag[data-tag="通気"]     { background: var(--blue-bg);   color: var(--blue);   border-color: var(--blue-brd); }
+html[data-theme="dark"] .mat-tag[data-tag="保水"]     { background: var(--green-bg);  color: var(--green);  border-color: var(--green-brd); }
+html[data-theme="dark"] .mat-tag[data-tag="保肥"]     { background: var(--orange-bg); color: var(--orange); border-color: var(--orange-brd); }
+html[data-theme="dark"] .mat-tag[data-tag="バランス"] { background: var(--bg-subtle); color: var(--text-3); border-color: var(--border); }
+
+/* ─────────────── アクションボタン ─────────────── */
+html[data-theme="dark"] .act-start {
+  background: var(--green);
+  box-shadow: 0 0 12px rgba(63,185,80,0.28);
+}
+html[data-theme="dark"] .act-start:hover {
+  background: var(--green-dark);
+  box-shadow: 0 0 16px rgba(63,185,80,0.35);
+}
+
+html[data-theme="dark"] .act-share         { background: var(--blue-bg);  color: var(--blue);   border-color: var(--blue-brd); }
+html[data-theme="dark"] .act-share:hover   { background: #082040; }
+html[data-theme="dark"] .act-share:active  { background: #0A2A50; }
+html[data-theme="dark"] .act-share:disabled {
+  background: var(--bg-subtle);
+  color: var(--text-4);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .act-air          { background: var(--blue-bg);  color: var(--blue);   border-color: var(--blue-brd); }
+html[data-theme="dark"] .act-air:hover    { background: #082040; }
+html[data-theme="dark"] .act-air.active   { background: var(--blue); color: #FFFFFF; border-color: var(--blue); }
+html[data-theme="dark"] .act-air.active:hover { background: var(--blue-dark); }
+
+html[data-theme="dark"] .act-reset        { background: var(--orange-bg);  color: var(--orange);  border-color: var(--orange-brd); }
+html[data-theme="dark"] .act-reset:hover  { background: #261500; border-color: var(--orange); color: var(--orange); }
+
+html[data-theme="dark"] .act-clear        { background: var(--bg-subtle); color: var(--text-4); border-color: var(--border); }
+html[data-theme="dark"] .act-clear:hover  { background: var(--bg-card);   color: var(--text-3); border-color: var(--text-4); }
+
+/* 再投入ボタン (モバイル: !important 上書きが必要) */
+html[data-theme="dark"] #reinvestBtn {
+  background: var(--bg-subtle) !important;
+  border-color: var(--border) !important;
+  color: var(--text-2) !important;
+}
+html[data-theme="dark"] #reinvestBtn:hover {
+  background: var(--bg-card) !important;
+  border-color: var(--text-4) !important;
+  color: var(--text-1) !important;
+}
+
+/* ─────────────── お気に入りボタン ─────────────── */
+html[data-theme="dark"] .fav-btn            { color: var(--border); }
+html[data-theme="dark"] .fav-btn:hover      { color: var(--orange); }
+html[data-theme="dark"] .fav-btn.active     { color: var(--orange); background: var(--orange-bg); }
+html[data-theme="dark"] .fav-btn.active:hover { color: var(--orange); }
+
+/* ─────────────── モバイルメトリクス sticky バー ─────────────── */
+html[data-theme="dark"] #mobile-metrics-sticky {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.30);
+}
+
+html[data-theme="dark"] .mms-track { background: var(--bg-subtle); }
+
+html[data-theme="dark"] .mms-compare-btn {
+  color: var(--blue);
+  background: var(--blue-bg);
+  border-color: var(--blue-brd);
+}
+
+html[data-theme="dark"] .mms-compare-btn:active { background: #082040; }
+
+html[data-theme="dark"] .mms-reset-btn {
+  color: var(--text-4);
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .mms-reset-btn:active {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+}
+
+html[data-theme="dark"] .mms-share-btn {
+  color: var(--blue);
+  background: var(--blue-bg);
+  border-color: var(--blue-brd);
+}
+
+html[data-theme="dark"] .mms-share-btn:active { background: #082040; }
+
+/* ─────────────── PCメトリクスカード ─────────────── */
+html[data-theme="dark"] #pc-metrics-card {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+/* ─────────────── バーグラフブロック ─────────────── */
+html[data-theme="dark"] .bars-block {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+html[data-theme="dark"] .bar-track { background: #1A222D; }
+
+/* バーfill: ダーク背景で識別しやすいよう微増輝度 */
+html[data-theme="dark"] .bar-drainage { background: #3DB4FF; }
+html[data-theme="dark"] .bar-water    { background: #3DDC84; }
+html[data-theme="dark"] .bar-aeration { background: #94A3B8; }
+html[data-theme="dark"] .bar-nutrient { background: #FFBE7A; }
+
+/* ─────────────── チャートブロック (有機/無機, 保肥力) ─────────────── */
+html[data-theme="dark"] .chart-block {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+html[data-theme="dark"] .split-bar-track { background: var(--border); }
+
+/* ─────────────── 評価ラベル ─────────────── */
+html[data-theme="dark"] #eval-block {
+  background: var(--green-bg);
+  border-color: var(--green-brd);
+}
+
+html[data-theme="dark"] #eval-main { color: var(--green); }
+html[data-theme="dark"] #eval-sub  { color: var(--text-3); }
+
+/* ─────────────── 詳細パラメータ アコーディオン ─────────────── */
+html[data-theme="dark"] .detail-accordion { border-color: var(--border); }
+
+html[data-theme="dark"] .detail-toggle-btn {
+  background: var(--bg-card);
+  color: var(--text-3);
+  border-bottom-color: transparent;
+}
+
+html[data-theme="dark"] .detail-toggle-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] .detail-toggle-btn[aria-expanded="true"] {
+  border-bottom-color: var(--border);
+}
+
+html[data-theme="dark"] .detail-toggle-chevron { color: var(--text-4); }
+
+html[data-theme="dark"] .detail-inner { background: var(--bg-card); }
+
+/* ─────────────── 影響資材ブロック ─────────────── */
+html[data-theme="dark"] #influence-block {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .inf-param    { color: var(--text-3); }
+html[data-theme="dark"] .inf-arrow    { color: var(--border); }
+html[data-theme="dark"] .inf-dot      { color: var(--border); }
+html[data-theme="dark"] .inf-mat      { color: var(--text-1); }
+
+/* ─────────────── 配合割合 ─────────────── */
+html[data-theme="dark"] #mix-ratio-bar { background: var(--bg-subtle); }
+
+html[data-theme="dark"] .mratio-item   { color: var(--text-2); }
+html[data-theme="dark"] .mratio-pct    { color: var(--text-3); }
+
+/* ─────────────── 配合サマリーチップ ─────────────── */
+html[data-theme="dark"] .mix-chip {
+  color: var(--text-1);
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .mix-chip-more {
+  color: var(--text-4);
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+/* ─────────────── ツールチップ ─────────────── */
+html[data-theme="dark"] .tip-icon {
+  color: var(--text-4);
+  background: var(--bg-subtle);
+}
+
+html[data-theme="dark"] .tip-icon:hover,
+html[data-theme="dark"] .tip-icon.tip-active {
+  color: var(--text-2);
+  background: var(--border);
+}
+
+html[data-theme="dark"] #tooltip {
+  background: var(--bg-card);
+  color: var(--text-1);
+  border-color: var(--border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.40);
+}
+
+/* ─────────────── ローディング / 空状態オーバーレイ ─────────────── */
+html[data-theme="dark"] #loading-state-inner,
+html[data-theme="dark"] #empty-state-inner {
+  background: var(--overlay-bg);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] #loading-spinner {
+  border-color: var(--border);
+  border-top-color: var(--text-3);
+}
+
+html[data-theme="dark"] #loading-state-msg,
+html[data-theme="dark"] #empty-state-msg  { color: var(--text-2); }
+html[data-theme="dark"] #loading-state-sub,
+html[data-theme="dark"] #empty-state-sub  { color: var(--text-4); }
+
+/* ─────────────── キャンバスガイド ─────────────── */
+html[data-theme="dark"] #canvas-guide-inner {
+  background: var(--guide-bg);
+  border-color: var(--border);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.30);
+}
+
+html[data-theme="dark"] .cg-title { color: var(--text-2); }
+html[data-theme="dark"] .cg-steps li { color: var(--text-3); }
+html[data-theme="dark"] .cg-steps li::before {
+  background: var(--bg-subtle);
+  color: var(--text-2);
+}
+
+/* ─────────────── 鉢ヒント ─────────────── */
+html[data-theme="dark"] #pot-hint { color: var(--text-4); }
+
+/* ─────────────── 免責文言 ─────────────── */
+html[data-theme="dark"] #disclaimer-summary       { color: var(--border); }
+html[data-theme="dark"] #disclaimer-summary:hover { color: var(--text-4); }
+html[data-theme="dark"] #disclaimer               { color: var(--text-4); }
+
+/* ─────────────── 共有モーダル ─────────────── */
+html[data-theme="dark"] #share-modal {
+  background: var(--modal-overlay);
+}
+
+html[data-theme="dark"] .share-modal-box {
+  background: var(--bg-panel);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.50);
+}
+
+html[data-theme="dark"] .share-modal-title { color: var(--text-1); }
+html[data-theme="dark"] .share-modal-close       { color: var(--text-4); }
+html[data-theme="dark"] .share-modal-close:hover { color: var(--text-3); }
+
+html[data-theme="dark"] .share-url-input {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-3);
+}
+
+html[data-theme="dark"] .share-url-label,
+html[data-theme="dark"] .share-sns-label { color: var(--text-4); }
+
+html[data-theme="dark"] .share-url-copy-btn {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .share-url-copy-btn:hover {
+  background: var(--border);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] .share-url-copy-btn.copied {
+  background: var(--green-bg);
+  color: var(--green);
+  border-color: var(--green-brd);
+}
+
+html[data-theme="dark"] .share-img-btn {
+  background: var(--bg-card);
+  color: var(--blue);
+  border-color: var(--blue-brd);
+}
+
+html[data-theme="dark"] .share-img-btn:hover  { background: var(--blue-bg); }
+html[data-theme="dark"] .share-img-btn:active { background: #082040; }
+
+html[data-theme="dark"] .share-preview-link       { color: var(--text-4); }
+html[data-theme="dark"] .share-preview-link:hover { color: var(--text-3); }
+
+/* ─────────────── 比較保存ボタン ─────────────── */
+html[data-theme="dark"] .save-compare-btn {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] .save-compare-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-bg);
+}
+
+/* ─────────────── 比較ブロック ─────────────── */
+html[data-theme="dark"] .cmp-header {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .cmp-lbl-badge.cmp-lbl-a {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .cmp-lbl-badge.cmp-lbl-b {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border-color: var(--blue-brd);
+}
+
+html[data-theme="dark"] .cmp-action-btn {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] .cmp-action-btn:hover {
+  background: var(--bg-card);
+  border-color: var(--text-4);
+}
+
+html[data-theme="dark"] .cmp-action-clear:hover {
+  color: #F87171;
+  border-color: #5C1515;
+  background: #1F0A0A;
+}
+
+html[data-theme="dark"] .cmp-block {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+html[data-theme="dark"] .cmp-metric-label   { color: var(--text-2); }
+html[data-theme="dark"] .cmp-bar-track      { background: var(--bg-subtle); }
+html[data-theme="dark"] .cmp-metric-row     { border-color: var(--border-2); }
+html[data-theme="dark"] .cmp-val-num        { color: var(--text-1); }
+html[data-theme="dark"] .cmp-row-a .cmp-val-num { color: var(--text-4); }
+html[data-theme="dark"] .cmp-row-b .cmp-val-num { color: var(--text-1); }
+
+html[data-theme="dark"] .cmp-verdict-a  { background: var(--bg-subtle);  color: var(--text-3); }
+html[data-theme="dark"] .cmp-verdict-b  { background: var(--blue-bg);    color: var(--blue);   }
+html[data-theme="dark"] .cmp-verdict-eq { background: var(--bg-subtle);  color: var(--text-4); }
+
+html[data-theme="dark"] .cmp-summary-direction {
+  color: var(--text-1);
+  border-color: var(--border-2);
+}
+
+html[data-theme="dark"] .cmp-summary-item         { color: var(--text-2); }
+html[data-theme="dark"] .cmp-summary-item::before { color: var(--border); }
+
+html[data-theme="dark"] .cmp-matdiff-name     { color: var(--text-2); }
+html[data-theme="dark"] .cmp-matdiff-top      { background: var(--bg-subtle); }
+html[data-theme="dark"] .cmp-matdiff-top .cmp-matdiff-name { color: var(--text-1); }
+html[data-theme="dark"] .cmp-cause-prefix     { color: var(--text-4); }
+
+html[data-theme="dark"] .cmp-val-lbl.cmp-lbl-a { color: var(--text-4); }
+
+/* ─────────────── モバイル比較 sticky カード ─────────────── */
+html[data-theme="dark"] #mobile-cmp {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.30);
+}
+
+html[data-theme="dark"] .mcmp-header-sep   { color: var(--border); }
+html[data-theme="dark"] .mcmp-direction    { color: var(--text-1); }
+html[data-theme="dark"] .mcmp-no-change    { color: var(--text-4); }
+
+html[data-theme="dark"] .mcmp-btn {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] .mcmp-btn:active { background: var(--bg-card); }
+
+html[data-theme="dark"] .mcmp-btn-end:active {
+  color: #F87171;
+  border-color: #5C1515;
+  background: #1F0A0A;
+}
+
+html[data-theme="dark"] .mcmp-sum-chip    { background: var(--bg-card); }
+html[data-theme="dark"] .mcmp-summary     { border-color: var(--border-2); }
+html[data-theme="dark"] .mcmp-metric-label { color: var(--text-2); }
+html[data-theme="dark"] .mcmp-mini-track  { background: var(--bg-subtle); }
+html[data-theme="dark"] .mcmp-a-val       { color: var(--text-4); }
+html[data-theme="dark"] .mcmp-b-val       { color: var(--text-1); }
+html[data-theme="dark"] .mcmp-arrow       { color: var(--border); }
+html[data-theme="dark"] .mcmp-cause-name  { color: var(--text-2); }
+html[data-theme="dark"] .mcmp-cause-top .mcmp-cause-name { color: var(--text-1); }
+html[data-theme="dark"] .mcmp-cause-pfx   { color: var(--text-4); }
+html[data-theme="dark"] .mcmp-metrics     { border-color: var(--border-2); }
+html[data-theme="dark"] .mcmp-diff-zero   { color: var(--border); }
+
+/* ─────────────── モバイル比較詳細エリア ─────────────── */
+html[data-theme="dark"] #mobile-cmp-detail {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+html[data-theme="dark"] .mcmpd-title { color: var(--text-4); }
+
+/* ─────────────── 比較空状態 ─────────────── */
+html[data-theme="dark"] .cmp-empty {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .cmp-empty-title { color: var(--text-2); }
+html[data-theme="dark"] .cmp-empty-sub   { color: var(--text-4); }
+
+/* ─────────────── ベータバッジ ─────────────── */
+html[data-theme="dark"] .beta-badge {
+  color: var(--text-4);
+  border-color: var(--border);
+}
+
+/* ─────────────── スクロールバー (webkit) ─────────────── */
+html[data-theme="dark"] #panel-scroll::-webkit-scrollbar-thumb,
+html[data-theme="dark"] #right-panel::-webkit-scrollbar-thumb,
+html[data-theme="dark"] #obj-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+
+/* ═══════════════════════════════════════════════
+   資材ガイドページ (materials_guide.html) ダーク上書き
+   ═══════════════════════════════════════════════ */
+
+/* ── ページ全体 ── */
+html[data-theme="dark"] .guide-page {
+  background: var(--bg-body);
+  color: var(--text-2);
+}
+
+/* ── ヘッダー ── */
+html[data-theme="dark"] .guide-header {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+html[data-theme="dark"] .guide-back       { color: var(--text-3); }
+html[data-theme="dark"] .guide-back:hover { color: var(--text-2); }
+html[data-theme="dark"] .guide-title      { color: var(--text-1); }
+html[data-theme="dark"] .guide-subtitle   { color: var(--text-3); }
+
+/* ── ツールバー ── */
+html[data-theme="dark"] #guide-search {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-1);
+}
+
+html[data-theme="dark"] #guide-search:focus    { border-color: var(--blue-brd); }
+html[data-theme="dark"] #guide-search::placeholder { color: var(--text-4); }
+
+html[data-theme="dark"] .guide-filter-group { border-color: var(--border); }
+
+html[data-theme="dark"] .guide-filter-btn {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-3);
+}
+
+html[data-theme="dark"] .guide-filter-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] .guide-filter-btn.active {
+  background: var(--blue-bg);
+  border-color: var(--blue-brd);
+  color: var(--blue);
+}
+
+html[data-theme="dark"] #guide-sort {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+html[data-theme="dark"] #guide-sort:focus { border-color: var(--blue-brd); }
+
+html[data-theme="dark"] #guide-sort.is-sorting {
+  border-color: var(--blue-brd);
+  color: var(--blue);
+}
+
+html[data-theme="dark"] .guide-count {
+  color: var(--text-4);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .guide-empty { color: var(--text-4); }
+
+/* ── 資材カード ── */
+html[data-theme="dark"] .mat-card {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+html[data-theme="dark"] .mat-card-name { color: var(--text-1); }
+
+html[data-theme="dark"] .mat-summary {
+  color: var(--text-2);
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .mat-badge-organic   { background: #0A1F10; color: #3FB950; border-color: #1A4731; }
+html[data-theme="dark"] .mat-badge-inorganic { background: var(--bg-subtle); color: var(--text-3); border-color: var(--border); }
+
+html[data-theme="dark"] .mat-desc { color: var(--text-3); }
+
+/* ── サイズチップ ── */
+html[data-theme="dark"] .mat-sizes {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+html[data-theme="dark"] .mat-size-chip + .mat-size-chip { border-color: var(--border); }
+html[data-theme="dark"] .mat-size-chip:hover            { background: var(--bg-subtle); }
+html[data-theme="dark"] .mat-size-chip.active           { background: var(--blue-bg); }
+
+html[data-theme="dark"] .mat-size-label                  { color: var(--text-4); }
+html[data-theme="dark"] .mat-size-chip.active .mat-size-label { color: var(--blue); }
+
+html[data-theme="dark"] .mat-size-range                  { color: var(--text-2); }
+html[data-theme="dark"] .mat-size-chip.active .mat-size-range { color: var(--blue); }
+
+/* ── パラメータバー ── */
+html[data-theme="dark"] .mat-section-title { color: var(--text-4); }
+html[data-theme="dark"] .mat-bar-label     { color: var(--text-3); }
+html[data-theme="dark"] .mat-bar-track     { background: var(--bg-subtle); }
+html[data-theme="dark"] .mat-bar-pct       { color: var(--text-2); }
+html[data-theme="dark"] .mat-adv-bar-track { background: var(--bg-subtle); }
+
+/* ── 詳細説明アコーディオン ── */
+html[data-theme="dark"] .mat-detail-toggle {
+  color: var(--text-3);
+  text-decoration-color: var(--border);
+}
+
+html[data-theme="dark"] .mat-detail-toggle:hover {
+  color: var(--text-2);
+  text-decoration-color: var(--text-4);
+}
+
+html[data-theme="dark"] .mat-detail-text {
+  color: var(--text-2);
+  background: var(--bg-card);
+  border-left-color: var(--blue-brd);
+}
+
+html[data-theme="dark"] .mat-divider { background: var(--border-2); }
+
+/* ── 詳細パラメータ見出し ── */
+html[data-theme="dark"] .mat-adv-toggle       { color: var(--text-3); }
+html[data-theme="dark"] .mat-adv-toggle:hover { color: var(--text-2); }
+
+/* ── カード内お気に入りボタン ── */
+html[data-theme="dark"] .mat-card .fav-btn.active { background: var(--orange-bg); }

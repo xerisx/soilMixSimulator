@@ -69,7 +69,7 @@ initShareRestore();
 function setPouredState(poured) {
   document.getElementById('center-actions')?.classList.toggle('has-poured', poured);
   const startBtn = document.getElementById('startBtn');
-  if (startBtn) startBtn.textContent = poured ? '再投入' : '▶ 投入して開始';
+  if (startBtn) startBtn.textContent = poured ? '再投入' : '投入して開始';
 }
 
 // ── 充填実行（サイズに応じてアニメーション / 即時計算を切り替え） ──
@@ -79,9 +79,11 @@ function runFill() {
   } else {
     const el = document.getElementById('loading-state');
     el.removeAttribute('hidden');
+    setParticleControlsDisabled(true);
     setTimeout(() => {
       fillInstantly();
       el.setAttribute('hidden', '');
+      setParticleControlsDisabled(false);
     }, 30);
   }
 }

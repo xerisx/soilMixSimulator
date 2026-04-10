@@ -16,9 +16,26 @@ const render = Render.create({
     width: window.innerWidth,
     height: window.innerHeight,
     wireframes: false,
-    background: '#F1F5F9',
+    background: document.documentElement.getAttribute('data-theme') === 'dark' ? '#12192A' : '#F1F5F9',
   }
 });
+
+// テーマ対応: キャンバス描画色を現在のテーマに合わせて返す
+function canvasThemeColors() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    bg:        dark ? '#12192A'                  : '#F1F5F9',
+    grid:      dark ? 'rgba(255,255,255,0.04)'    : 'rgba(100,116,139,0.15)',
+    ruler:     dark ? 'rgba(148,163,184,0.50)'   : 'rgba(107,114,128,0.60)',
+    rulerText: dark ? 'rgba(203,213,225,0.75)'   : 'rgba(17,24,39,0.70)',
+    airFill:   dark ? '#1B3A6E'                  : '#93C5FD',
+  };
+}
+
+// テーマ切り替え時に外部から呼ぶ
+function updateCanvasTheme(isDark) {
+  render.options.background = isDark ? '#12192A' : '#F1F5F9';
+}
 
 // ── 鉢寸法計算 ──
 function getCupDimensions() {
@@ -372,7 +389,7 @@ Events.on(render, 'afterRender', () => {
   const ctx = render.context;
 
   ctx.save();
-  ctx.strokeStyle = 'rgba(100,116,139,0.15)';
+  ctx.strokeStyle = canvasThemeColors().grid;
   ctx.lineWidth = 0.5;
 
   for (let x = 0; x < W; x += pxPerCm) {
@@ -398,7 +415,7 @@ Events.on(render, 'afterRender', () => {
   const rightX = cx + topInnerW / 2;
 
   ctx.save();
-  ctx.strokeStyle = 'rgba(107,114,128,0.6)';
+  ctx.strokeStyle = canvasThemeColors().ruler;
   ctx.lineWidth = 1.5;
 
   ctx.beginPath(); ctx.moveTo(leftX, lineY); ctx.lineTo(rightX, lineY); ctx.stroke();
@@ -406,7 +423,7 @@ Events.on(render, 'afterRender', () => {
   ctx.beginPath(); ctx.moveTo(rightX, lineY - tickH); ctx.lineTo(rightX, lineY + tickH); ctx.stroke();
 
   ctx.font = 'bold 14px sans-serif';
-  ctx.fillStyle = 'rgba(17,24,39,0.7)';
+  ctx.fillStyle = canvasThemeColors().rulerText;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
   ctx.fillText(`直径 ${diameter}cm`, cx, lineY - tickH - 4);
@@ -420,7 +437,7 @@ Events.on(render, 'afterRender', () => {
   const ctx = render.context;
   ctx.save();
   ctx.globalCompositeOperation = 'destination-over'; // 既存描画の背面に描く
-  ctx.fillStyle = '#93C5FD';
+  ctx.fillStyle = canvasThemeColors().airFill;
   ctx.beginPath();
   ctx.moveTo(cx - topInnerW / 2, topY);
   ctx.lineTo(cx + topInnerW / 2, topY);
