@@ -18,7 +18,7 @@
     <option value="nutrient">保肥重視</option>
   </select>
 
-  <button class="btn" id="redraw-btn">再描画</button>
+  <button class="btn" id="redraw-btn">シャッフル</button>
 
   <label id="watch-label" class="active">
     <input type="checkbox" id="auto-watch" checked>
@@ -84,7 +84,7 @@
       console.error('[debug-share] render error:', e);
     } finally {
       redrawBtn.disabled    = false;
-      redrawBtn.textContent = '再描画';
+      redrawBtn.textContent = 'シャッフル';
     }
   }
 

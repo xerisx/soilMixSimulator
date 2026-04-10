@@ -408,15 +408,17 @@ function shrDrawFooter(ctx, { W, H, PAD }) {
 }
 
 // ── コアレンダリング: 750×1583px の canvas を返す ──
-async function buildShareCanvas() {
+// themeId を指定するとそのパターンを使用。省略時はランダム。
+async function buildShareCanvas(themeId) {
   const usedMats = objectTypes.filter(t => t.weight > 0);
   if (!usedMats.length) throw new Error('no-mats');
 
   // Archivo Black をロード（未ロードの場合に備えて待機）
   await document.fonts.load('900 140px "Archivo Black"');
 
-  // カラーパターンをランダム選択して SHR に適用
-  const palette = COLOR_PATTERNS[Math.floor(Math.random() * COLOR_PATTERNS.length)];
+  // カラーパターン選択
+  const palette = (themeId && COLOR_PATTERNS.find(p => p.name === themeId))
+    ?? COLOR_PATTERNS[Math.floor(Math.random() * COLOR_PATTERNS.length)];
   Object.assign(SHR, palette);
   SHR.METRIC_COLORS = palette.isDark ? SHR.METRIC_COLORS_DARK : SHR.METRIC_COLORS_LIGHT;
 
@@ -483,6 +485,18 @@ async function buildShareCanvas() {
   return canvas;
 }
 
+// ── Blob 生成（share.js から呼び出す）──
+function generateShareBlob(themeId) {
+  return buildShareCanvas(themeId).then(canvas =>
+    new Promise((resolve, reject) =>
+      canvas.toBlob(
+        blob => blob ? resolve(blob) : reject(new Error('blob-failed')),
+        'image/png'
+      )
+    )
+  );
+}
+
 // ── 画像ダウンロード ──
 async function generateShareImage() {
   const btn = document.getElementById('share-img-btn');
@@ -543,6 +557,6 @@ async function previewShareImage() {
     wrap.innerHTML = `<p class="shr-prev-msg">${msg}</p>`;
     if (e.message !== 'no-mats') console.error('[share-image preview] error:', e);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '再描画'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'シャッフル'; }
   }
 }
