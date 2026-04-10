@@ -76,7 +76,7 @@ function shrRoundRect(ctx, x, y, w, h, r) {
 function shrLoadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous'; // ← これ追加
+    img.crossOrigin = 'anonymous';
     img.onload  = () => resolve(img);
     img.onerror = reject;
     img.src     = src;
@@ -121,77 +121,57 @@ function shrGetSoilType(comp) {
   return 'BALANCED';
 }
 
-// ── コアレンダリング: 750×1583px の canvas を返す ──
-async function buildShareCanvas() {
-  const usedMats = objectTypes.filter(t => t.weight > 0);
-  if (!usedMats.length) throw new Error('no-mats');
+// ── テキスト描画状態を一括設定 ──
+function shrSetTextState(ctx, { style, font, baseline, align } = {}) {
+  if (style    !== undefined) ctx.fillStyle    = style;
+  if (font     !== undefined) ctx.font         = font;
+  if (baseline !== undefined) ctx.textBaseline = baseline;
+  if (align    !== undefined) ctx.textAlign    = align;
+}
 
-  // Archivo Black をロード（未ロードの場合に備えて待機）
-  await document.fonts.load('900 140px "Archivo Black"');
+// ── フォントサイズを maxWidth に収まるまで縮小 ──
+function shrFitFontSize(ctx, text, maxWidth, startSize, fontFn, step = 2) {
+  let size = startSize;
+  ctx.font = fontFn(size);
+  while (ctx.measureText(text).width > maxWidth && size > 10) {
+    size -= step;
+    ctx.font = fontFn(size);
+  }
+  return size;
+}
 
-  const comp = calcComposite();
-  const { W, H, TOP_H, STRIP_L, PHOTO_H_IMG, STRIPE_UNIT } = SHR;
-
-  // 用土タイプ
-  const soilTypeName = shrGetSoilType(comp);
-  const soilTypeDef  = SHR.SOIL_TYPES[soilTypeName];
-  const accentColor  = soilTypeDef.color;
-  const bestFor      = soilTypeDef.bestFor;
-
-  // 写真幅（左ストリップ + 右市松を除く）
-  const PHOTO_RIGHT_STRIP = 60;
-  const PHOTO_W   = W - STRIP_L - PHOTO_RIGHT_STRIP;
-  const PHOTO_TOP = 60;  // メインビジュアル上部マージン
-
-  const canvas = document.createElement('canvas');
-  canvas.width  = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  // ══ 背景 ══
-  ctx.fillStyle = SHR.BG;
-  ctx.fillRect(0, 0, W, H);
-
-  // ══ 市松模様（写真の背後・左ストリップより右のみ）══
+// ── 上部セクション描画（市松模様 + 用土タイプ回転テキスト + 植物写真）──
+function shrDrawTopSection(ctx, soilTypeName, accentColor, photoImg, {
+  W, TOP_H, STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG, STRIPE_UNIT,
+}) {
+  // 市松模様（写真の背後・左ストリップより右のみ）
   shrCheckerboard(ctx, STRIP_L + 3, 0, W - STRIP_L - 3, TOP_H, STRIPE_UNIT);
 
-  // ── 左ストリップ: 用土タイプ（回転テキスト）── ※写真より先に描画して写真の下に潜り込む
-  {
-    const OVERLAP  = 122;  // メインビジュアルへの食い込み量
-    const stripCx  = STRIP_L - OVERLAP + (STRIP_L / 2);  // やや右寄り
-    const stripCy  = PHOTO_TOP + PHOTO_H_IMG / 2;
+  // 用土タイプ回転テキスト（写真より先に描画して写真の下に潜り込む）
+  const OVERLAP = 122;
+  const stripCx = STRIP_L - OVERLAP + (STRIP_L / 2);
+  const stripCy = PHOTO_TOP + PHOTO_H_IMG / 2;
 
-    // フォントサイズ: テキスト長に合わせて自動調整（上限を大きく）
-    const maxH = PHOTO_H_IMG - 20;
-    let fontSize = 140;
-    ctx.font = `italic 900 ${fontSize}px "Archivo Black","Hiragino Sans",sans-serif`;
-    const tw = ctx.measureText(soilTypeName).width;
-    if (tw > maxH) fontSize = Math.floor(fontSize * maxH / tw);
+  let fontSize = 140;
+  ctx.font = `italic 900 ${fontSize}px "Archivo Black","Hiragino Sans",sans-serif`;
+  const tw = ctx.measureText(soilTypeName).width;
+  if (tw > PHOTO_H_IMG - 20) fontSize = Math.floor(fontSize * (PHOTO_H_IMG - 20) / tw);
 
-    ctx.save();
-    ctx.translate(stripCx, stripCy);
-    ctx.rotate(-Math.PI / 2);
+  ctx.save();
+  ctx.translate(stripCx, stripCy);
+  ctx.rotate(-Math.PI / 2);
+  ctx.font         = `italic 900 ${fontSize}px "Archivo Black","Hiragino Sans",sans-serif`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.strokeStyle  = '#FFFFFF';
+  ctx.lineWidth    = fontSize * 0.05;
+  ctx.lineJoin     = 'round';
+  ctx.strokeText(soilTypeName, 0, 0);
+  ctx.fillStyle    = accentColor;
+  ctx.fillText(soilTypeName, 0, 0);
+  ctx.restore();
 
-    ctx.font         = `italic 900 ${fontSize}px "Archivo Black","Hiragino Sans",sans-serif`;
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-
-    // 白縁取り
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth   = fontSize * 0.05;
-    ctx.lineJoin    = 'round';
-    ctx.strokeText(soilTypeName, 0, 0);
-
-    // 塗り
-    ctx.fillStyle = accentColor;
-    ctx.fillText(soilTypeName, 0, 0);
-    ctx.restore();
-  }
-
-  // ══ 上部: 植物写真（テキストの上に重ねて描画）══
-  let photoImg = null;
-  try { photoImg = await shrLoadImage(SHR.PHOTO_PATH); } catch (_) {}
-
+  // 植物写真（テキストの上に重ねて描画）
   if (photoImg) {
     ctx.save();
     ctx.beginPath();
@@ -203,142 +183,109 @@ async function buildShareCanvas() {
     const pg = ctx.createLinearGradient(STRIP_L, PHOTO_TOP, STRIP_L + PHOTO_W, PHOTO_TOP + PHOTO_H_IMG);
     pg.addColorStop(0, '#1B3A2D');
     pg.addColorStop(1, '#0D2318');
-    ctx.fillStyle = pg;
+    ctx.fillStyle    = pg;
     ctx.fillRect(STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG);
-    ctx.fillStyle = 'rgba(255,255,255,0.1)';
-    ctx.font      = `12px "Hiragino Sans","Yu Gothic",sans-serif`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle    = 'rgba(255,255,255,0.1)';
+    ctx.font         = `12px "Hiragino Sans","Yu Gothic",sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillText('SHR.PHOTO_PATH に写真のパスを設定', STRIP_L + PHOTO_W / 2, PHOTO_TOP + PHOTO_H_IMG / 2);
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'alphabetic';
   }
 
-  // ── メインビジュアル 白ボーダー（角丸3px）──
+  // 白ボーダー（角丸3px）
   ctx.strokeStyle = '#FFFFFF';
   ctx.lineWidth   = 3;
   shrRoundRect(ctx, STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG, 3);
   ctx.stroke();
+}
 
-  // ══ 下部コンテンツ ══
-  const PAD     = 32;
-  const COL_GAP = 16;
-  const COL_W   = (W - PAD * 2 - COL_GAP) / 2;  // 335px
-  const COL2_X  = PAD + COL_W + COL_GAP;
+// ── リスト1行描画（左列: 資材）──
+function shrDrawMaterialRow(ctx, mat, rank, totalKg, midY, { PAD, COL_W, RANK_W, RANK_FONT, NAME_FONT, SUB_FONT }) {
+  const pct     = totalKg > 0 ? Math.round(mat.weight / totalKg * 100) : 0;
+  const szLb    = mat.hasSize === false ? '' : (mat.size ? `  ${mat.size}` : '');
+  const nameMaxW = COL_W - RANK_W - 8 - 44;
 
-  let curY = TOP_H + 34;
+  shrSetTextState(ctx, { style: SHR.MUTED, font: RANK_FONT, baseline: 'middle', align: 'left' });
+  ctx.fillText(String(rank), PAD, midY);
 
-  // ── セクションヘッダー ──
-  ctx.fillStyle    = SHR.MUTED2;
-  ctx.font         = `500 17px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
-  ctx.textBaseline = 'middle';
-  ctx.textAlign    = 'left';
-  ctx.fillText('TOP MATERIALS', PAD, curY + 8);
-  ctx.fillText('COMPOSITION', COL2_X, curY + 8);
-  curY += 24;
+  shrSetTextState(ctx, { style: SHR.TEXT, font: NAME_FONT });
+  ctx.fillText(shrEllipsis(ctx, mat.name + szLb, nameMaxW), PAD + RANK_W + 8, midY);
 
-  // ── リスト ──
-  const sorted  = [...usedMats].sort((a, b) => b.weight - a.weight);
-  const totalKg = sorted.reduce((s, t) => s + t.weight, 0);
-  const top5    = sorted.slice(0, 5);
+  shrSetTextState(ctx, { style: SHR.MUTED2, font: SUB_FONT, align: 'right' });
+  ctx.fillText(`${pct}%`, PAD + COL_W, midY);
+  ctx.textAlign = 'left';
+}
 
-  // 指標を値順でソート
-  const sortedMetrics = [...SHR.METRICS].sort((a, b) => {
-    return (comp ? (comp[b] ?? 0) : 0) - (comp ? (comp[a] ?? 0) : 0);
-  });
+// ── リスト1行描画（右列: 指標スコア）──
+function shrDrawMetricRow(ctx, key, value, rank, midY, { COL2_X, COL_W, RANK_W, RANK_FONT, NAME_FONT, SUB_FONT }) {
+  const color   = SHR.METRIC_COLORS[key];
+  const label   = SHR.METRIC_LABELS[key];
+  const barMaxW = COL_W - RANK_W - 8 - 44;
 
+  shrSetTextState(ctx, { style: SHR.MUTED, font: RANK_FONT, baseline: 'middle', align: 'left' });
+  ctx.fillText(String(rank), COL2_X, midY);
+
+  shrSetTextState(ctx, { style: color, font: NAME_FONT });
+  ctx.fillText(label, COL2_X + RANK_W + 8, midY);
+
+  // アンダーバーグラフ
+  const barX = COL2_X + RANK_W + 8;
+  const barY = midY + 20;
+  ctx.fillStyle = SHR.DIVIDER;
+  ctx.fillRect(barX, barY, barMaxW, 3);
+  ctx.fillStyle = color;
+  ctx.fillRect(barX, barY, Math.round(barMaxW * value / 100), 3);
+
+  shrSetTextState(ctx, { style: SHR.MUTED2, font: SUB_FONT, align: 'right' });
+  ctx.fillText(`${value}%`, COL2_X + COL_W, midY);
+  ctx.textAlign = 'left';
+}
+
+// ── リストセクション描画（ヘッダー + 資材・指標の2列リスト）── 次の curY を返す
+function shrDrawListSection(ctx, top5, totalKg, sortedMetrics, comp, startY, { PAD, COL_W, COL2_X }) {
   const ITEM_H    = 70;
   const RANK_W    = 34;
   const RANK_FONT = `700 34px "Hiragino Sans","Yu Gothic",sans-serif`;
   const NAME_FONT = `700 32px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
   const SUB_FONT  = `400 15px "Hiragino Sans","Yu Gothic",sans-serif`;
+  const rowConfig = { PAD, COL2_X, COL_W, RANK_W, RANK_FONT, NAME_FONT, SUB_FONT };
+
+  let curY = startY;
+
+  // セクションヘッダー
+  shrSetTextState(ctx, { style: SHR.MUTED2, font: `500 17px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`, baseline: 'middle', align: 'left' });
+  ctx.fillText('TOP MATERIALS', PAD, curY + 8);
+  ctx.fillText('COMPOSITION', COL2_X, curY + 8);
+  curY += 24;
 
   const maxRows = Math.max(top5.length, sortedMetrics.length);
-
   for (let i = 0; i < maxRows; i++) {
-    const rowY   = curY + i * ITEM_H;
-    const midY   = rowY + ITEM_H / 2;
+    const midY = curY + i * ITEM_H + ITEM_H / 2;
 
-    // 左列: 資材
     if (i < top5.length) {
-      const mat  = top5[i];
-      const pct  = totalKg > 0 ? Math.round(mat.weight / totalKg * 100) : 0;
-      const szLb = mat.hasSize === false ? '' : (mat.size ? `  ${mat.size}` : '');
-
-      ctx.fillStyle    = SHR.MUTED;
-      ctx.font         = RANK_FONT;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign    = 'left';
-      ctx.fillText(String(i + 1), PAD, midY);
-
-      ctx.fillStyle = SHR.TEXT;
-      ctx.font      = NAME_FONT;
-      const nameMaxW = COL_W - RANK_W - 8 - 44;
-      ctx.fillText(shrEllipsis(ctx, mat.name + szLb, nameMaxW), PAD + RANK_W + 8, midY);
-
-      ctx.fillStyle = SHR.MUTED2;
-      ctx.font      = SUB_FONT;
-      ctx.textAlign = 'right';
-      ctx.fillText(`${pct}%`, PAD + COL_W, midY);
-      ctx.textAlign = 'left';
+      shrDrawMaterialRow(ctx, top5[i], i + 1, totalKg, midY, rowConfig);
     }
-
-    // 右列: 指標スコア
     if (i < sortedMetrics.length) {
       const key   = sortedMetrics[i];
       const value = comp ? Math.round(comp[key] ?? 0) : 0;
-      const color = SHR.METRIC_COLORS[key];
-      const label = SHR.METRIC_LABELS[key];
-
-      ctx.fillStyle    = SHR.MUTED;
-      ctx.font         = RANK_FONT;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign    = 'left';
-      ctx.fillText(String(i + 1), COL2_X, midY);
-
-      ctx.fillStyle = color;
-      ctx.font      = NAME_FONT;
-      ctx.fillText(label, COL2_X + RANK_W + 8, midY);
-
-      // アンダーバーグラフ
-      const barX   = COL2_X + RANK_W + 8;
-      const barY   = midY + 20;
-      const barH   = 3;
-      const barMaxW = COL_W - RANK_W - 8 - 44;  // % 値の手前まで
-      ctx.fillStyle = SHR.DIVIDER;
-      ctx.fillRect(barX, barY, barMaxW, barH);
-      ctx.fillStyle = color;
-      ctx.fillRect(barX, barY, Math.round(barMaxW * value / 100), barH);
-
-      ctx.fillStyle = SHR.MUTED2;
-      ctx.font      = SUB_FONT;
-      ctx.textAlign = 'right';
-      ctx.fillText(`${value}%`, COL2_X + COL_W, midY);
-      ctx.textAlign = 'left';
+      shrDrawMetricRow(ctx, key, value, i + 1, midY, rowConfig);
     }
   }
 
-  curY += maxRows * ITEM_H + 32;
+  return curY + maxRows * ITEM_H;
+}
 
-  // ── 区切り線 ──
-  ctx.fillStyle = SHR.DIVIDER;
-  ctx.fillRect(PAD, curY, W - PAD * 2, 1);
-  curY += 32;
+// ── 統計セクション描画（STRENGTH + BEST FOR）──
+function shrDrawStatsSection(ctx, soilScore, bestFor, startY, { PAD, W }) {
+  const curY = startY;
 
-  // ── 大スタット: SOIL SCORE ＋ BEST FOR ──
-  const soilScore = comp ? Math.max(
-    comp.drainage ?? 0, comp.waterRetention ?? 0,
-    comp.aeration ?? 0, comp.nutrientRetention ?? 0
-  ) : 0;
-
-  // SOIL SCORE
-  ctx.fillStyle    = SHR.MUTED2;
-  ctx.font         = `500 17px "Hiragino Sans","Yu Gothic",sans-serif`;
-  ctx.textBaseline = 'alphabetic';
-  ctx.textAlign    = 'left';
+  // STRENGTH
+  shrSetTextState(ctx, { style: SHR.MUTED2, font: `500 17px "Hiragino Sans","Yu Gothic",sans-serif`, baseline: 'alphabetic', align: 'left' });
   ctx.fillText('STRENGTH', PAD, curY + 18);
 
-  ctx.fillStyle    = SHR.TEXT;
-  ctx.font         = `900 90px "Hiragino Sans","Yu Gothic",sans-serif`;
-  ctx.textBaseline = 'alphabetic';
+  shrSetTextState(ctx, { style: SHR.TEXT, font: `900 90px "Hiragino Sans","Yu Gothic",sans-serif` });
   ctx.fillText(`${Math.round(soilScore)}%`, PAD, curY + 118);
 
   // 区切り線
@@ -346,38 +293,102 @@ async function buildShareCanvas() {
   ctx.fillStyle = SHR.DIVIDER;
   ctx.fillRect(PAD, divY, W - PAD * 2, 1);
 
-  // BEST FOR (SOIL SCOREの下・右寄せ)
+  // BEST FOR
   const bestForLabelY = divY + 32;
-  ctx.fillStyle    = SHR.MUTED2;
-  ctx.font         = `500 17px "Hiragino Sans","Yu Gothic",sans-serif`;
-  ctx.textAlign    = 'left';
+  shrSetTextState(ctx, { style: SHR.MUTED2, font: `500 17px "Hiragino Sans","Yu Gothic",sans-serif`, align: 'left' });
   ctx.fillText('BEST FOR', PAD, bestForLabelY);
 
   ctx.fillStyle = SHR.TEXT;
-  let bestForSize = 76;
-  ctx.font = `900 ${bestForSize}px "Hiragino Sans","Yu Gothic",sans-serif`;
-  while (ctx.measureText(bestFor).width > W - PAD * 2 && bestForSize > 10) {
-    bestForSize -= 2;
-    ctx.font = `900 ${bestForSize}px "Hiragino Sans","Yu Gothic",sans-serif`;
-  }
+  const bestForSize = shrFitFontSize(
+    ctx, bestFor, W - PAD * 2, 76,
+    s => `900 ${s}px "Hiragino Sans","Yu Gothic",sans-serif`
+  );
   ctx.textBaseline = 'alphabetic';
   ctx.fillText(bestFor, PAD, bestForLabelY + bestForSize + 10);
 
-  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-
-  // ── フッター ──
-  const footerY = H - 52;
-  ctx.fillStyle    = SHR.TEXT;
-  ctx.font         = `900 22px "Hiragino Sans","Yu Gothic",sans-serif`;
-  ctx.textBaseline = 'middle';
   ctx.textAlign    = 'left';
+  ctx.textBaseline = 'alphabetic';
+}
+
+// ── フッター描画 ──
+function shrDrawFooter(ctx, { W, H, PAD }) {
+  const footerY = H - 52;
+
+  shrSetTextState(ctx, { style: SHR.TEXT, font: `900 22px "Hiragino Sans","Yu Gothic",sans-serif`, baseline: 'middle', align: 'left' });
   ctx.fillText('Qsoil', PAD, footerY + 26);
 
-  ctx.fillStyle = SHR.MUTED2;
-  ctx.font      = `500 15px "Hiragino Sans","Yu Gothic",sans-serif`;
-  ctx.textAlign = 'right';
+  shrSetTextState(ctx, { style: SHR.MUTED2, font: `500 15px "Hiragino Sans","Yu Gothic",sans-serif`, align: 'right' });
   ctx.fillText('QSOIL.JP / 用土配合シミュレータ', W - PAD, footerY + 26);
-  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+  ctx.textAlign    = 'left';
+  ctx.textBaseline = 'alphabetic';
+}
+
+// ── コアレンダリング: 750×1583px の canvas を返す ──
+async function buildShareCanvas() {
+  const usedMats = objectTypes.filter(t => t.weight > 0);
+  if (!usedMats.length) throw new Error('no-mats');
+
+  // Archivo Black をロード（未ロードの場合に備えて待機）
+  await document.fonts.load('900 140px "Archivo Black"');
+
+  const comp = calcComposite();
+  const { W, H, TOP_H, STRIP_L, PHOTO_H_IMG, STRIPE_UNIT } = SHR;
+
+  const soilTypeName = shrGetSoilType(comp);
+  const soilTypeDef  = SHR.SOIL_TYPES[soilTypeName];
+  const accentColor  = soilTypeDef.color;
+  const bestFor      = soilTypeDef.bestFor;
+
+  const PHOTO_RIGHT_STRIP = 60;
+  const PHOTO_W   = W - STRIP_L - PHOTO_RIGHT_STRIP;
+  const PHOTO_TOP = 60;
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const PAD    = 32;
+  const COL_W  = (W - PAD * 2 - 16) / 2;  // 335px (COL_GAP=16)
+  const COL2_X = PAD + COL_W + 16;
+
+  // 背景
+  ctx.fillStyle = SHR.BG;
+  ctx.fillRect(0, 0, W, H);
+
+  // 上部セクション（市松 + 用土タイプ + 写真）
+  let photoImg = null;
+  try { photoImg = await shrLoadImage(SHR.PHOTO_PATH); } catch (_) {}
+  shrDrawTopSection(ctx, soilTypeName, accentColor, photoImg, {
+    W, TOP_H, STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG, STRIPE_UNIT,
+  });
+
+  // 資材・指標リスト
+  const sorted  = [...usedMats].sort((a, b) => b.weight - a.weight);
+  const totalKg = sorted.reduce((s, t) => s + t.weight, 0);
+  const top5    = sorted.slice(0, 5);
+  const sortedMetrics = [...SHR.METRICS].sort((a, b) =>
+    (comp ? (comp[b] ?? 0) : 0) - (comp ? (comp[a] ?? 0) : 0)
+  );
+
+  let curY = shrDrawListSection(ctx, top5, totalKg, sortedMetrics, comp, TOP_H + 34, { PAD, COL_W, COL2_X });
+  curY += 32;
+
+  // 区切り線
+  ctx.fillStyle = SHR.DIVIDER;
+  ctx.fillRect(PAD, curY, W - PAD * 2, 1);
+  curY += 32;
+
+  // 統計（STRENGTH + BEST FOR）
+  const soilScore = comp ? Math.max(
+    comp.drainage ?? 0, comp.waterRetention ?? 0,
+    comp.aeration ?? 0, comp.nutrientRetention ?? 0
+  ) : 0;
+  shrDrawStatsSection(ctx, soilScore, bestFor, curY, { PAD, W });
+
+  // フッター
+  shrDrawFooter(ctx, { W, H, PAD });
 
   return canvas;
 }
