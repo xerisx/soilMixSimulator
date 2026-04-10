@@ -264,19 +264,40 @@ function startSpawning() {
 
 function fillInstantly() {
   if (!currentCupDims) return;
-  const { topInnerW, topY, cx } = currentCupDims;
+  const { topInnerW, botInnerW, cupHeight, topY, cx } = currentCupDims;
   const TICK      = 1000 / 60;
   const spawnXMin = cx - topInnerW / 2 + 20;
   const spawnXMax = cx + topInnerW / 2 - 20;
 
-  // レンダリングせずに物理演算を高速進行:
-  // 4ステップごとに6粒子を生成しながら落下・堆積させ、
-  // 鉢の上端を超えたら溢れと判定して停止する。
-  for (let step = 0; step < 700; step++) {
+  // 鉢断面積と平均粒径から必要粒子数を推定し、バッチサイズをスケーリング
+  const potArea    = (topInnerW + botInnerW) / 2 * cupHeight;
+  const pxPerMm    = topInnerW / POT_DIAMETERS[currentSize] / 10;
+  const activeTypes = objectTypes.filter(t => t.weight > 0);
+  let totalW = 0, weightedMidMm = 0;
+  activeTypes.forEach(t => {
+    const range = t.sizes[t.size || 'M'];
+    weightedMidMm += (range.min + range.max) / 2 * t.weight;
+    totalW += t.weight;
+  });
+  const avgRadiusPx    = (totalW > 0 ? weightedMidMm / totalW : 6) * pxPerMm / 2;
+  const estimatedCount = Math.ceil(potArea * 0.64 / (Math.PI * avgRadiusPx * avgRadiusPx));
+
+  // 物理安定性のため上限は 30 粒子/バッチ
+  const batchSize = Math.max(6, Math.min(30, Math.ceil(estimatedCount / 175)));
+  // スポーン完了に必要なステップ + 沈静化バッファ（上限2000）
+  const stepsToSpawn = Math.ceil(estimatedCount / batchSize) * 4;
+  const MAX_STEPS    = Math.min(2000, stepsToSpawn + 300);
+
+  // ループ中は afterUpdate のフリーズハンドラを止め、重なり解消を優先する
+  isFilling = true;
+
+  for (let step = 0; step < MAX_STEPS; step++) {
     if (step % 4 === 0) {
-      for (let n = 0; n < 6; n++) {
+      for (let n = 0; n < batchSize; n++) {
         const x = spawnXMin + Math.random() * (spawnXMax - spawnXMin);
-        const body = spawnShape(x, topY - 20 - n * 14);
+        // 最大10層に収める（バッチが多くても上空に散らばりすぎない）
+        const y = topY - 20 - (n % 10) * 14;
+        const body = spawnShape(x, y);
         if (body) Body.setVelocity(body, { x: 0, y: 22 });
       }
     }
@@ -284,7 +305,6 @@ function fillInstantly() {
     Engine.update(engine, TICK);
 
     // 低速（落ち着いた）粒子が鉢上端に達したら溢れと判定
-    // 落下中の粒子（高速）は誤検知を防ぐため除外する
     if (step > 30) {
       const overflowed = Composite.allBodies(engine.world).some(b =>
         b.isParticle && !b.isStatic &&
@@ -292,12 +312,13 @@ function fillInstantly() {
         Math.hypot(b.velocity.x, b.velocity.y) < 4
       );
       if (overflowed) {
-        // 沈静化のための追加ステップ
         for (let s = 0; s < 180; s++) Engine.update(engine, TICK);
         break;
       }
     }
   }
+
+  isFilling = false;
 
   // 鉢上端より上の粒子を除去、残りを静的化
   Composite.allBodies(engine.world)
@@ -408,11 +429,16 @@ const FREEZE_ANG_THRESH  = 0.02;
 const FREEZE_DELAY_MS    = 1200;  // 1.2秒静止で固定（トントン廃止により全粒子が対象）
 const FREEZE_ZONE_RATIO  = 1.0;   // 鉢全体を対象（底層だけでなく全粒子を最終固定状態にする）
 
+// fillInstantly() 実行中はフリーズ待機時間を短縮するフラグ
+// true の場合: 100ms で固定（底から順次固まり過密圧縮を防ぐ）
+// false の場合: 通常の 1200ms
+let isFilling = false;
+
 Events.on(engine, 'afterUpdate', () => {
   if (!currentCupDims) return;
   const { bottomY, cupHeight } = currentCupDims;
   const now = performance.now();
-  // 下側 FREEZE_ZONE_RATIO 分を固定対象ゾーンとする
+  const freezeDelay = isFilling ? 100 : FREEZE_DELAY_MS;
   const freezeZoneTopY = bottomY - cupHeight * FREEZE_ZONE_RATIO;
 
   Composite.allBodies(engine.world)
@@ -425,12 +451,10 @@ Events.on(engine, 'afterUpdate', () => {
       if (inZone && spd < FREEZE_VEL_THRESH && angSpd < FREEZE_ANG_THRESH) {
         if (!b._stillSince) {
           b._stillSince = now;
-        } else if (now - b._stillSince > FREEZE_DELAY_MS) {
+        } else if (now - b._stillSince > freezeDelay) {
           Body.setStatic(b, true);
-          // isStatic 化により次回以降このフィルタから外れる
         }
       } else {
-        // 動き出したらタイマーリセット
         b._stillSince = null;
       }
     });
