@@ -96,6 +96,18 @@ canvas {
   border-radius: 16px;
   padding: 20px 28px;
 }
+#loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #E5E7EB;
+  border-top-color: #6B7280;
+  border-radius: 50%;
+  animation: loading-spin 0.8s linear infinite;
+  margin-bottom: 4px;
+}
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}
 #loading-state-msg {
   font-size: 15px;
   font-weight: 600;

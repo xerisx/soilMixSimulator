@@ -79,9 +79,11 @@ function runFill() {
   } else {
     const el = document.getElementById('loading-state');
     el.removeAttribute('hidden');
+    setParticleControlsDisabled(true);
     setTimeout(() => {
       fillInstantly();
       el.setAttribute('hidden', '');
+      setParticleControlsDisabled(false);
     }, 30);
   }
 }
