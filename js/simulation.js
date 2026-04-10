@@ -25,7 +25,7 @@ function canvasThemeColors() {
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   return {
     bg:        dark ? '#12192A'                  : '#F1F5F9',
-    grid:      dark ? 'rgba(148,163,184,0.08)'   : 'rgba(100,116,139,0.15)',
+    grid:      dark ? 'rgba(255,255,255,0.04)'    : 'rgba(100,116,139,0.15)',
     ruler:     dark ? 'rgba(148,163,184,0.50)'   : 'rgba(107,114,128,0.60)',
     rulerText: dark ? 'rgba(203,213,225,0.75)'   : 'rgba(17,24,39,0.70)',
     airFill:   dark ? '#1B3A6E'                  : '#93C5FD',
