@@ -13,7 +13,7 @@ const SHR = {
   TOP_H:         692,  // 上部全体の高さ (90 + 512 + 90)
   STRIP_L:       148,  // 左ストリップ幅（用土タイプ回転テキスト）
   PHOTO_H_IMG:   512,  // 写真の高さ = 写真幅 512 → 正方形
-  STRIPE_UNIT:    30,  // 市松模様のセルサイズ（90px = 3セル）
+  STRIPE_UNIT:    33,  // 市松模様のセルサイズ（90px = 3セル）
 
   // 用土タイプ（スコアから判定）
   SOIL_TYPES: {
@@ -83,16 +83,20 @@ function shrDrawImageCover(ctx, img, x, y, w, h) {
   ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
 }
 
-// ── B&W市松模様を描画（写真の背後に敷く）──
+// ── B&W市松模様を描画（写真の背後に敷く）── 縦長セル
 function shrCheckerboard(ctx, x, y, w, h, unit) {
-  const cols = Math.ceil(w / unit);
-  const rows = Math.ceil(h / unit);
+  const rowH = unit * 7;  // 縦:横 = 8:1 の縦長セル
+  const cols = Math.ceil(w / unit) + 1;
+  const rows = Math.ceil(h / rowH) + 1;
   for (let r = 0; r < rows; r++) {
+    const cy = y + r * rowH;
+    if (cy >= y + h) break;
+    const cellH = Math.min(rowH, y + h - cy);
     for (let c = 0; c < cols; c++) {
-      ctx.fillStyle = (r + c) % 2 === 0 ? '#FFFFFF' : '#111111';
       const cx = x + c * unit;
-      const cy = y + r * unit;
-      ctx.fillRect(cx, cy, Math.min(unit, x + w - cx), Math.min(unit, y + h - cy));
+      if (cx >= x + w) break;
+      ctx.fillStyle = (r + c) % 2 === 0 ? SHR.BG : '#FFFFFF';
+      ctx.fillRect(cx, cy, Math.min(unit, x + w - cx), cellH);
     }
   }
 }
@@ -162,6 +166,12 @@ async function buildShareCanvas() {
     ctx.fillText('SHR.PHOTO_PATH に写真のパスを設定', STRIP_L + PHOTO_W / 2, PHOTO_TOP + PHOTO_H_IMG / 2);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   }
+
+  // ── メインビジュアル 白ボーダー（角丸3px）──
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth   = 3;
+  shrRoundRect(ctx, STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG, 3);
+  ctx.stroke();
 
   // ── 左ストリップ: 用土タイプ（回転テキスト）──
   {
