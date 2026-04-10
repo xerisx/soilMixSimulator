@@ -169,11 +169,27 @@
   flex-direction: column;
   align-items: stretch;
   gap: 5px;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
+  background: var(--bg-card, #F2F4F7);
+  border: 1px solid var(--border, #D8DCE1);
   border-radius: 12px;
   padding: 8px 10px;
   min-width: 140px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+
+/* PC のみ: スライダー操作中ハイライト */
+@media (min-width: 768px) {
+  /* スライダー操作中: 親行をハイライト */
+  .ratio-row:has(.ratio-slider:focus-visible) {
+    background: rgba(22, 163, 74, 0.06);
+    border-radius: 6px;
+    padding: 2px 3px;
+    margin: -2px -3px;
+  }
+  html[data-theme="dark"] .ratio-row:has(.ratio-slider:focus-visible) {
+    background: rgba(63, 185, 80, 0.08);
+  }
 }
 
 .obj-name-row {

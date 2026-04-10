@@ -7,6 +7,8 @@ function switchRpTab(tabId) {
   document.querySelectorAll('.rp-tab-content').forEach(c => {
     c.classList.toggle('active', c.id === `rp-tab-${tabId}`);
   });
+  const badge = document.getElementById('cmp-mode-badge');
+  if (badge) badge.classList.toggle('visible', tabId === 'compare');
 }
 
 function saveCompareBase() {
