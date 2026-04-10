@@ -1,41 +1,49 @@
-// ── 共有画像生成 ──
-// Matter.js canvasから鉢をクロップし、純粋なCanvas 2D APIで
-// 750×938pxの共有カードを描画してダウンロードする。
+// ── 共有画像生成 ── Spotify Wrapped スタイル
+// 750×1583px (9:19) の共有カードを Canvas 2D API で描画する。
 
 // ── 定数 ──
 const SHR = {
-  W: 750, H: 938,
-  PAD: 40,
-  HEADER_H:     54,
-  FOOTER_H:     36,
-  METRIC_ROW_H: 40,
-  MAT_ROW_H:    42,
-  POT_MAX_H:   400,  // 鉢画像の最大高さ（拡大を許容）
-  POT_BAND_V:   14,  // 鉢帯の上下余白
+  W: 750, H: 1583,  // 9:19
 
-  // メトリクス色（analysis.css と揃える）
-  COLORS: {
-    drainage:          '#0284C7',
-    waterRetention:    '#16A34A',
-    aeration:          '#64748B',
-    nutrientRetention: '#D97706',
+  // 植物写真のパス（なければグラデーションプレースホルダー）
+  // PHOTO_PATH: 'assets/plant.jpg',
+  PHOTO_PATH: 'https://images.unsplash.com/photo-1728809658006-9152dc1410eb?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+
+  // 上部セクション
+  TOP_H:         692,  // 上部全体の高さ (90 + 512 + 90)
+  STRIP_L:       148,  // 左ストリップ幅（用土タイプ回転テキスト）
+  PHOTO_H_IMG:   512,  // 写真の高さ = 写真幅 512 → 正方形
+  STRIPE_UNIT:    30,  // 市松模様のセルサイズ（90px = 3セル）
+
+  // 用土タイプ（スコアから判定）
+  SOIL_TYPES: {
+    AIRY:     { color: '#60A5FA', bestFor: 'CACTI & SUCCULENTS' },
+    WET:      { color: '#34D399', bestFor: 'FERNS & TROPICALS'  },
+    RICH:     { color: '#A78BFA', bestFor: 'AROIDS'             },
+    BALANCED: { color: '#4ADE80', bestFor: 'ALL PLANTS'         },
   },
-  LABELS: {
+
+  // 指標
+  METRICS: ['drainage', 'waterRetention', 'aeration', 'nutrientRetention'],
+  METRIC_LABELS: {
     drainage:          '排水性',
     waterRetention:    '保水性',
     aeration:          '通気性',
     nutrientRetention: '保肥力',
   },
+  METRIC_COLORS: {
+    drainage:          '#60A5FA',
+    waterRetention:    '#34D399',
+    aeration:          '#94A3B8',
+    nutrientRetention: '#FBBF24',
+  },
 
-  BG:       '#F8FAFC',
-  POT_BAND: '#EEF2F7',
-  DARK:     '#1E293B',
-  SLATE:    '#64748B',
-  MID:      '#94A3B8',
-  TRACK:    '#E2E8F0',
-  TEXT:     '#1E293B',
-  SUBTEXT:  '#475569',
-  DIVIDER:  '#E2E8F0',
+  BG:      '#222222',
+  TEXT:    '#FFFFFF',
+  MUTED:   '#555555',
+  MUTED2:  '#888888',
+  DIVIDER: '#2A2A2A',
+  SLATE:   '#64748B',
 };
 
 // ── 角丸矩形パス ──
@@ -54,246 +62,351 @@ function shrRoundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-// ── 水平区切り線 ──
-function shrDivider(ctx, y) {
-  ctx.fillStyle = SHR.DIVIDER;
-  ctx.fillRect(SHR.PAD, y, SHR.W - SHR.PAD * 2, 1);
+// ── 画像ロード（Promise）──
+function shrLoadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // ← これ追加
+    img.onload  = () => resolve(img);
+    img.onerror = reject;
+    img.src     = src;
+  });
 }
 
-// ── セクションラベル ──
-function shrSectionLabel(ctx, text, y) {
-  ctx.fillStyle    = SHR.MID;
-  ctx.font         = `500 11px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
+// ── object-fit:cover 相当で描画 ──
+function shrDrawImageCover(ctx, img, x, y, w, h) {
+  const scale = Math.max(w / img.width, h / img.height);
+  const sw = w / scale;
+  const sh = h / scale;
+  const sx = (img.width  - sw) / 2;
+  const sy = (img.height - sh) / 2;
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+
+// ── B&W市松模様を描画（写真の背後に敷く）──
+function shrCheckerboard(ctx, x, y, w, h, unit) {
+  const cols = Math.ceil(w / unit);
+  const rows = Math.ceil(h / unit);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      ctx.fillStyle = (r + c) % 2 === 0 ? '#FFFFFF' : '#111111';
+      const cx = x + c * unit;
+      const cy = y + r * unit;
+      ctx.fillRect(cx, cy, Math.min(unit, x + w - cx), Math.min(unit, y + h - cy));
+    }
+  }
+}
+
+// ── 用土タイプ判定 ──
+function shrGetSoilType(comp) {
+  if (!comp) return 'BALANCED';
+  const { drainage, waterRetention, aeration, nutrientRetention } = comp;
+  if (drainage >= 68 && aeration >= 62) return 'AIRY';
+  if (waterRetention >= 65)             return 'WET';
+  if (nutrientRetention >= 62)          return 'RICH';
+  return 'BALANCED';
+}
+
+// ── コアレンダリング: 750×1583px の canvas を返す ──
+async function buildShareCanvas() {
+  const usedMats = objectTypes.filter(t => t.weight > 0);
+  if (!usedMats.length) throw new Error('no-mats');
+
+  const comp = calcComposite();
+  const { W, H, TOP_H, STRIP_L, PHOTO_H_IMG, STRIPE_UNIT } = SHR;
+
+  // 用土タイプ
+  const soilTypeName = shrGetSoilType(comp);
+  const soilTypeDef  = SHR.SOIL_TYPES[soilTypeName];
+  const accentColor  = soilTypeDef.color;
+  const bestFor      = soilTypeDef.bestFor;
+
+  // 写真幅（左ストリップ + 右市松を除く）
+  const PHOTO_RIGHT_STRIP = 90;   // 市松3セル分 (30×3)
+  const PHOTO_W   = W - STRIP_L - PHOTO_RIGHT_STRIP;  // 512px
+  const PHOTO_TOP = 90;  // メインビジュアル上部マージン（市松3セル分）
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // ══ 背景 ══
+  ctx.fillStyle = SHR.BG;
+  ctx.fillRect(0, 0, W, H);
+
+  // ══ 市松模様（写真の背後・左ストリップより右のみ）══
+  shrCheckerboard(ctx, STRIP_L, 0, W - STRIP_L, TOP_H, STRIPE_UNIT);
+
+  // ══ 上部: 植物写真 ══
+  let photoImg = null;
+  try { photoImg = await shrLoadImage(SHR.PHOTO_PATH); } catch (_) {}
+
+  if (photoImg) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG);
+    ctx.clip();
+    shrDrawImageCover(ctx, photoImg, STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG);
+    ctx.restore();
+  } else {
+    // プレースホルダー
+    const pg = ctx.createLinearGradient(STRIP_L, PHOTO_TOP, STRIP_L + PHOTO_W, PHOTO_TOP + PHOTO_H_IMG);
+    pg.addColorStop(0, '#1B3A2D');
+    pg.addColorStop(1, '#0D2318');
+    ctx.fillStyle = pg;
+    ctx.fillRect(STRIP_L, PHOTO_TOP, PHOTO_W, PHOTO_H_IMG);
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.font      = `12px "Hiragino Sans","Yu Gothic",sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('SHR.PHOTO_PATH に写真のパスを設定', STRIP_L + PHOTO_W / 2, PHOTO_TOP + PHOTO_H_IMG / 2);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  }
+
+  // ── 左ストリップ: 用土タイプ（回転テキスト）──
+  {
+    const stripCx = STRIP_L / 2;
+    const stripCy = PHOTO_TOP + PHOTO_H_IMG / 2;
+
+    // フォントサイズ: テキスト長に合わせて自動調整
+    const maxH = PHOTO_H_IMG - 40;  // 上下20pxマージン
+    let fontSize = 120;
+    ctx.font = `900 ${fontSize}px "Hiragino Sans","Yu Gothic",sans-serif`;
+    const tw = ctx.measureText(soilTypeName).width;
+    if (tw > maxH) fontSize = Math.floor(fontSize * maxH / tw);
+
+    ctx.save();
+    ctx.translate(stripCx, stripCy);
+    ctx.rotate(-Math.PI / 2);
+
+    ctx.font         = `900 ${fontSize}px "Hiragino Sans","Yu Gothic",sans-serif`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+
+    // 白縁取り
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth   = fontSize * 0.06;
+    ctx.lineJoin    = 'round';
+    ctx.strokeText(soilTypeName, 0, 0);
+
+    // 塗り
+    ctx.fillStyle = accentColor;
+    ctx.fillText(soilTypeName, 0, 0);
+    ctx.restore();
+  }
+
+  // ══ 下部コンテンツ ══
+  const PAD     = 32;
+  const COL_GAP = 16;
+  const COL_W   = (W - PAD * 2 - COL_GAP) / 2;  // 335px
+  const COL2_X  = PAD + COL_W + COL_GAP;
+
+  let curY = TOP_H + 34;
+
+  // ── セクションヘッダー ──
+  ctx.fillStyle    = SHR.MUTED2;
+  ctx.font         = `500 14px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
   ctx.textBaseline = 'middle';
   ctx.textAlign    = 'left';
-  ctx.fillText(text, SHR.PAD, y + 6);
+  ctx.fillText('トップ資材', PAD, curY + 8);
+  ctx.fillText('配合スコア', COL2_X, curY + 8);
+  curY += 34;
+
+  // ── リスト ──
+  const sorted  = [...usedMats].sort((a, b) => b.weight - a.weight);
+  const totalKg = sorted.reduce((s, t) => s + t.weight, 0);
+  const top5    = sorted.slice(0, 5);
+
+  // 指標を値順でソート
+  const sortedMetrics = [...SHR.METRICS].sort((a, b) => {
+    return (comp ? (comp[b] ?? 0) : 0) - (comp ? (comp[a] ?? 0) : 0);
+  });
+
+  const ITEM_H    = 70;
+  const RANK_W    = 34;
+  const RANK_FONT = `700 34px "Hiragino Sans","Yu Gothic",sans-serif`;
+  const NAME_FONT = `700 32px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
+  const SUB_FONT  = `400 15px "Hiragino Sans","Yu Gothic",sans-serif`;
+
+  const maxRows = Math.max(top5.length, sortedMetrics.length);
+
+  for (let i = 0; i < maxRows; i++) {
+    const rowY   = curY + i * ITEM_H;
+    const midY   = rowY + ITEM_H / 2;
+
+    // 左列: 資材
+    if (i < top5.length) {
+      const mat  = top5[i];
+      const pct  = totalKg > 0 ? Math.round(mat.weight / totalKg * 100) : 0;
+      const szLb = mat.hasSize === false ? '' : (mat.size ? `  ${mat.size}` : '');
+
+      ctx.fillStyle    = SHR.MUTED;
+      ctx.font         = RANK_FONT;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign    = 'left';
+      ctx.fillText(String(i + 1), PAD, midY);
+
+      ctx.fillStyle = SHR.TEXT;
+      ctx.font      = NAME_FONT;
+      ctx.fillText(mat.name + szLb, PAD + RANK_W + 8, midY);
+
+      ctx.fillStyle = SHR.MUTED2;
+      ctx.font      = SUB_FONT;
+      ctx.textAlign = 'right';
+      ctx.fillText(`${pct}%`, PAD + COL_W, midY);
+      ctx.textAlign = 'left';
+    }
+
+    // 右列: 指標スコア
+    if (i < sortedMetrics.length) {
+      const key   = sortedMetrics[i];
+      const value = comp ? Math.round(comp[key] ?? 0) : 0;
+      const color = SHR.METRIC_COLORS[key];
+      const label = SHR.METRIC_LABELS[key];
+
+      ctx.fillStyle    = SHR.MUTED;
+      ctx.font         = RANK_FONT;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign    = 'left';
+      ctx.fillText(String(i + 1), COL2_X, midY);
+
+      ctx.fillStyle = color;
+      ctx.font      = NAME_FONT;
+      ctx.fillText(label, COL2_X + RANK_W + 8, midY);
+
+      // アンダーバーグラフ
+      const barX   = COL2_X + RANK_W + 8;
+      const barY   = midY + 20;
+      const barH   = 3;
+      const barMaxW = COL_W - RANK_W - 8 - 44;  // % 値の手前まで
+      ctx.fillStyle = SHR.DIVIDER;
+      ctx.fillRect(barX, barY, barMaxW, barH);
+      ctx.fillStyle = color;
+      ctx.fillRect(barX, barY, Math.round(barMaxW * value / 100), barH);
+
+      ctx.fillStyle = SHR.MUTED2;
+      ctx.font      = SUB_FONT;
+      ctx.textAlign = 'right';
+      ctx.fillText(`${value}%`, COL2_X + COL_W, midY);
+      ctx.textAlign = 'left';
+    }
+  }
+
+  curY += maxRows * ITEM_H + 32;
+
+  // ── 区切り線 ──
+  ctx.fillStyle = SHR.DIVIDER;
+  ctx.fillRect(PAD, curY, W - PAD * 2, 1);
+  curY += 32;
+
+  // ── 大スタット: SOIL SCORE ＋ BEST FOR ──
+  const soilScore = comp ? Math.max(
+    comp.drainage ?? 0, comp.waterRetention ?? 0,
+    comp.aeration ?? 0, comp.nutrientRetention ?? 0
+  ) : 0;
+
+  // SOIL SCORE (左)
+  ctx.fillStyle    = SHR.MUTED2;
+  ctx.font         = `500 14px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign    = 'left';
+  ctx.fillText('SOIL SCORE', PAD, curY + 18);
+
+  ctx.fillStyle    = SHR.TEXT;
+  ctx.font         = `900 90px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(`${Math.round(soilScore)}%`, PAD, curY + 118);
+
+  // BEST FOR (右)
+  ctx.fillStyle    = SHR.MUTED2;
+  ctx.font         = `500 14px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.textAlign    = 'left';
+  ctx.fillText('BEST FOR', COL2_X, curY + 18);
+
+  ctx.fillStyle    = accentColor;
+  ctx.font         = `900 76px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(bestFor, COL2_X, curY + 118);
+
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+  // ── フッター ──
+  const footerY = H - 52;
+  ctx.fillStyle    = SHR.TEXT;
+  ctx.font         = `900 28px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign    = 'left';
+  ctx.fillText('Q Soil', PAD, footerY + 26);
+
+  ctx.fillStyle = SHR.MUTED2;
+  ctx.font      = `500 20px "Hiragino Sans","Yu Gothic",sans-serif`;
+  ctx.textAlign = 'right';
+  ctx.fillText('QSOIL.JP / 用土配合シミュレータ', W - PAD, footerY + 26);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+  return canvas;
 }
 
-// ── 鉢エリアをcanvasからクロップ ──
-function capturePotRegion() {
-  const src = document.getElementById('canvas');
-  if (!src || !currentCupDims) return null;
-
-  const { topInnerW, cupHeight, topY, cx, wt } = currentCupDims;
-  const pad = 10;
-  const x = Math.max(0, Math.round(cx - topInnerW / 2 - wt - pad));
-  const y = Math.max(0, Math.round(topY - pad));
-  const w = Math.round(topInnerW + wt * 2 + pad * 2);
-  const h = Math.round(cupHeight + wt + pad * 2);
-
-  const clampW = Math.min(w, src.width  - x);
-  const clampH = Math.min(h, src.height - y);
-  if (clampW <= 0 || clampH <= 0) return null;
-
-  const tmp = document.createElement('canvas');
-  tmp.width  = clampW;
-  tmp.height = clampH;
-  const ctx = tmp.getContext('2d');
-  ctx.fillStyle = SHR.POT_BAND;
-  ctx.fillRect(0, 0, clampW, clampH);
-  ctx.drawImage(src, x, y, clampW, clampH, 0, 0, clampW, clampH);
-  return tmp;
-}
-
-// ── 画像生成メイン ──
+// ── 画像ダウンロード ──
 async function generateShareImage() {
   const btn = document.getElementById('share-img-btn');
   const origLabel = btn ? btn.textContent.trim() : '';
-
   if (btn) { btn.disabled = true; btn.textContent = '生成中…'; }
 
   try {
-    const usedMats = objectTypes.filter(t => t.weight > 0);
-    if (usedMats.length === 0) {
-      showToast('配合を設定してから画像を作成してください');
-      return;
-    }
-
-    const comp    = calcComposite();
-    const metrics = ['drainage', 'waterRetention', 'aeration', 'nutrientRetention'];
-    const potSrc  = capturePotRegion();
-
-    const { W, H, PAD, HEADER_H, FOOTER_H, POT_MAX_H, POT_BAND_V } = SHR;
-
-    const canvas = document.createElement('canvas');
-    canvas.width  = W;
-    canvas.height = H;
-    const ctx = canvas.getContext('2d');
-
-    // ══ 背景 ══
-    ctx.fillStyle = SHR.BG;
-    ctx.fillRect(0, 0, W, H);
-
-    // ══ ヘッダー（54px）══
-    ctx.fillStyle = SHR.DARK;
-    ctx.fillRect(0, 0, W, HEADER_H);
-    ctx.fillStyle    = '#FFFFFF';
-    ctx.font         = `bold 19px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
-    ctx.textBaseline = 'middle';
-    ctx.textAlign    = 'left';
-    ctx.fillText('用土配合シミュレーション結果', PAD, HEADER_H / 2 + 1);
-    ctx.fillStyle = SHR.MID;
-    ctx.font      = `600 13px "Hiragino Sans","Yu Gothic",sans-serif`;
-    ctx.textAlign = 'right';
-    ctx.fillText('QSOIL', W - PAD, HEADER_H / 2 + 1);
-    ctx.textAlign = 'left';
-
-    let curY = HEADER_H + 8;
-
-    // ══ 鉢プレビュー（full-width帯）══
-    if (potSrc) {
-      const availW = W - PAD * 2;
-      const scale  = Math.min(POT_MAX_H / potSrc.height, availW / potSrc.width, 2.0);
-      const dw = Math.round(potSrc.width  * scale);
-      const dh = Math.round(potSrc.height * scale);
-      const bandH  = dh + POT_BAND_V * 2;
-      const dx     = (W - dw) / 2;
-
-      ctx.fillStyle = SHR.POT_BAND;
-      ctx.fillRect(0, curY, W, bandH);
-
-      ctx.drawImage(potSrc, dx, curY + POT_BAND_V, dw, dh);
-      curY += bandH + 4;
-    }
-
-    // ══ 配合スコア ══
-    shrDivider(ctx, curY);
-    curY += 12;
-    shrSectionLabel(ctx, '配合スコア', curY);
-    curY += 20;
-
-    const BAR_LABEL_W = 72;
-    const BAR_PCT_W   = 52;
-    const BAR_X = PAD + BAR_LABEL_W + 8;
-    const BAR_W = W - BAR_X - PAD - BAR_PCT_W;
-    const BAR_H = 13;
-
-    metrics.forEach(key => {
-      const value  = comp ? Math.round(comp[key] ?? 0) : 0;
-      const color  = SHR.COLORS[key];
-      const label  = SHR.LABELS[key];
-      const rowMid = curY + SHR.METRIC_ROW_H / 2;
-
-      // ラベル（指標色）
-      ctx.fillStyle    = color;
-      ctx.font         = `bold 15px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign    = 'left';
-      ctx.fillText(label, PAD, rowMid);
-
-      // バー背景
-      ctx.fillStyle = SHR.TRACK;
-      shrRoundRect(ctx, BAR_X, rowMid - BAR_H / 2, BAR_W, BAR_H, BAR_H / 2);
-      ctx.fill();
-
-      // バー本体
-      const fillW = Math.max(0, Math.round(BAR_W * value / 100));
-      if (fillW > 0) {
-        ctx.fillStyle = color;
-        shrRoundRect(ctx, BAR_X, rowMid - BAR_H / 2, fillW, BAR_H, BAR_H / 2);
-        ctx.fill();
-      }
-
-      // 数値
-      ctx.fillStyle    = SHR.TEXT;
-      ctx.font         = `bold 16px "Hiragino Sans","Yu Gothic",sans-serif`;
-      ctx.textAlign    = 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`${value}%`, W - PAD, rowMid);
-      ctx.textAlign = 'left';
-
-      curY += SHR.METRIC_ROW_H;
-    });
-
-    curY += 10;
-
-    // ══ 配合内容 ══
-    shrDivider(ctx, curY);
-    curY += 12;
-    shrSectionLabel(ctx, '配合内容', curY);
-    curY += 20;
-
-    const sorted  = [...usedMats].sort((a, b) => b.weight - a.weight);
-    const totalKg = sorted.reduce((s, t) => s + t.weight, 0);
-    const GAP     = 16;
-    const COL_W   = (W - PAD * 2 - GAP) / 2;
-    const MAX_MATS = 8;
-
-    sorted.slice(0, MAX_MATS).forEach((mat, i) => {
-      const col      = i % 2;
-      const row      = Math.floor(i / 2);
-      const mx       = PAD + col * (COL_W + GAP);
-      const my       = curY + row * SHR.MAT_ROW_H;
-      const pct      = totalKg > 0 ? Math.round(mat.weight / totalKg * 100) : 0;
-      const szLb     = mat.hasSize === false ? '' : ` (${mat.size})`;
-      const matColor = mat.color || SHR.SLATE;
-      const LINE1Y   = my + 14;
-      const LINE2Y   = my + 30;
-
-      // カラードット
-      ctx.fillStyle = matColor;
-      ctx.beginPath();
-      ctx.arc(mx + 7, my + SHR.MAT_ROW_H / 2, 7, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 資材名
-      ctx.fillStyle    = SHR.TEXT;
-      ctx.font         = `bold 15px "Hiragino Sans","Yu Gothic","Meiryo",sans-serif`;
-      ctx.textBaseline = 'alphabetic';
-      ctx.textAlign    = 'left';
-      ctx.fillText(mat.name, mx + 22, LINE1Y);
-
-      // サイズ
-      if (szLb) {
-        const nameW = ctx.measureText(mat.name).width;
-        ctx.fillStyle = SHR.SLATE;
-        ctx.font      = `12px "Hiragino Sans","Yu Gothic",sans-serif`;
-        ctx.fillText(szLb, mx + 22 + nameW, LINE1Y);
-      }
-
-      // 重量
-      ctx.fillStyle = SHR.SLATE;
-      ctx.font      = `12px "Hiragino Sans","Yu Gothic",sans-serif`;
-      ctx.fillText(`${mat.weight.toFixed(1)}kg`, mx + 22, LINE2Y);
-
-      // 配合比（資材色・右揃え）
-      ctx.fillStyle    = matColor;
-      ctx.font         = `bold 16px "Hiragino Sans","Yu Gothic",sans-serif`;
-      ctx.textAlign    = 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`${pct}%`, mx + COL_W, my + SHR.MAT_ROW_H / 2 + 1);
-      ctx.textAlign = 'left';
-    });
-
-    // ══ フッター ══
-    const footerY = H - FOOTER_H;
-    ctx.fillStyle = SHR.DIVIDER;
-    ctx.fillRect(0, footerY, W, 1);
-    ctx.fillStyle    = SHR.SLATE;
-    ctx.font         = `12px "Hiragino Sans","Yu Gothic",sans-serif`;
-    ctx.textBaseline = 'middle';
-    ctx.textAlign    = 'center';
-    ctx.fillText('qsoil.app  —  用土配合シミュレータ', W / 2, footerY + FOOTER_H / 2);
-    ctx.textAlign = 'left';
-
-    // ══ ダウンロード ══
+    const canvas = await buildShareCanvas();
     canvas.toBlob(blob => {
       if (!blob) { showToast('画像の生成に失敗しました'); return; }
       const url = URL.createObjectURL(blob);
       const a   = document.createElement('a');
-      a.href     = url;
-      a.download = 'qsoil-mix.png';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      a.href = url; a.download = 'qsoil-mix.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       showToast('画像を保存しました');
     }, 'image/png');
-
   } catch (e) {
-    console.error('[share-image] error:', e);
-    showToast('画像の生成に失敗しました');
+    if (e.message === 'no-mats') showToast('配合を設定してから画像を作成してください');
+    else { console.error('[share-image] error:', e); showToast('画像の生成に失敗しました'); }
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = origLabel; }
+  }
+}
+
+// ── プレビューオーバーレイ制御 ──
+function openSharePreview() {
+  const overlay = document.getElementById('share-preview-overlay');
+  if (!overlay) return;
+  overlay.style.display = 'block';
+  previewShareImage();
+}
+
+function closeSharePreview() {
+  const overlay = document.getElementById('share-preview-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+async function previewShareImage() {
+  const btn  = document.getElementById('share-preview-refresh');
+  const wrap = document.getElementById('share-preview-canvas-wrap');
+  if (!wrap) return;
+
+  if (btn) { btn.disabled = true; btn.textContent = '描画中…'; }
+  wrap.innerHTML = '<p class="shr-prev-msg">生成中...</p>';
+
+  try {
+    const canvas = await buildShareCanvas();
+    const img = new Image();
+    img.src = canvas.toDataURL('image/png');
+    img.style.cssText = 'display:block;width:100%;height:auto;';
+    wrap.innerHTML = '';
+    wrap.appendChild(img);
+  } catch (e) {
+    const msg = e.message === 'no-mats'
+      ? '配合を設定してからプレビューしてください'
+      : 'プレビューの生成に失敗しました';
+    wrap.innerHTML = `<p class="shr-prev-msg">${msg}</p>`;
+    if (e.message !== 'no-mats') console.error('[share-image preview] error:', e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '再描画'; }
   }
 }
