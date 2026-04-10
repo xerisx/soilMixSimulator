@@ -10,7 +10,7 @@ const SHR = {
   PHOTO_PATH: 'https://images.unsplash.com/photo-1728809658006-9152dc1410eb?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
 
   // 上部セクション
-  TOP_H:         692,  // 上部全体の高さ (90 + 512 + 90)
+  TOP_H:         632,  // 上部全体の高さ (60 + 512 + 60)
   STRIP_L:       148,  // 左ストリップ幅（用土タイプ回転テキスト）
   PHOTO_H_IMG:   512,  // 写真の高さ = 写真幅 512 → 正方形
   STRIPE_UNIT:    33,  // 市松模様のセルサイズ（90px = 3セル）
@@ -126,9 +126,9 @@ async function buildShareCanvas() {
   const bestFor      = soilTypeDef.bestFor;
 
   // 写真幅（左ストリップ + 右市松を除く）
-  const PHOTO_RIGHT_STRIP = 90;   // 市松3セル分 (30×3)
-  const PHOTO_W   = W - STRIP_L - PHOTO_RIGHT_STRIP;  // 512px
-  const PHOTO_TOP = 90;  // メインビジュアル上部マージン（市松3セル分）
+  const PHOTO_RIGHT_STRIP = 60;
+  const PHOTO_W   = W - STRIP_L - PHOTO_RIGHT_STRIP;
+  const PHOTO_TOP = 60;  // メインビジュアル上部マージン
 
   const canvas = document.createElement('canvas');
   canvas.width  = W;
@@ -140,7 +140,7 @@ async function buildShareCanvas() {
   ctx.fillRect(0, 0, W, H);
 
   // ══ 市松模様（写真の背後・左ストリップより右のみ）══
-  shrCheckerboard(ctx, STRIP_L, 0, W - STRIP_L, TOP_H, STRIPE_UNIT);
+  shrCheckerboard(ctx, STRIP_L + 3, 0, W - STRIP_L - 3, TOP_H, STRIPE_UNIT);
 
   // ══ 上部: 植物写真 ══
   let photoImg = null;
