@@ -5,14 +5,14 @@
   top: 14px;
   z-index: 5;
   background: #FFFFFF;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #D8DCE1;
   border-radius: 10px;
   padding: 10px 12px 12px;
   display: flex;
   flex-direction: column;
   gap: 3px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  margin-bottom: 2px;
+  margin-bottom: 6px;
 }
 
 .mms-header {
@@ -33,9 +33,9 @@
   font-size: 10px;
   font-weight: 600;
   font-family: sans-serif;
-  color: #4F6EF7;
-  background: #EEF2FF;
-  border: 1px solid #C7D2FE;
+  color: #0284C7;
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
   border-radius: 4px;
   padding: 2px 8px;
   cursor: pointer;
@@ -43,7 +43,7 @@
   line-height: 1.5;
 }
 .mms-compare-btn:active {
-  background: #E0E7FF;
+  background: #E0F2FE;
 }
 
 .mms-header-actions {
@@ -58,7 +58,7 @@
   font-family: sans-serif;
   color: #9CA3AF;
   background: #F9FAFB;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #D8DCE1;
   border-radius: 4px;
   padding: 2px 7px;
   cursor: pointer;
@@ -489,8 +489,8 @@
 
 .mms-track {
   flex: 1;
-  height: 5px;
-  background: #F3F4F6;
+  height: 7px;
+  background: #D8DCE1;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -764,7 +764,7 @@
   font-weight: 600;
   color: #6B7280;
   font-family: sans-serif;
-  width: 62px;
+  width: 72px;
   flex-shrink: 0;
 }
 
@@ -785,14 +785,16 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-left: 8px;
+  padding-left: 0;
 }
 
 .gran-label {
   font-size: 12px;
   color: #9CA3AF;
   font-family: sans-serif;
-  width: 28px;
+  width: 72px;        /* detail-label と同幅に統一 → バー開始位置が揃う */
+  padding-left: 12px; /* 視覚的インデントはpadding内に収める */
+  box-sizing: border-box;
   flex-shrink: 0;
 }
 

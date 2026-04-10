@@ -179,8 +179,8 @@
     padding: 0;
   }
   #mobile-share-wrap .act-share {
-    width: 88%;
-    height: 32px;
+    width: 80%;
+    height: 38px;
     font-size: 13px;
     padding: 0 16px;
     display: flex;
@@ -211,7 +211,7 @@
   .nutrient-block              { padding: 7px 12px; gap: 0; }
   .nutrient-block .bar-icon    { font-size: 10px; color: #D97706; }
   .nutrient-block .bar-label   { font-size: 11px; color: #6B7280; }
-  .nutrient-block .bar-track   { height: 5px; }
+  .nutrient-block .bar-track   { height: 7px; }
   .nutrient-block .bar-pct     { font-size: 11px; color: #6B7280; }
 
   /* フッター導線: 詰める */
@@ -233,17 +233,17 @@
   .detail-inner       { padding: 10px 12px; gap: 8px; }
   .detail-bar-row     { gap: 6px; }
   .detail-section     { gap: 4px; }
-  .gran-rows          { gap: 4px; padding-left: 6px; }
-  .detail-label       { font-size: 11px; width: 54px; }
-  .gran-label         { font-size: 11px; width: 24px; }
+  .gran-rows          { gap: 4px; padding-left: 0; }
+  .detail-label       { font-size: 11px; width: 62px; }
+  .gran-label         { font-size: 11px; width: 62px; padding-left: 10px; box-sizing: border-box; }
   .detail-inner .tip-icon { width: 12px; height: 12px; font-size: 9px; margin-left: 2px; }
 
   .act-btn                                { padding: 0 12px; font-size: 13px; }
   #center-actions #startBtn,
   #center-actions .act-group-ops .act-btn {
-    height: 40px;
+    height: 48px;
     padding: 0 10px;
-    font-size: 13px;
+    font-size: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -255,7 +255,7 @@
 
   /* 縦リスト・アコーディオン構成 */
   #obj-list { flex-direction: column; overflow-x: hidden; gap: 10px; padding-bottom: 0; }
-  .obj-card { flex: none; width: 100%; min-width: unset; padding: 9px 12px; gap: 6px; }
+  .obj-card { flex: none; width: 100%; min-width: unset; padding: 10px 14px; gap: 8px; background: #FFFFFF; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
   .obj-name { font-size: 14px; }
   .obj-size-btn     { padding: 4px 8px; font-size: 12px; }
   .size-grain-label { font-size: 10px; }
@@ -273,14 +273,15 @@
   #center-actions.has-poured .act-group-reset { display: block; }
 
   /* ページ下端余白: 投入後は ops + reinvestBtn 分だけバー高さが増えるため大きめに確保 */
-  #panel { padding-bottom: 110px; }
+  /* モバイル: パネル背景を一段下げ、カード(#FFFFFF)が浮き上がって見えるように */
+  #panel { padding-bottom: 110px; background: #F8FAFC; }
   /* margin-top:auto はデスクトップ専用（モバイルでは不要な空白になる） */
   #feedback-link { margin-top: 0; }
   /* sticky バーで代替するため、モバイルの分析パネル内バーブロックは非表示 */
   #right-panel.rp-mobile .bars-block { display: none; }
-  /* モバイル: 各グラフバーを sticky バーと同じ 5px に統一 */
-  #right-panel.rp-mobile .bar-track       { height: 5px; border-radius: 3px; }
-  #right-panel.rp-mobile .split-bar-track { height: 5px; border-radius: 3px; }
+  /* モバイル: 各グラフバーを sticky バーと同じ 7px に統一 */
+  #right-panel.rp-mobile .bar-track       { height: 7px; border-radius: 3px; }
+  #right-panel.rp-mobile .split-bar-track { height: 7px; border-radius: 3px; }
 
   /* 再投入ボタン: モバイルのみ表示、通常ボタンスタイル */
   #sec-actions { display: none; }
@@ -289,8 +290,8 @@
     padding-top: 0;
   }
   #reinvestBtn {
-    background: #F3F4F6 !important;
-    border: 1px solid #D1D5DB !important;
+    background: var(--bg-subtle, #ECEEF2) !important;
+    border: 1px solid var(--border, #D8DCE1) !important;
     box-shadow: none !important;
     color: #374151 !important;
     font-size: 13px !important;
@@ -301,8 +302,8 @@
     border-radius: 8px;
   }
   #reinvestBtn:hover {
-    background: #E5E7EB !important;
-    border-color: #9CA3AF !important;
+    background: #D8DCE1 !important;
+    border-color: #B0B8C4 !important;
     color: #111827 !important;
   }
 
