@@ -258,6 +258,7 @@ function renderShareActions() {
   const el = document.getElementById('share-actions');
   if (!el) return;
 
+  const isIOS = /iPhone|iPad/i.test(navigator.userAgent);
   if (shareImageState.canNativeShare) {
     el.innerHTML = `
       <button class="share-action-btn share-action-primary" onclick="doWebShare()">
@@ -265,7 +266,8 @@ function renderShareActions() {
         SNSで共有
       </button>
       <p class="share-action-note">X・LINE など共有するアプリを選択できます</p>
-      <button class="share-action-save-link" onclick="doSaveImage()">画像を保存</button>
+      <button class="share-action-save-link" onclick="doSaveImage()">${isIOS ? '写真に保存' : '画像を保存'}</button>
+      ${isIOS ? '<p class="share-action-note">共有メニューが開きます</p>' : ''}
     `;
   } else {
     el.innerHTML = `
@@ -314,8 +316,19 @@ async function doWebShare() {
 }
 
 // ── 画像を保存 ──
-function doSaveImage() {
+async function doSaveImage() {
   if (!shareImageState.previewBlob) { showToast('画像を生成中です'); return; }
+  const file = new File([shareImageState.previewBlob], 'qsoil-mix.png', { type: 'image/png' });
+  // iOS: <a download> は Files アプリにしか保存できないため share sheet 経由で写真アプリへ
+  const isIOS = /iPhone|iPad/i.test(navigator.userAgent);
+  if (isIOS && typeof navigator.share === 'function' && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] });
+    } catch (e) {
+      if (e.name !== 'AbortError') showToast('保存に失敗しました');
+    }
+    return;
+  }
   const url = URL.createObjectURL(shareImageState.previewBlob);
   const a = document.createElement('a');
   a.href = url; a.download = 'qsoil-mix.png';
