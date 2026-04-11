@@ -203,6 +203,14 @@ function selectShareTheme(themeId) {
   updateSharePreview();
 }
 
+// ── 前後テーマに移動（矢印ボタン・スワイプ共通）──
+function navigateShareTheme(dir) {
+  const names = COLOR_PATTERNS.map(p => p.name);
+  const idx = names.indexOf(shareImageState.selectedThemeId);
+  const next = names[(idx + dir + names.length) % names.length];
+  selectShareTheme(next);
+}
+
 // ── シャッフル（現在と異なるランダムテーマを選ぶ）──
 function shuffleShareTheme() {
   const others = COLOR_PATTERNS.map(p => p.name).filter(n => n !== shareImageState.selectedThemeId);
@@ -219,26 +227,26 @@ async function updateSharePreview() {
   shareImageState.isGenerating = true;
   shareImageState.pendingUpdate = false;
 
-  const wrap = document.getElementById('share-preview-wrap');
-  if (wrap) wrap.innerHTML = '<p class="share-preview-msg">生成中...</p>';
+  const inner = document.getElementById('share-preview-inner');
+  if (inner) inner.innerHTML = '<p class="share-preview-msg">生成中...</p>';
 
   try {
     const blob = await generateShareBlob(shareImageState.selectedThemeId);
     shareImageState.previewBlob = blob;
 
-    if (wrap) {
+    if (inner) {
       const url = URL.createObjectURL(blob);
       const img = new Image();
       img.onload = () => URL.revokeObjectURL(url);
       img.src = url;
-      wrap.innerHTML = '';
-      wrap.appendChild(img);
+      inner.innerHTML = '';
+      inner.appendChild(img);
     }
   } catch (e) {
     const msg = e.message === 'no-mats'
       ? '配合を設定してからプレビューしてください'
       : '生成に失敗しました';
-    if (wrap) wrap.innerHTML = `<p class="share-preview-msg">${msg}</p>`;
+    if (inner) inner.innerHTML = `<p class="share-preview-msg">${msg}</p>`;
   } finally {
     shareImageState.isGenerating = false;
     if (shareImageState.pendingUpdate) updateSharePreview();
@@ -304,12 +312,7 @@ function initSharePreviewSwipe() {
   wrap.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - startX;
     if (Math.abs(dx) < 40) return;
-    const names = COLOR_PATTERNS.map(p => p.name);
-    const idx = names.indexOf(shareImageState.selectedThemeId);
-    const next = dx < 0
-      ? names[(idx + 1) % names.length]
-      : names[(idx - 1 + names.length) % names.length];
-    selectShareTheme(next);
+    navigateShareTheme(dx < 0 ? 1 : -1);
   }, { passive: true });
 }
 

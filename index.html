@@ -69,7 +69,9 @@
 
       <!-- プレビュー -->
       <div id="share-preview-wrap" class="share-preview-wrap">
-        <p class="share-preview-msg">生成中...</p>
+        <div id="share-preview-inner"><p class="share-preview-msg">生成中...</p></div>
+        <button class="share-nav-btn share-nav-prev" onclick="navigateShareTheme(-1)" aria-label="前のテーマ">&#8249;</button>
+        <button class="share-nav-btn share-nav-next" onclick="navigateShareTheme(1)"  aria-label="次のテーマ">&#8250;</button>
       </div>
 
       <!-- アクション -->

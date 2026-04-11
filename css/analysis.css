@@ -273,11 +273,40 @@
   background: #94A3B8;
   border-radius: 10px;
   overflow: hidden;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 280px;  /* 固定高さ: 生成中・エラー時もサイズ変化でモーダルがガタつかないよう */
   flex-shrink: 0;
+}
+
+/* 左右ナビ矢印 */
+.share-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 48px;
+  background: rgba(0,0,0,0.28);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  z-index: 2;
+}
+.share-nav-btn:hover  { background: rgba(0,0,0,0.45); }
+.share-nav-btn:active { background: rgba(0,0,0,0.60); }
+.share-nav-prev { left:  6px; }
+.share-nav-next { right: 6px; }
+#share-preview-inner {
+  display: contents;
 }
 .share-preview-wrap img {
   display: block;
