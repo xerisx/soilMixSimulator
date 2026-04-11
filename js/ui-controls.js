@@ -54,12 +54,12 @@ function renderCommercialList() {
     const favActive = isFavorite('commercial_soil', soil.id) ? ' active' : '';
     item.innerHTML = `
       <div class="commercial-header">
-        <div class="commercial-name">${soil.name}</div>
+        <div class="commercial-name">${escapeHTML(soil.name)}</div>
         <button class="fav-btn${favActive}" data-fav-type="commercial_soil" data-fav-id="${soil.id}" aria-label="お気に入り">★</button>
       </div>
       <div class="commercial-meta">
-        <span class="commercial-category">${soil.category}</span>
-        <span class="commercial-desc">${soil.description}</span>
+        <span class="commercial-category">${escapeHTML(soil.category)}</span>
+        <span class="commercial-desc">${escapeHTML(soil.description)}</span>
       </div>
     `;
     // 用土を適用（星ボタン以外のクリック）
@@ -169,7 +169,7 @@ function appendObjCard(list, type) {
   const card = document.createElement('div');
   card.className = 'obj-card';
   const tipAttr = type.tooltip
-    ? `<span class="tip-icon" data-tip="${type.tooltip}">?</span>`
+    ? `<span class="tip-icon" data-tip="${escapeHTML(type.tooltip)}">?</span>`
     : '';
   const favActive = isFavorite('material', type.id) ? ' active' : '';
   const tags = getMaterialTags(type);
@@ -193,7 +193,7 @@ function appendObjCard(list, type) {
       })();
   card.innerHTML = `
     <div class="obj-name-row">
-      <span class="obj-name">${type.name}${tipAttr}</span>
+      <span class="obj-name">${escapeHTML(type.name)}${tipAttr}</span>
       ${tagsHtml}
       <button class="fav-btn${favActive}" data-fav-type="material" data-fav-id="${type.id}" aria-label="お気に入り">★</button>
     </div>

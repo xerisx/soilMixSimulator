@@ -91,7 +91,7 @@ function updateMixSummary() {
   const rest  = sorted.length - shown.length;
   const chips = shown.map(t => {
     const pct = Math.round(t.weight / total * 100);
-    return `<span class="mix-chip"><span class="mix-chip-dot" style="background:${t.color}"></span>${t.name}&nbsp;${pct}%</span>`;
+    return `<span class="mix-chip"><span class="mix-chip-dot" style="background:${t.color}"></span>${escapeHTML(t.name)}&nbsp;${pct}%</span>`;
   });
   if (rest > 0) chips.push(`<span class="mix-chip mix-chip-more">他${rest}種</span>`);
   el.innerHTML = chips.join('');
@@ -118,7 +118,7 @@ function updateInfluence() {
       .filter(t => (getAdjustedParams(t)[p.key] ?? 0) >= 60);
     if (tops.length === 0) return null;
     const names = tops
-      .map(t => `<span class="inf-mat"><span class="inf-mat-dot" style="background:${t.color}"></span>${t.name}</span>`)
+      .map(t => `<span class="inf-mat"><span class="inf-mat-dot" style="background:${t.color}"></span>${escapeHTML(t.name)}</span>`)
       .join('<span class="inf-dot">·</span>');
     return `<div class="inf-row"><span class="inf-param">${p.icon}&nbsp;${p.label}</span><span class="inf-arrow">→</span>${names}</div>`;
   }).filter(Boolean);
@@ -223,7 +223,7 @@ function renderMixRatio() {
       const pct = Math.round(t.weight / total * 100);
       return `<div class="mratio-item">
         <span class="mratio-dot" style="background:${t.color}"></span>
-        <span class="mratio-name">${t.name}</span>
+        <span class="mratio-name">${escapeHTML(t.name)}</span>
         <span class="mratio-pct">${pct}%</span>
       </div>`;
     }).join('');

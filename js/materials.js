@@ -1,6 +1,16 @@
 // 資材定義ファイル
 // 資材を追加・編集する場合はこのファイルを変更してください
 
+// HTMLエスケープ（innerHTML展開時のXSS防止）
+function escapeHTML(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // shapeVariants: 頂点配列のリスト（各頂点は {x, y}）
 // 座標は [-0.5, 0.5] に正規化。生成時に粒子サイズで拡大。
 // 頂点は CCW 順・凸多角形。

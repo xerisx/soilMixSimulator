@@ -107,7 +107,7 @@ function renderCard(mat, favIds = new Set()) {
       <button class="mat-detail-toggle" aria-expanded="false">詳しい説明を見る ▼</button>
       <div class="mat-acc-wrap">
         <div class="mat-acc-inner">
-          <p class="mat-detail-text">${mat.detail}</p>
+          <p class="mat-detail-text">${escapeHTML(mat.detail)}</p>
         </div>
       </div>
     </div>` : '';
@@ -129,8 +129,8 @@ function renderCard(mat, favIds = new Set()) {
 
       <div class="mat-card-header">
         <div class="mat-card-name-wrap">
-          <h2 class="mat-card-name">${mat.name}</h2>
-          <span class="mat-summary">${summary}</span>
+          <h2 class="mat-card-name">${escapeHTML(mat.name)}</h2>
+          <span class="mat-summary">${escapeHTML(summary)}</span>
         </div>
         <div class="mat-card-header-right">
           ${badge}
@@ -138,7 +138,7 @@ function renderCard(mat, favIds = new Set()) {
         </div>
       </div>
 
-      <p class="mat-desc">${mat.tooltip}</p>
+      <p class="mat-desc">${escapeHTML(mat.tooltip)}</p>
 
       ${detailSection}
 
