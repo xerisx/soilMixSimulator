@@ -198,6 +198,8 @@ function selectShareTheme(themeId) {
   document.querySelectorAll('.share-theme-thumb').forEach(el => {
     el.classList.toggle('selected', el.dataset.theme === themeId);
   });
+  const selected = document.querySelector('.share-theme-thumb.selected');
+  if (selected) selected.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
   updateSharePreview();
 }
 
