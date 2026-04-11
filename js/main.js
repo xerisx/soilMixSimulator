@@ -102,6 +102,7 @@ document.getElementById('airBtn').addEventListener('click', () => {
   isAirView = !isAirView;
   const btn = document.getElementById('airBtn');
   btn.classList.toggle('active', isAirView);
+  btn.textContent = isAirView ? '通常表示に戻る' : '空気層を見る';
 
   const bodies = Composite.allBodies(engine.world);
   if (isAirView) {
