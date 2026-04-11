@@ -278,11 +278,36 @@ function renderShareActions() {
 }
 
 // ── Web Share API で画像付き共有 ──
+// ── SNS共有テキスト生成 ──
+function buildShareText() {
+  const FEATURE_LABEL = {
+    SUCCULENT: '水はけ重視',
+    EPIPHYTE:  '通気性重視',
+    TROPICAL:  '保水性重視',
+    FERTILE:   '保肥力重視',
+    BALANCED:  'バランス重視',
+  };
+
+  const comp      = calcComposite();
+  const soilType  = shrGetSoilType(comp);
+  const feature   = FEATURE_LABEL[soilType] ?? 'バランス重視';
+
+  // 上位3資材と比率
+  const used     = objectTypes.filter(t => t.weight > 0).sort((a, b) => b.weight - a.weight);
+  const totalKg  = used.reduce((s, t) => s + t.weight, 0);
+  const top3     = used.slice(0, 3);
+  const matsLine = top3.map(t => `${t.name}${Math.round(t.weight / totalKg * 100)}%`).join(' + ')
+    + (used.length > 3 ? ' ほか' : '');
+
+  const url = buildShareURL();
+  return `${feature}の配合を作ってみました。\n${matsLine}\nみんなはどんな配合にしてる？\n\n${url}\n#qsoil`;
+}
+
 async function doWebShare() {
   if (!shareImageState.previewBlob) { showToast('画像を生成中です'); return; }
   const file = new File([shareImageState.previewBlob], 'qsoil-mix.png', { type: 'image/png' });
   try {
-    await navigator.share({ files: [file], text: '用土配合シミュレーターで作成しました', url: buildShareURL() });
+    await navigator.share({ files: [file], text: buildShareText() });
   } catch (e) {
     if (e.name !== 'AbortError') showToast('共有に失敗しました');
   }
