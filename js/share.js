@@ -291,6 +291,28 @@ function doSaveImage() {
   showToast('画像を保存しました');
 }
 
+// ── プレビュースワイプ（テーマ切り替え）──
+function initSharePreviewSwipe() {
+  const wrap = document.getElementById('share-preview-wrap');
+  if (!wrap || wrap._swipeInited) return;
+  wrap._swipeInited = true;
+
+  let startX = 0;
+  wrap.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+  wrap.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) < 40) return;
+    const names = COLOR_PATTERNS.map(p => p.name);
+    const idx = names.indexOf(shareImageState.selectedThemeId);
+    const next = dx < 0
+      ? names[(idx + 1) % names.length]
+      : names[(idx - 1 + names.length) % names.length];
+    selectShareTheme(next);
+  }, { passive: true });
+}
+
 // ── モーダル表示 ──
 function showShareModal() {
   const modal = document.getElementById('share-modal');
@@ -309,6 +331,7 @@ function showShareModal() {
   renderShareThumbCarousel();
   renderShareActions();
   updateSharePreview();
+  initSharePreviewSwipe();
 }
 
 function closeShareModal() {
