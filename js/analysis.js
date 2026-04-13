@@ -1,12 +1,15 @@
 // ── 鉢容量計算（L） ──
-// POT_DIAMETERS の直径と CUP_RATIO の形状比から截頭円錐体積を算出
+// POT_DIAMETERS の直径と CUP_RATIO の形状比から截頭円錐体積を算出。
+// ウォータースペース（水やり余白）や実際の詰め方を考慮し、
+// 内容積の約60%を土の目安容量として使用（一般的な園芸目安値に合わせた係数）。
 function calcPotVolumeL() {
+  const FILL_FACTOR = 0.6;
   const diam = POT_DIAMETERS[currentSize]; // cm
   const R1 = diam / 2;
   const R2 = R1 * (CUP_RATIO.botW / CUP_RATIO.topW);
   const h  = diam * CUP_RATIO.hToW;
   const volCm3 = Math.PI * h / 3 * (R1 * R1 + R1 * R2 + R2 * R2);
-  return volCm3 / 1000; // cm³ → L
+  return volCm3 / 1000 * FILL_FACTOR; // cm³ → L
 }
 
 // ── 資材カードの %・L 表示を一括更新（PC用） ──
@@ -31,7 +34,7 @@ function updateAllRatioDisplays() {
       pctEl.classList.toggle('ratio-val-zero', isZero);
     }
     if (subEl) {
-      subEl.textContent = `体積比 ${t.weight.toFixed(1)} ｜ ${volL}L`;
+      subEl.textContent = `体積比 ${t.weight.toFixed(1)} / ${volL}L`;
       subEl.classList.toggle('ratio-val-zero', isZero);
     }
   });
