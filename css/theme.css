@@ -636,6 +636,14 @@ html[data-theme="dark"] #loading-state-msg,
 html[data-theme="dark"] #empty-state-msg  { color: var(--text-2); }
 html[data-theme="dark"] #loading-state-sub,
 html[data-theme="dark"] #empty-state-sub  { color: var(--text-4); }
+html[data-theme="dark"] #loadingCancelBtn {
+  color: var(--text-4);
+  border-color: var(--border);
+}
+html[data-theme="dark"] #loadingCancelBtn:hover {
+  background: var(--btn-bg);
+  color: var(--text-3);
+}
 
 /* ─────────────── キャンバスガイド ─────────────── */
 html[data-theme="dark"] #canvas-guide-inner {

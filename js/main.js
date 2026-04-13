@@ -85,12 +85,23 @@ function runFill() {
     el.removeAttribute('hidden');
     setParticleControlsDisabled(true);
     setTimeout(() => {
-      fillInstantly();
-      el.setAttribute('hidden', '');
-      setParticleControlsDisabled(false);
+      fillInstantly(() => {
+        el.setAttribute('hidden', '');
+        setParticleControlsDisabled(false);
+      });
     }, 30);
   }
 }
+
+// ── 計算キャンセルボタン ──
+document.getElementById('loadingCancelBtn').addEventListener('click', () => {
+  cancelFill();
+  document.getElementById('loading-state').setAttribute('hidden', '');
+  reset();
+  setPouredState(false);
+  setParticleControlsDisabled(false);
+  updateGraphs();
+});
 
 // ── スタートボタン ──
 document.getElementById('startBtn').addEventListener('click', () => {
