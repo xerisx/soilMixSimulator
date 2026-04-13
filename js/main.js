@@ -42,6 +42,7 @@ document.querySelectorAll('.size-btn').forEach(btn => {
     currentSize = btn.dataset.size;
     updatePotHint();
     reset();
+    setPouredState(false);
     updateGraphs();
   });
 });
