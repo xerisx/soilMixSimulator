@@ -204,7 +204,7 @@ function appendObjCard(list, type) {
         <span class="ratio-val${type.weight === 0 ? ' ratio-val-zero' : ''}" data-idx="${i}">${type.weight.toFixed(1)}</span>
         <div class="ratio-val-block" data-idx="${i}">
           <span class="ratio-pct-big${type.weight === 0 ? ' ratio-val-zero' : ''}">--%</span>
-          <span class="ratio-sub${type.weight === 0 ? ' ratio-val-zero' : ''}">体積比 ${type.weight.toFixed(1)} ｜ -.-L</span>
+          <span class="ratio-sub${type.weight === 0 ? ' ratio-val-zero' : ''}">体積比 ${type.weight.toFixed(1)} / -.-L</span>
         </div>
       </div>
     </div>
