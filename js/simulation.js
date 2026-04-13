@@ -290,14 +290,29 @@ function fillInstantly(onComplete) {
   const potArea    = (topInnerW + botInnerW) / 2 * cupHeight;
   const pxPerMm    = topInnerW / POT_DIAMETERS[currentSize] / 10;
   const activeTypes = objectTypes.filter(t => t.weight > 0);
-  let totalW = 0, weightedMidMm = 0;
+  let totalW = 0, weightedMidMm = 0, weightedAreaPx = 0;
   activeTypes.forEach(t => {
     const range = t.sizes[t.size || 'M'];
-    weightedMidMm += (range.min + range.max) / 2 * t.weight;
+    const midMm = (range.min + range.max) / 2;
+    const midPx = midMm * pxPerMm;
+    weightedMidMm += midMm * t.weight;
     totalW += t.weight;
+    // 粒子形状ごとの実際の面積を算出（多角形は正規化頂点から、円はπr²、ボックスはsize²）
+    // 円面積(π r²)を使うと多角形素材を大幅に過少推定するため、形状別に計算する
+    let area;
+    if (t.shapeVariants?.length) {
+      const avgNorm = t.shapeVariants.reduce((s, v) => s + polygonArea(v), 0) / t.shapeVariants.length;
+      area = avgNorm * midPx * midPx;
+    } else if (t.shape === 'circle') {
+      area = Math.PI * (midPx / 2) ** 2;
+    } else {
+      area = midPx * midPx;
+    }
+    weightedAreaPx += area * t.weight;
   });
-  const avgRadiusPx    = (totalW > 0 ? weightedMidMm / totalW : 6) * pxPerMm / 2;
-  const estimatedCount = Math.ceil(potArea * 0.80 / (Math.PI * avgRadiusPx * avgRadiusPx));
+  const avgRadiusPx       = (totalW > 0 ? weightedMidMm / totalW : 6) * pxPerMm / 2;
+  const avgParticleAreaPx = totalW > 0 ? weightedAreaPx / totalW : Math.PI * avgRadiusPx ** 2;
+  const estimatedCount    = Math.ceil(potArea * 0.80 / avgParticleAreaPx);
 
   // 物理安定性のため上限は 30 粒子/バッチ
   const batchSize = Math.max(6, Math.min(30, Math.ceil(estimatedCount / 175)));
@@ -311,6 +326,7 @@ function fillInstantly(onComplete) {
   _fillCancelled = false;
 
   let step = 0;
+  let overflowStreak = 0; // 溢れ状態が連続したステップ数（誤発火防止）
   const CHUNK = 50; // キャンセル応答性を確保するためチャンク分割して非同期実行
 
   function runChunk() {
@@ -344,16 +360,22 @@ function fillInstantly(onComplete) {
 
       Engine.update(engine, TICK);
 
-      // スポーンから50ステップ以上経過した粒子が鉢上端に達したら溢れと判定
+      // 溢れ判定:
+      // ・2粒子以上が同時に鉢上端より上にいる状態が5ステップ連続した場合のみ溢れと判定
+      // ・.some() → count≥2: 壁バウンド1粒子の瞬間的な跳ね上がりによる誤発火を防ぐ
+      // ・単発ではなく5ステップ連続: 跳ね上がり頂点での一時的な速度≒0 による誤発火を防ぐ
       // isStatic 粒子は除外（フリーズ済み粒子による誤発火を防ぐ）
       if (step > 30) {
-        const overflow = Composite.allBodies(engine.world).some(b =>
+        const overflowCount = Composite.allBodies(engine.world).filter(b =>
           b.isParticle &&
           !b.isStatic &&
           b.position.y < topY - 8 &&
           (step - (b._spawnStep ?? 0)) > 50 &&
           Math.hypot(b.velocity.x, b.velocity.y) < 4
-        );
+        ).length;
+        if (overflowCount >= 2) overflowStreak++;
+        else overflowStreak = 0;
+        const overflow = overflowStreak >= 5;
         if (overflow) {
           // _fillStep を進めながら沈静化（フリーズタイマーを正常に動かすため）
           for (let s = 1; s <= 1000; s++) {
