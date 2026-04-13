@@ -1,3 +1,42 @@
+// ── 鉢容量計算（L） ──
+// POT_DIAMETERS の直径と CUP_RATIO の形状比から截頭円錐体積を算出
+function calcPotVolumeL() {
+  const diam = POT_DIAMETERS[currentSize]; // cm
+  const R1 = diam / 2;
+  const R2 = R1 * (CUP_RATIO.botW / CUP_RATIO.topW);
+  const h  = diam * CUP_RATIO.hToW;
+  const volCm3 = Math.PI * h / 3 * (R1 * R1 + R1 * R2 + R2 * R2);
+  return volCm3 / 1000; // cm³ → L
+}
+
+// ── 資材カードの %・L 表示を一括更新（PC用） ──
+function updateAllRatioDisplays() {
+  const active = objectTypes.filter(t => t.weight > 0);
+  const total  = active.reduce((s, t) => s + t.weight, 0);
+  const potL   = calcPotVolumeL();
+
+  document.querySelectorAll('.ratio-val-block[data-idx]').forEach(el => {
+    const idx = Number(el.dataset.idx);
+    const t   = objectTypes[idx];
+    const pct = total > 0 ? t.weight / total * 100 : 0;
+    const r   = Math.round(pct * 10) / 10;
+    const pctStr = r % 1 === 0 ? `${Math.round(r)}%` : `${r.toFixed(1)}%`;
+    const volL   = (potL * pct / 100).toFixed(2);
+    const isZero = t.weight === 0;
+
+    const pctEl = el.querySelector('.ratio-pct-big');
+    const subEl = el.querySelector('.ratio-sub');
+    if (pctEl) {
+      pctEl.textContent = total > 0 ? pctStr : '0%';
+      pctEl.classList.toggle('ratio-val-zero', isZero);
+    }
+    if (subEl) {
+      subEl.textContent = `体積比 ${t.weight.toFixed(1)} ｜ ${volL}L`;
+      subEl.classList.toggle('ratio-val-zero', isZero);
+    }
+  });
+}
+
 // ── サイズ補正 ──
 // M を基準(0)とし、S は保水寄り・L は排水/通気寄りに補正
 const BASE_SIZE_EFFECT = {
@@ -188,6 +227,7 @@ function updateGraphs() {
   updateMixSummary();
   updateInfluence();
   renderMixRatio();
+  updateAllRatioDisplays();
   updateComparePanel();
 
   // 共有ボタンの活性制御
@@ -217,16 +257,24 @@ function renderMixRatio() {
     }).join('');
   }
 
+  const potL   = calcPotVolumeL();
   const listEl = document.getElementById('mix-ratio-list');
   if (listEl) {
     listEl.innerHTML = sorted.map(t => {
-      const pct = Math.round(t.weight / total * 100);
+      const pct  = Math.round(t.weight / total * 100);
+      const volL = (potL * pct / 100).toFixed(2);
       return `<div class="mratio-item">
         <span class="mratio-dot" style="background:${t.color}"></span>
         <span class="mratio-name">${escapeHTML(t.name)}</span>
-        <span class="mratio-pct">${pct}%</span>
+        <span class="mratio-pct">${pct}%<span class="mratio-vol">（${volL}L）</span></span>
       </div>`;
     }).join('');
+  }
+
+  const potInfoEl = document.getElementById('pot-volume-info');
+  if (potInfoEl) {
+    potInfoEl.textContent =
+      `鉢サイズ：${currentSize}号（直径${POT_DIAMETERS[currentSize]}cm）　推定容量：約${potL.toFixed(2)}L`;
   }
 }
 

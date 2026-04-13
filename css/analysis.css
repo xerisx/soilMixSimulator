@@ -915,6 +915,32 @@
   color: #6B7280;
   font-variant-numeric: tabular-nums;
   font-size: 12px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.mratio-vol {
+  font-size: 11px;
+  color: #B0BAC8;
+  font-family: sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 鉢容量情報 ── */
+.pot-volume-info {
+  font-size: 11px;
+  color: #6B7280;
+  font-family: sans-serif;
+  padding: 4px 0 2px;
+  border-top: 1px solid #F3F4F6;
+}
+
+/* ── 配合注意文 ── */
+.mratio-note {
+  font-size: 10px;
+  color: #C4C9D4;
+  font-family: sans-serif;
+  margin: 0;
+  line-height: 1.6;
 }
 
 /* ── 配合サマリーチップ ── */

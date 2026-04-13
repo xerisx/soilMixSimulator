@@ -202,6 +202,10 @@ function appendObjCard(list, type) {
       <div class="ratio-row">
         <input type="range" class="ratio-slider" min="0" max="5" step="0.1" value="${type.weight}" data-idx="${i}">
         <span class="ratio-val${type.weight === 0 ? ' ratio-val-zero' : ''}" data-idx="${i}">${type.weight.toFixed(1)}</span>
+        <div class="ratio-val-block" data-idx="${i}">
+          <span class="ratio-pct-big${type.weight === 0 ? ' ratio-val-zero' : ''}">--%</span>
+          <span class="ratio-sub${type.weight === 0 ? ' ratio-val-zero' : ''}">体積比 ${type.weight.toFixed(1)} ｜ -.-L</span>
+        </div>
       </div>
     </div>
   `;
@@ -346,4 +350,7 @@ function renderObjList() {
   const inactiveSection = createMatAccordion(`その他の資材（${inactive.length}件）`, prevInactiveOpen, 'inactive');
   inactive.forEach(type => appendObjCard(inactiveSection.body, type));
   list.appendChild(inactiveSection.el);
+
+  // PC用 %・L 表示を即時更新
+  if (typeof updateAllRatioDisplays === 'function') updateAllRatioDisplays();
 }
