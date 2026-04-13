@@ -1266,6 +1266,7 @@ canvas {
   #sec-pot             { gap: 2px 6px; }
   #sec-pot .ctrl-label { order: 1; font-size: 13px; }
   #pot-hint            { order: 2; font-size: 10px; color: #B0BAC8; }
+  #pot-hint .pot-hint-diameter { display: none; }
   #sec-pot .btn-group  { order: 3; width: 100%; gap: 6px; }
   #sec-pot .size-btn   { flex: 1; padding: 5px 0; font-size: 13px; }
 

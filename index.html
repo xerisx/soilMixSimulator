@@ -132,6 +132,9 @@
         <span id="pot-hint"></span>
       </section>
 
+      <!-- モバイル: 鉢容量情報（クイックスタートの直上） -->
+      <div id="mobile-pot-info" class="mobile-pot-info" hidden></div>
+
       <!-- クイックスタート プリセット帯 -->
       <div id="preset-bar">
         <span class="preset-label">クイックスタート</span>
@@ -243,10 +246,14 @@
       <p class="mratio-label">配合割合</p>
       <div id="mix-ratio-bar"></div>
       <div id="mix-ratio-list"></div>
+      <div id="pot-volume-info" class="pot-volume-info"></div>
+      <p class="mratio-note">※配合は体積比の目安です。粒度や詰め方で実際の量は変わります。</p>
     </div>
 
     <!-- 配合サマリーチップ -->
     <div id="mix-summary" hidden></div>
+    <!-- モバイル: 注意文（mix-summary 表示時のみ） -->
+    <p id="mix-note-mobile" class="mratio-note" hidden>※配合は体積比の目安です。粒度や詰め方で実際の量は変わります。</p>
 
     <!-- 評価ラベル -->
     <div id="eval-block">
