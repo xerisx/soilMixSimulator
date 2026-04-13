@@ -29,7 +29,10 @@ detailToggle.addEventListener('click', () => {
 // ── 鉢サイズボタン ──
 function updatePotHint() {
   const el = document.getElementById('pot-hint');
-  if (el) el.textContent = `直径 ${POT_DIAMETERS[currentSize]}cm （6号鉢〜10号鉢は調整中）`;
+  if (!el) return;
+  const isMobile = window.innerWidth < 768;
+  const prefix = isMobile ? '' : `直径 ${POT_DIAMETERS[currentSize]}cm　`;
+  el.textContent = prefix + `（6号鉢〜10号鉢は調整中）`;
 }
 
 document.querySelectorAll('.size-btn').forEach(btn => {

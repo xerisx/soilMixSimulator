@@ -934,7 +934,7 @@
   border-top: 1px solid #F3F4F6;
 }
 
-/* モバイル: sticky バー直前の鉢容量インジケーター */
+/* モバイル: クイックスタート直上の鉢容量インジケーター */
 #mobile-pot-info {
   font-size: 11px;
   color: #6B7280;
@@ -942,7 +942,6 @@
   padding: 5px 12px;
   background: #ECEEF2;
   border-radius: 6px;
-  margin-bottom: 4px;
 }
 #mobile-pot-info[hidden] { display: none; }
 

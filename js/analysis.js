@@ -284,7 +284,7 @@ function renderMixRatio() {
     }).join('');
   }
 
-  const potText = `鉢サイズ：${currentSize}号（直径${POT_DIAMETERS[currentSize]}cm）　推定容量：約${potL.toFixed(2)}L（目安）`;
+  const potText = `直径${POT_DIAMETERS[currentSize]}cm　推定容量：約${potL.toFixed(2)}L（目安）`;
 
   const potInfoEl = document.getElementById('pot-volume-info');
   if (potInfoEl) potInfoEl.textContent = potText;
