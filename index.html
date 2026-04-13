@@ -146,6 +146,9 @@
 
     <!-- 中央スクロールエリア -->
     <div id="panel-scroll">
+      <!-- モバイル: 鉢容量情報（資材あり時のみ表示） -->
+      <div id="mobile-pot-info" class="mobile-pot-info" hidden></div>
+
       <!-- モバイル: 3指標スティッキーバー（両タブ共通） -->
       <div id="mobile-metrics-sticky">
         <div class="mms-header">
@@ -249,6 +252,8 @@
 
     <!-- 配合サマリーチップ -->
     <div id="mix-summary" hidden></div>
+    <!-- モバイル: 注意文（mix-summary 表示時のみ） -->
+    <p id="mix-note-mobile" class="mratio-note" hidden>※配合は体積比の目安です。粒度や詰め方で実際の量は変わります。</p>
 
     <!-- 評価ラベル -->
     <div id="eval-block">

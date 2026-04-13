@@ -925,13 +925,38 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 鉢容量情報 ── */
+/* ── 鉢容量情報（PC: mix-ratio-panel 内 / モバイル: sticky 上部） ── */
 .pot-volume-info {
   font-size: 11px;
   color: #6B7280;
   font-family: sans-serif;
   padding: 4px 0 2px;
   border-top: 1px solid #F3F4F6;
+}
+
+/* モバイル: sticky バー直前の鉢容量インジケーター */
+#mobile-pot-info {
+  font-size: 11px;
+  color: #6B7280;
+  font-family: sans-serif;
+  padding: 5px 12px;
+  background: #ECEEF2;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+#mobile-pot-info[hidden] { display: none; }
+
+/* モバイル: 注意文（PC では mix-ratio-panel 内の mratio-note で表示） */
+#mix-note-mobile {
+  padding: 2px 0 0;
+  margin: 0;
+}
+#mix-note-mobile[hidden] { display: none; }
+
+/* PC では非表示（注意文は mix-ratio-panel 内に表示） */
+@media (min-width: 768px) {
+  #mobile-pot-info   { display: none !important; }
+  #mix-note-mobile   { display: none !important; }
 }
 
 /* ── 配合注意文 ── */
@@ -980,6 +1005,13 @@
   font-weight: 500;
   background: #F3F4F6;
   border-color: #E5E7EB;
+}
+
+.mix-chip-vol {
+  font-size: 10px;
+  font-weight: 400;
+  color: #B0BAC8;
+  font-family: sans-serif;
 }
 
 /* ── 影響資材ブロック ── */

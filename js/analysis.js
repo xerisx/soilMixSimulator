@@ -122,18 +122,28 @@ function updateMixSummary() {
   if (!el) return;
   const active = objectTypes.filter(t => t.weight > 0);
   const total  = active.reduce((s, t) => s + t.weight, 0);
-  if (active.length === 0 || total === 0) { el.hidden = true; return; }
+  if (active.length === 0 || total === 0) {
+    el.hidden = true;
+    const noteEl = document.getElementById('mix-note-mobile');
+    if (noteEl) noteEl.hidden = true;
+    return;
+  }
   el.hidden = false;
   const sorted = [...active].sort((a, b) => b.weight - a.weight);
   const MAX = 4;
   const shown = sorted.slice(0, MAX);
   const rest  = sorted.length - shown.length;
+  const potL  = calcPotVolumeL();
   const chips = shown.map(t => {
-    const pct = Math.round(t.weight / total * 100);
-    return `<span class="mix-chip"><span class="mix-chip-dot" style="background:${t.color}"></span>${escapeHTML(t.name)}&nbsp;${pct}%</span>`;
+    const pct  = Math.round(t.weight / total * 100);
+    const volL = (potL * pct / 100).toFixed(2);
+    return `<span class="mix-chip"><span class="mix-chip-dot" style="background:${t.color}"></span>${escapeHTML(t.name)}&nbsp;${pct}%<span class="mix-chip-vol">（${volL}L）</span></span>`;
   });
   if (rest > 0) chips.push(`<span class="mix-chip mix-chip-more">他${rest}種</span>`);
   el.innerHTML = chips.join('');
+
+  const noteEl = document.getElementById('mix-note-mobile');
+  if (noteEl) noteEl.hidden = false;
 }
 
 // ── 影響資材表示 ──
@@ -271,10 +281,15 @@ function renderMixRatio() {
     }).join('');
   }
 
+  const potText = `鉢サイズ：${currentSize}号（直径${POT_DIAMETERS[currentSize]}cm）　推定容量：約${potL.toFixed(2)}L`;
+
   const potInfoEl = document.getElementById('pot-volume-info');
-  if (potInfoEl) {
-    potInfoEl.textContent =
-      `鉢サイズ：${currentSize}号（直径${POT_DIAMETERS[currentSize]}cm）　推定容量：約${potL.toFixed(2)}L`;
+  if (potInfoEl) potInfoEl.textContent = potText;
+
+  const mobilePotEl = document.getElementById('mobile-pot-info');
+  if (mobilePotEl) {
+    mobilePotEl.textContent = potText;
+    mobilePotEl.hidden = (active.length === 0);
   }
 }
 

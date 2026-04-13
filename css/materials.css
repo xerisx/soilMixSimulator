@@ -226,10 +226,6 @@
   html[data-theme="dark"] .ratio-sub.ratio-val-zero  { color: #3D4554; }
 }
 
-/* モバイルでは新ブロックを非表示 */
-@media (max-width: 767px) {
-  .ratio-val-block { display: none; }
-}
 
 .obj-name-row {
   display: flex;
@@ -423,9 +419,39 @@
 @media (max-width: 767px) {
   /* タッチ領域の最小高さ確保 */
   .ratio-row { min-height: 44px; }
-  /* 数値表示を操作結果として強調（コントラスト・サイズ向上） */
-  .ratio-val { color: #111827; font-size: 16px; }
-  .ratio-val-zero { color: #D1D5DB; }
+  /* 旧単体数値はモバイルでも ratio-val-block に置き換え */
+  .ratio-val { display: none; }
+
+  /* モバイル: % + 体積比・L ブロック */
+  .ratio-val-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    gap: 1px;
+  }
+  .ratio-pct-big {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    font-family: sans-serif;
+    line-height: 1.2;
+  }
+  .ratio-pct-big.ratio-val-zero { color: #D1D5DB; }
+  .ratio-sub {
+    font-size: 10px;
+    color: #9CA3AF;
+    font-family: sans-serif;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+  .ratio-sub.ratio-val-zero { color: #D1D5DB; }
+
+  /* ダークモード（モバイル） */
+  html[data-theme="dark"] .ratio-pct-big              { color: #F1F5F9; }
+  html[data-theme="dark"] .ratio-pct-big.ratio-val-zero { color: #3D4554; }
+  html[data-theme="dark"] .ratio-sub                  { color: #6B7280; }
+  html[data-theme="dark"] .ratio-sub.ratio-val-zero   { color: #3D4554; }
 
   .ratio-slider {
     -webkit-appearance: none;
