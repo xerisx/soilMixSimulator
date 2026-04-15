@@ -117,16 +117,26 @@ function clearDynamicBodies() {
     .forEach(b => Composite.remove(engine.world, b));
 }
 
+// 現在の鉢サイズ/粒径設定に応じた有効粒径範囲(mm)を返す。
+// fineMaterial の場合は fineSizeByPot を優先参照し、なければ従来の sizes にフォールバック。
+function getEffectiveSizeMm(type) {
+  if (type.fineMaterial && type.fineSizeByPot) {
+    const mm = type.fineSizeByPot[currentSize] ?? 3;
+    return { min: mm, max: mm };
+  }
+  return type.sizes[type.size];
+}
+
 function getObjectSizePx(type) {
   const { topInnerW } = getCupDimensions();
   const pxPerMm = topInnerW / POT_DIAMETERS[currentSize] / 10;
-  const { min, max } = type.sizes[type.size];
+  const { min, max } = getEffectiveSizeMm(type);
   return (min + Math.random() * (max - min)) * pxPerMm;
 }
 
 function pickObjectType() {
   const effWeight = t => {
-    const range = t.sizes?.[t.size ?? 'M'];
+    const range = getEffectiveSizeMm(t);
     const vol = range ? Math.pow((range.min + range.max) / 2, 2) : Math.pow(5, 2);
     return t.weight / vol;
   };
@@ -229,6 +239,12 @@ function spawnShape(x, y) {
   } else {
     body = spawnBox(x, y, physicsSize, type.color, type.physics);
   }
+  if (body && type.fineMaterial) {
+    body.isFineMaterial = true;
+    body.fineColor = type.color;
+    body.render.fillStyle = '#FBCFE8'; // デバッグ用: 薄ピンク
+    body.render.strokeStyle = '#F9A8D4';
+  }
   if (body && isAirView) {
     body._origFill = body.render.fillStyle;
     body._origStroke = body.render.strokeStyle;
@@ -292,7 +308,7 @@ function fillInstantly(onComplete) {
   const activeTypes = objectTypes.filter(t => t.weight > 0);
   let totalW = 0, weightedMidMm = 0, weightedAreaPx = 0;
   activeTypes.forEach(t => {
-    const range = t.sizes[t.size || 'M'];
+    const range = getEffectiveSizeMm(t);
     const midMm = (range.min + range.max) / 2;
     const midPx = midMm * pxPerMm;
     weightedMidMm += midMm * t.weight;
@@ -491,6 +507,71 @@ Events.on(render, 'afterRender', () => {
   ctx.lineTo(cx - botInnerW / 2, bottomY);
   ctx.closePath();
   ctx.fill();
+  ctx.restore();
+});
+
+// ── 鉢内背景土テクスチャ: ベタ塗り+ノイズ粒子を offscreen canvas にキャッシュ ──
+// 鉢寸法が変わるまで1度だけ生成し、毎フレームは drawImage で貼るだけ。
+let _soilTexture = null;
+let _soilTextureKey = '';
+
+function ensureSoilTexture() {
+  if (!currentCupDims) { _soilTexture = null; _soilTextureKey = ''; return; }
+  const { topInnerW, botInnerW, cupHeight } = currentCupDims;
+  const key = `${topInnerW.toFixed(1)}_${botInnerW.toFixed(1)}_${cupHeight.toFixed(1)}`;
+  if (key === _soilTextureKey && _soilTexture) return;
+
+  const W = Math.ceil(topInnerW);
+  const H = Math.ceil(cupHeight);
+  const off = document.createElement('canvas');
+  off.width = W;
+  off.height = H;
+  const octx = off.getContext('2d');
+
+  // 台形内にクリップ（offscreen 内座標：上辺は全幅、下辺は中央に botInnerW）
+  const leftBot  = (topInnerW - botInnerW) / 2;
+  const rightBot = leftBot + botInnerW;
+  octx.beginPath();
+  octx.moveTo(0, 0);
+  octx.lineTo(topInnerW, 0);
+  octx.lineTo(rightBot, cupHeight);
+  octx.lineTo(leftBot, cupHeight);
+  octx.closePath();
+
+  // ベタ塗り（濃い土色）
+  octx.fillStyle = '#6B4E2D';
+  octx.fill();
+
+  // 台形内クリップでノイズ粒子を重ねる
+  octx.save();
+  octx.clip();
+  const count = 8000;
+  const baseR = 107, baseG = 78, baseB = 45; // #6B4E2D
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * W;
+    const y = Math.random() * H;
+    const tone = (Math.random() - 0.5) * 70;
+    const r = Math.max(0, Math.min(255, baseR + tone));
+    const g = Math.max(0, Math.min(255, baseG + tone));
+    const b = Math.max(0, Math.min(255, baseB + tone));
+    octx.fillStyle = `rgb(${r|0},${g|0},${b|0})`;
+    octx.fillRect(x, y, 1.5, 1.5);
+  }
+  octx.restore();
+
+  _soilTexture = off;
+  _soilTextureKey = key;
+}
+
+Events.on(render, 'afterRender', () => {
+  if (!currentCupDims) return;
+  ensureSoilTexture();
+  if (!_soilTexture) return;
+  const { topInnerW, topY, cx } = currentCupDims;
+  const ctx = render.context;
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-over'; // body の背面に描く
+  ctx.drawImage(_soilTexture, cx - topInnerW / 2, topY);
   ctx.restore();
 });
 
