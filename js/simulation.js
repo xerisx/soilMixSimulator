@@ -491,24 +491,6 @@ Events.on(render, 'afterRender', () => {
   ctx.restore();
 });
 
-// ── 空気層ビュー: 鉢内部背景を afterRender で描画 ──
-Events.on(render, 'afterRender', () => {
-  if (!isAirView || !currentCupDims) return;
-  const { topInnerW, botInnerW, topY, bottomY, cx } = currentCupDims;
-  const ctx = render.context;
-  ctx.save();
-  ctx.globalCompositeOperation = 'destination-over'; // 既存描画の背面に描く
-  ctx.fillStyle = canvasThemeColors().airFill;
-  ctx.beginPath();
-  ctx.moveTo(cx - topInnerW / 2, topY);
-  ctx.lineTo(cx + topInnerW / 2, topY);
-  ctx.lineTo(cx + botInnerW / 2, bottomY);
-  ctx.lineTo(cx - botInnerW / 2, bottomY);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-});
-
 // ── 鉢内背景土テクスチャ: ベタ塗り+ノイズ粒子を offscreen canvas にキャッシュ ──
 // 鉢寸法が変わるまで1度だけ生成し、毎フレームは drawImage で貼るだけ。
 let _soilTexture = null;
@@ -645,7 +627,33 @@ Events.on(render, 'afterRender', () => {
   }
   ctx.clip();
 
-  ctx.drawImage(_soilTexture, leftX, topY);
+  // 空気層ビュー時は土部分を白で塗る（土は空気ではないため）
+  if (isAirView) {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(leftX, topY, topInnerW, cupHeight);
+  } else {
+    ctx.drawImage(_soilTexture, leftX, topY);
+  }
+  ctx.restore();
+});
+
+// ── 空気層ビュー: 鉢内部背景を afterRender で描画 ──
+// 土テクスチャハンドラの後に登録することで、土（白/茶）が先に body 背面へ回り、
+// 残った透明領域にこのハンドラが青を充填する（destination-over の合成順）。
+Events.on(render, 'afterRender', () => {
+  if (!isAirView || !currentCupDims) return;
+  const { topInnerW, botInnerW, topY, bottomY, cx } = currentCupDims;
+  const ctx = render.context;
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-over'; // 既存描画の背面に描く
+  ctx.fillStyle = canvasThemeColors().airFill;
+  ctx.beginPath();
+  ctx.moveTo(cx - topInnerW / 2, topY);
+  ctx.lineTo(cx + topInnerW / 2, topY);
+  ctx.lineTo(cx + botInnerW / 2, bottomY);
+  ctx.lineTo(cx - botInnerW / 2, bottomY);
+  ctx.closePath();
+  ctx.fill();
   ctx.restore();
 });
 
