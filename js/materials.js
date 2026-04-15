@@ -15,6 +15,10 @@ function escapeHTML(s) {
 // 座標は [-0.5, 0.5] に正規化。生成時に粒子サイズで拡大。
 // 頂点は CCW 順・凸多角形。
 
+// 微粒資材（fineMaterial: true）共通の鉢サイズ別粒径(mm)。
+// ピートモス・腐葉土など粒径が極端に小さい資材で共有する。
+const FINE_SIZE_BY_POT = { 1: 1, 2: 2, 3: 3, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 8, 10: 8 };
+
 const MATERIALS = [
   {
     id: 'coco_chip',
@@ -597,8 +601,7 @@ const MATERIALS = [
     name: 'ピートモス',
     hasSize: false,
     fineMaterial: true,
-    // 鉢サイズ（1〜10号）ごとの粒径(mm)。実体積よりも視認性優先。
-    fineSizeByPot: { 1: 1, 2: 2, 3: 3, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 8, 10: 8 },
+    fineSizeByPot: FINE_SIZE_BY_POT,
     tooltip: '湿地由来の有機素材です。保水性が高く、酸性調整や育苗用土に使われます。',
     detail: '軽量で保水性の高い有機素材で、ブルーベリーなど酸性を好む植物の配合材や育苗用土によく使われます。酸度未調整のものと、石灰などでpHを調整した製品があります。強く乾燥すると水をはじきやすくなるため、極端に乾かしすぎない管理が向きます。通気性を補うため、単体よりもパーライトや赤玉土などと組み合わせて使うのが一般的です。',
     color: '#292524',
@@ -627,11 +630,6 @@ const MATERIALS = [
         {x:-0.44,y:0.14},
       ],
     ],
-    sizes: {
-      S: { min: 3, max: 3 },
-      M: { min: 3, max: 3 },
-      L: { min: 3, max: 3 },
-    },
     physics: {
       friction:    0.82,
       frictionAir: 0.10,
@@ -657,6 +655,8 @@ const MATERIALS = [
     id: 'humus',
     name: '腐葉土',
     hasSize: false,
+    fineMaterial: true,
+    fineSizeByPot: FINE_SIZE_BY_POT,
     tooltip: '落ち葉が分解した有機素材です。土をふかふかにし、保水性と保肥性を補います。',
     detail: '落ち葉が分解してできた有機素材で、土に有機物を補給し、保水性・保肥性・通気性のバランスを整える改良材です。草花や野菜、花木の培養土に2〜4割程度配合されることが多く、土壌中の微生物環境の改善にも役立ちます。品質に差があるため、未熟なものではなく十分に発酵した製品を選ぶことが大切です。',
     color: '#3B2F1E',
@@ -685,11 +685,6 @@ const MATERIALS = [
         {x:-0.46,y:0.06},
       ],
     ],
-    sizes: {
-      S: { min: 1,  max: 5  },
-      M: { min: 5,  max: 15 },
-      L: { min: 15, max: 30 },
-    },
     physics: {
       friction:    0.78,
       frictionAir: 0.09,
