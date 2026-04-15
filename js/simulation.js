@@ -135,19 +135,21 @@ function getObjectSizePx(type) {
 }
 
 function pickObjectType() {
+  // excludeFromFill の資材（水苔など）はアニメーション対象外
+  const pool = objectTypes.filter(t => !t.excludeFromFill);
   const effWeight = t => {
     const range = getEffectiveSizeMm(t);
     const vol = range ? Math.pow((range.min + range.max) / 2, 2) : Math.pow(5, 2);
     return t.weight / vol;
   };
-  const total = objectTypes.reduce((s, t) => s + effWeight(t), 0);
+  const total = pool.reduce((s, t) => s + effWeight(t), 0);
   if (total === 0) return null;
   let r = Math.random() * total;
-  for (const t of objectTypes) {
+  for (const t of pool) {
     r -= effWeight(t);
     if (r <= 0) return t;
   }
-  return objectTypes[objectTypes.length - 1];
+  return pool[pool.length - 1];
 }
 
 // 多角形面積（ shoelace formula ）
@@ -304,7 +306,7 @@ function fillInstantly(onComplete) {
   // 鉢断面積と平均粒径から必要粒子数を推定し、バッチサイズをスケーリング
   const potArea    = (topInnerW + botInnerW) / 2 * cupHeight;
   const pxPerMm    = topInnerW / POT_DIAMETERS[currentSize] / 10;
-  const activeTypes = objectTypes.filter(t => t.weight > 0);
+  const activeTypes = objectTypes.filter(t => t.weight > 0 && !t.excludeFromFill);
   let totalW = 0, weightedMidMm = 0, weightedAreaPx = 0;
   activeTypes.forEach(t => {
     const range = getEffectiveSizeMm(t);
