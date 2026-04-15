@@ -563,15 +563,70 @@ function ensureSoilTexture() {
   _soilTextureKey = key;
 }
 
+// 堆積プロファイル計算用パラメータ
+const SOIL_COLS          = 40;   // 列分割数（多いほど滑らかだが重い）
+const SOIL_STABLE_VEL    = 1.5;  // この速度以下の粒子を「堆積済み」とみなす
+const SOIL_SMOOTH_PASSES = 2;    // ポリライン平滑化パス数（隣接3列の平均）
+
 Events.on(render, 'afterRender', () => {
   if (!currentCupDims) return;
   ensureSoilTexture();
   if (!_soilTexture) return;
-  const { topInnerW, topY, cx } = currentCupDims;
+  const { topInnerW, botInnerW, cupHeight, topY, cx } = currentCupDims;
+  const bottomY = topY + cupHeight;
   const ctx = render.context;
+
+  // 列ごとの最上端 Y を集計（静止〜低速粒子のみ対象）
+  const leftX    = cx - topInnerW / 2;
+  const colW     = topInnerW / SOIL_COLS;
+  const colTopY  = new Array(SOIL_COLS).fill(bottomY);
+  const bodies   = Composite.allBodies(engine.world);
+  for (let i = 0; i < bodies.length; i++) {
+    const b = bodies[i];
+    if (!b.isParticle) continue;
+    const spd = Math.hypot(b.velocity.x, b.velocity.y);
+    if (!b.isStatic && spd > SOIL_STABLE_VEL) continue;
+    const { min, max } = b.bounds;
+    const bodyTopY = min.y;
+    // Body の X 範囲と重なる全列を更新
+    const cStart = Math.max(0, Math.floor((min.x - leftX) / colW));
+    const cEnd   = Math.min(SOIL_COLS - 1, Math.floor((max.x - leftX) / colW));
+    for (let c = cStart; c <= cEnd; c++) {
+      if (bodyTopY < colTopY[c]) colTopY[c] = bodyTopY;
+    }
+  }
+
+  // ポリライン平滑化（隣接3列の移動平均）
+  for (let pass = 0; pass < SOIL_SMOOTH_PASSES; pass++) {
+    const smoothed = colTopY.slice();
+    for (let c = 1; c < SOIL_COLS - 1; c++) {
+      smoothed[c] = (colTopY[c - 1] + colTopY[c] * 2 + colTopY[c + 1]) / 4;
+    }
+    for (let c = 0; c < SOIL_COLS; c++) colTopY[c] = smoothed[c];
+  }
+
   ctx.save();
   ctx.globalCompositeOperation = 'destination-over'; // body の背面に描く
-  ctx.drawImage(_soilTexture, cx - topInnerW / 2, topY);
+
+  // 堆積面より下だけを clip するパスを作成（台形の側辺で挟む）
+  ctx.beginPath();
+  for (let c = 0; c < SOIL_COLS; c++) {
+    const x = leftX + (c + 0.5) * colW;
+    const y = colTopY[c];
+    if (c === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  // 右端→鉢底右→鉢底左→左端 で閉じる
+  const botLeftX  = cx - botInnerW / 2;
+  const botRightX = cx + botInnerW / 2;
+  ctx.lineTo(leftX + topInnerW, colTopY[SOIL_COLS - 1]); // 右端の水平延長
+  ctx.lineTo(botRightX, bottomY);
+  ctx.lineTo(botLeftX,  bottomY);
+  ctx.lineTo(leftX,     colTopY[0]); // 左端の水平延長
+  ctx.closePath();
+  ctx.clip();
+
+  ctx.drawImage(_soilTexture, leftX, topY);
   ctx.restore();
 });
 
