@@ -117,27 +117,39 @@ function clearDynamicBodies() {
     .forEach(b => Composite.remove(engine.world, b));
 }
 
+// 現在の鉢サイズ/粒径設定に応じた有効粒径範囲(mm)を返す。
+// fineMaterial の場合は fineSizeByPot を優先参照し、なければ従来の sizes にフォールバック。
+function getEffectiveSizeMm(type) {
+  if (type.fineMaterial && type.fineSizeByPot) {
+    const mm = type.fineSizeByPot[currentSize] ?? 3;
+    return { min: mm, max: mm };
+  }
+  return type.sizes[type.size];
+}
+
 function getObjectSizePx(type) {
   const { topInnerW } = getCupDimensions();
   const pxPerMm = topInnerW / POT_DIAMETERS[currentSize] / 10;
-  const { min, max } = type.sizes[type.size];
+  const { min, max } = getEffectiveSizeMm(type);
   return (min + Math.random() * (max - min)) * pxPerMm;
 }
 
 function pickObjectType() {
+  // excludeFromFill の資材（水苔など）はアニメーション対象外
+  const pool = objectTypes.filter(t => !t.excludeFromFill);
   const effWeight = t => {
-    const range = t.sizes?.[t.size ?? 'M'];
+    const range = getEffectiveSizeMm(t);
     const vol = range ? Math.pow((range.min + range.max) / 2, 2) : Math.pow(5, 2);
     return t.weight / vol;
   };
-  const total = objectTypes.reduce((s, t) => s + effWeight(t), 0);
+  const total = pool.reduce((s, t) => s + effWeight(t), 0);
   if (total === 0) return null;
   let r = Math.random() * total;
-  for (const t of objectTypes) {
+  for (const t of pool) {
     r -= effWeight(t);
     if (r <= 0) return t;
   }
-  return objectTypes[objectTypes.length - 1];
+  return pool[pool.length - 1];
 }
 
 // 多角形面積（ shoelace formula ）
@@ -229,6 +241,11 @@ function spawnShape(x, y) {
   } else {
     body = spawnBox(x, y, physicsSize, type.color, type.physics);
   }
+  if (body && type.fineMaterial) {
+    body.isFineMaterial = true;
+    body.fineColor = type.color;
+    body.render.visible = false;
+  }
   if (body && isAirView) {
     body._origFill = body.render.fillStyle;
     body._origStroke = body.render.strokeStyle;
@@ -289,10 +306,10 @@ function fillInstantly(onComplete) {
   // 鉢断面積と平均粒径から必要粒子数を推定し、バッチサイズをスケーリング
   const potArea    = (topInnerW + botInnerW) / 2 * cupHeight;
   const pxPerMm    = topInnerW / POT_DIAMETERS[currentSize] / 10;
-  const activeTypes = objectTypes.filter(t => t.weight > 0);
+  const activeTypes = objectTypes.filter(t => t.weight > 0 && !t.excludeFromFill);
   let totalW = 0, weightedMidMm = 0, weightedAreaPx = 0;
   activeTypes.forEach(t => {
-    const range = t.sizes[t.size || 'M'];
+    const range = getEffectiveSizeMm(t);
     const midMm = (range.min + range.max) / 2;
     const midPx = midMm * pxPerMm;
     weightedMidMm += midMm * t.weight;
@@ -476,7 +493,155 @@ Events.on(render, 'afterRender', () => {
   ctx.restore();
 });
 
+// ── 鉢内背景土テクスチャ: ベタ塗り+ノイズ粒子を offscreen canvas にキャッシュ ──
+// 鉢寸法が変わるまで1度だけ生成し、毎フレームは drawImage で貼るだけ。
+let _soilTexture = null;
+let _soilTextureKey = '';
+
+function ensureSoilTexture() {
+  if (!currentCupDims) { _soilTexture = null; _soilTextureKey = ''; return; }
+  const { topInnerW, botInnerW, cupHeight } = currentCupDims;
+  const key = `${topInnerW.toFixed(1)}_${botInnerW.toFixed(1)}_${cupHeight.toFixed(1)}`;
+  if (key === _soilTextureKey && _soilTexture) return;
+
+  const W = Math.ceil(topInnerW);
+  const H = Math.ceil(cupHeight);
+  const off = document.createElement('canvas');
+  off.width = W;
+  off.height = H;
+  const octx = off.getContext('2d');
+
+  // 台形内にクリップ（offscreen 内座標：上辺は全幅、下辺は中央に botInnerW）
+  const leftBot  = (topInnerW - botInnerW) / 2;
+  const rightBot = leftBot + botInnerW;
+  octx.beginPath();
+  octx.moveTo(0, 0);
+  octx.lineTo(topInnerW, 0);
+  octx.lineTo(rightBot, cupHeight);
+  octx.lineTo(leftBot, cupHeight);
+  octx.closePath();
+
+  // ベタ塗り（濃い土色）
+  octx.fillStyle = '#6B4E2D';
+  octx.fill();
+
+  // 台形内クリップでノイズ粒子を重ねる
+  octx.save();
+  octx.clip();
+  const count = 8000;
+  const baseR = 107, baseG = 78, baseB = 45; // #6B4E2D
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * W;
+    const y = Math.random() * H;
+    const tone = (Math.random() - 0.5) * 70;
+    const r = Math.max(0, Math.min(255, baseR + tone));
+    const g = Math.max(0, Math.min(255, baseG + tone));
+    const b = Math.max(0, Math.min(255, baseB + tone));
+    octx.fillStyle = `rgb(${r|0},${g|0},${b|0})`;
+    octx.fillRect(x, y, 1.5, 1.5);
+  }
+  octx.restore();
+
+  _soilTexture = off;
+  _soilTextureKey = key;
+}
+
+// 堆積プロファイル計算用パラメータ
+const SOIL_COLS          = 40;   // 列分割数（多いほど滑らかだが重い）
+const SOIL_STABLE_VEL    = 1.5;  // この速度以下の粒子を「堆積済み」とみなす
+const SOIL_SMOOTH_PASSES = 2;    // ポリライン平滑化パス数（隣接3列の平均）
+const SOIL_HALO_SCALE    = 1.8;  // 微粒資材 Body 半径 × この値 = 土が出現する範囲
+
+Events.on(render, 'afterRender', () => {
+  if (!currentCupDims) return;
+  ensureSoilTexture();
+  if (!_soilTexture) return;
+  const { topInnerW, botInnerW, cupHeight, topY, cx } = currentCupDims;
+  const bottomY = topY + cupHeight;
+  const ctx = render.context;
+
+  // 列ごとの最上端 Y を集計（静止〜低速粒子のみ対象）＋微粒資材のハロー座標を収集
+  const leftX    = cx - topInnerW / 2;
+  const colW     = topInnerW / SOIL_COLS;
+  const colTopY  = new Array(SOIL_COLS).fill(bottomY);
+  const bodies   = Composite.allBodies(engine.world);
+  const fineHalos = [];
+  for (let i = 0; i < bodies.length; i++) {
+    const b = bodies[i];
+    if (!b.isParticle) continue;
+    const spd = Math.hypot(b.velocity.x, b.velocity.y);
+    if (!b.isStatic && spd > SOIL_STABLE_VEL) continue;
+    const { min, max } = b.bounds;
+    const bodyTopY = min.y;
+    // Body の X 範囲と重なる全列を更新（pile profile 用）
+    const cStart = Math.max(0, Math.floor((min.x - leftX) / colW));
+    const cEnd   = Math.min(SOIL_COLS - 1, Math.floor((max.x - leftX) / colW));
+    for (let c = cStart; c <= cEnd; c++) {
+      if (bodyTopY < colTopY[c]) colTopY[c] = bodyTopY;
+    }
+    // 微粒資材はハロー用に記録
+    if (b.isFineMaterial) {
+      const hx = (min.x + max.x) / 2;
+      const hy = (min.y + max.y) / 2;
+      const hr = Math.max(max.x - min.x, max.y - min.y) / 2 * SOIL_HALO_SCALE;
+      fineHalos.push({ x: hx, y: hy, r: hr });
+    }
+  }
+
+  // 微粒資材がなければ土テクスチャを一切描かない
+  if (fineHalos.length === 0) return;
+
+  // ポリライン平滑化（隣接3列の移動平均）
+  for (let pass = 0; pass < SOIL_SMOOTH_PASSES; pass++) {
+    const smoothed = colTopY.slice();
+    for (let c = 1; c < SOIL_COLS - 1; c++) {
+      smoothed[c] = (colTopY[c - 1] + colTopY[c] * 2 + colTopY[c + 1]) / 4;
+    }
+    for (let c = 0; c < SOIL_COLS; c++) colTopY[c] = smoothed[c];
+  }
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-over'; // body の背面に描く
+
+  // クリップ1: 堆積面より下（pile profile ∩ 鉢台形内）
+  ctx.beginPath();
+  for (let c = 0; c < SOIL_COLS; c++) {
+    const x = leftX + (c + 0.5) * colW;
+    const y = colTopY[c];
+    if (c === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  const botLeftX  = cx - botInnerW / 2;
+  const botRightX = cx + botInnerW / 2;
+  ctx.lineTo(leftX + topInnerW, colTopY[SOIL_COLS - 1]);
+  ctx.lineTo(botRightX, bottomY);
+  ctx.lineTo(botLeftX,  bottomY);
+  ctx.lineTo(leftX,     colTopY[0]);
+  ctx.closePath();
+  ctx.clip();
+
+  // クリップ2: 微粒資材 Body 周辺の円の union（ctx.clip 連続呼び出しで交差）
+  ctx.beginPath();
+  for (let i = 0; i < fineHalos.length; i++) {
+    const h = fineHalos[i];
+    ctx.moveTo(h.x + h.r, h.y);
+    ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
+  }
+  ctx.clip();
+
+  // 空気層ビュー時は土部分を白で塗る（土は空気ではないため）
+  if (isAirView) {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(leftX, topY, topInnerW, cupHeight);
+  } else {
+    ctx.drawImage(_soilTexture, leftX, topY);
+  }
+  ctx.restore();
+});
+
 // ── 空気層ビュー: 鉢内部背景を afterRender で描画 ──
+// 土テクスチャハンドラの後に登録することで、土（白/茶）が先に body 背面へ回り、
+// 残った透明領域にこのハンドラが青を充填する（destination-over の合成順）。
 Events.on(render, 'afterRender', () => {
   if (!isAirView || !currentCupDims) return;
   const { topInnerW, botInnerW, topY, bottomY, cx } = currentCupDims;
