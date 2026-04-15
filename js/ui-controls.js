@@ -282,7 +282,27 @@ function moveBetweenAccordions(card, toActive) {
   const targetBody = list.querySelector(
     toActive ? '[data-accordion="active"]' : '[data-accordion="inactive"]'
   );
-  if (targetBody) targetBody.appendChild(card);
+  if (!targetBody) return;
+
+  // MATERIALS 順で挿入位置を決める。
+  // 移動対象は常に非お気に入り（お気に入りは active に固定）のため、
+  // 挿入先の「非お気に入り」カードの中で、自身より大きい idx の直前に入る。
+  const cardIdx = Number(card.querySelector('.ratio-slider').dataset.idx);
+  const siblings = targetBody.querySelectorAll('.obj-card');
+  let inserted = false;
+  for (const sib of siblings) {
+    // お気に入り（fav-btn.active）は先頭側に固まっているのでスキップし
+    // 非お気に入り範囲の中で MATERIALS 順の位置を探す。
+    if (sib.querySelector('.fav-btn.active')) continue;
+    const sibIdx = Number(sib.querySelector('.ratio-slider').dataset.idx);
+    if (sibIdx > cardIdx) {
+      targetBody.insertBefore(card, sib);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) targetBody.appendChild(card);
+
   updateAccordionHeaders(list);
 }
 
