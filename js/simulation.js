@@ -242,8 +242,7 @@ function spawnShape(x, y) {
   if (body && type.fineMaterial) {
     body.isFineMaterial = true;
     body.fineColor = type.color;
-    body.render.fillStyle = '#FBCFE8'; // デバッグ用: 薄ピンク
-    body.render.strokeStyle = '#F9A8D4';
+    body.render.visible = false;
   }
   if (body && isAirView) {
     body._origFill = body.render.fillStyle;
@@ -567,6 +566,7 @@ function ensureSoilTexture() {
 const SOIL_COLS          = 40;   // 列分割数（多いほど滑らかだが重い）
 const SOIL_STABLE_VEL    = 1.5;  // この速度以下の粒子を「堆積済み」とみなす
 const SOIL_SMOOTH_PASSES = 2;    // ポリライン平滑化パス数（隣接3列の平均）
+const SOIL_HALO_SCALE    = 2.5;  // 微粒資材 Body 半径 × この値 = 土が出現する範囲
 
 Events.on(render, 'afterRender', () => {
   if (!currentCupDims) return;
@@ -576,11 +576,12 @@ Events.on(render, 'afterRender', () => {
   const bottomY = topY + cupHeight;
   const ctx = render.context;
 
-  // 列ごとの最上端 Y を集計（静止〜低速粒子のみ対象）
+  // 列ごとの最上端 Y を集計（静止〜低速粒子のみ対象）＋微粒資材のハロー座標を収集
   const leftX    = cx - topInnerW / 2;
   const colW     = topInnerW / SOIL_COLS;
   const colTopY  = new Array(SOIL_COLS).fill(bottomY);
   const bodies   = Composite.allBodies(engine.world);
+  const fineHalos = [];
   for (let i = 0; i < bodies.length; i++) {
     const b = bodies[i];
     if (!b.isParticle) continue;
@@ -588,13 +589,23 @@ Events.on(render, 'afterRender', () => {
     if (!b.isStatic && spd > SOIL_STABLE_VEL) continue;
     const { min, max } = b.bounds;
     const bodyTopY = min.y;
-    // Body の X 範囲と重なる全列を更新
+    // Body の X 範囲と重なる全列を更新（pile profile 用）
     const cStart = Math.max(0, Math.floor((min.x - leftX) / colW));
     const cEnd   = Math.min(SOIL_COLS - 1, Math.floor((max.x - leftX) / colW));
     for (let c = cStart; c <= cEnd; c++) {
       if (bodyTopY < colTopY[c]) colTopY[c] = bodyTopY;
     }
+    // 微粒資材はハロー用に記録
+    if (b.isFineMaterial) {
+      const hx = (min.x + max.x) / 2;
+      const hy = (min.y + max.y) / 2;
+      const hr = Math.max(max.x - min.x, max.y - min.y) / 2 * SOIL_HALO_SCALE;
+      fineHalos.push({ x: hx, y: hy, r: hr });
+    }
   }
+
+  // 微粒資材がなければ土テクスチャを一切描かない
+  if (fineHalos.length === 0) return;
 
   // ポリライン平滑化（隣接3列の移動平均）
   for (let pass = 0; pass < SOIL_SMOOTH_PASSES; pass++) {
@@ -608,7 +619,7 @@ Events.on(render, 'afterRender', () => {
   ctx.save();
   ctx.globalCompositeOperation = 'destination-over'; // body の背面に描く
 
-  // 堆積面より下だけを clip するパスを作成（台形の側辺で挟む）
+  // クリップ1: 堆積面より下（pile profile ∩ 鉢台形内）
   ctx.beginPath();
   for (let c = 0; c < SOIL_COLS; c++) {
     const x = leftX + (c + 0.5) * colW;
@@ -616,14 +627,22 @@ Events.on(render, 'afterRender', () => {
     if (c === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
-  // 右端→鉢底右→鉢底左→左端 で閉じる
   const botLeftX  = cx - botInnerW / 2;
   const botRightX = cx + botInnerW / 2;
-  ctx.lineTo(leftX + topInnerW, colTopY[SOIL_COLS - 1]); // 右端の水平延長
+  ctx.lineTo(leftX + topInnerW, colTopY[SOIL_COLS - 1]);
   ctx.lineTo(botRightX, bottomY);
   ctx.lineTo(botLeftX,  bottomY);
-  ctx.lineTo(leftX,     colTopY[0]); // 左端の水平延長
+  ctx.lineTo(leftX,     colTopY[0]);
   ctx.closePath();
+  ctx.clip();
+
+  // クリップ2: 微粒資材 Body 周辺の円の union（ctx.clip 連続呼び出しで交差）
+  ctx.beginPath();
+  for (let i = 0; i < fineHalos.length; i++) {
+    const h = fineHalos[i];
+    ctx.moveTo(h.x + h.r, h.y);
+    ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
+  }
   ctx.clip();
 
   ctx.drawImage(_soilTexture, leftX, topY);
