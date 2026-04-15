@@ -550,7 +550,7 @@ function ensureSoilTexture() {
 const SOIL_COLS          = 40;   // 列分割数（多いほど滑らかだが重い）
 const SOIL_STABLE_VEL    = 1.5;  // この速度以下の粒子を「堆積済み」とみなす
 const SOIL_SMOOTH_PASSES = 2;    // ポリライン平滑化パス数（隣接3列の平均）
-const SOIL_HALO_SCALE    = 2.5;  // 微粒資材 Body 半径 × この値 = 土が出現する範囲
+const SOIL_HALO_SCALE    = 1.8;  // 微粒資材 Body 半径 × この値 = 土が出現する範囲
 
 Events.on(render, 'afterRender', () => {
   if (!currentCupDims) return;
