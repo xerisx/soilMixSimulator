@@ -67,6 +67,8 @@
     {
       id: 'filling',
       getTarget: potAreaRect,
+      // 仮想矩形なのでスクロール時は鉢スペーサーに寄せる（モバイルで鉢が画面外のとき）
+      getScrollAnchor: () => document.getElementById('canvas-spacer') || document.getElementById('canvas'),
       tooltip: { text: '配合の様子を視覚的に確認。落ち着いたら次へ', position: 'bottom' },
     },
     {
@@ -78,6 +80,7 @@
     {
       id: 'airView',
       getTarget: potAreaRect,
+      getScrollAnchor: () => document.getElementById('canvas-spacer') || document.getElementById('canvas'),
       tooltip: { text: '通気性の理解に役立ちます', position: 'bottom' },
     },
     {
@@ -89,7 +92,6 @@
         return document.getElementById('mobile-metrics-sticky') || document.getElementById('right-panel');
       },
       tooltip: { text: '排水性・保水性・通気性が数値でわかります', position: 'left' },
-      scrollIntoView: true,
     },
     {
       id: 'compare',
@@ -101,7 +103,6 @@
                document.getElementById('pc-compare-btn');
       },
       tooltip: { text: '複数の配合を比較できます', position: 'bottom' },
-      scrollIntoView: true,
     },
     {
       id: 'share',
@@ -111,7 +112,6 @@
       },
       tooltip: { text: '作った配合はSNSでシェアできます', position: 'top' },
       onNext: (target) => { if (target) target.click(); },
-      scrollIntoView: true,
     },
     {
       id: 'shareModal',
@@ -156,7 +156,7 @@
     }
 
     // ── ステップ表示 ──
-    _showStep(index) {
+    async _showStep(index) {
       if (index < 0 || index >= STEPS.length) return;
       this.currentStep = index;
       const step = STEPS[index];
@@ -174,19 +174,70 @@
       // 完了画面が残っていれば閉じる（前へで戻った場合など）
       if (this.completion) { this.completion.remove(); this.completion = null; }
 
+      // スクロール中は古い位置にハイライトを残さない
+      this._clearSpotlight();
+      this._clearTooltip();
+
       const target = step.getTarget ? step.getTarget() : null;
 
-      if (step.scrollIntoView && target && !isDesktop() && target.scrollIntoView) {
-        try { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
-      }
+      await this._scrollToTargetIfNeeded(target, step);
+
+      // スクロール中にステップが変わった場合は何もしない（古い描画を残さない）
+      if (this.currentStep !== index || !this.isRunning) return;
 
       if (target) {
         this._positionSpotlight(target);
         this._showTooltip(target, step);
-      } else {
-        this._clearSpotlight();
-        this._clearTooltip();
       }
+    }
+
+    // 対象が画面内に完全に収まっていなければ画面中央にスクロールする
+    async _scrollToTargetIfNeeded(target, step) {
+      // 共有モーダル表示中はスクロール抑止
+      if (step && step.id === 'shareModal') return;
+
+      // 仮想矩形（鉢エリア）は DOM 要素ではないので、
+      // step.getScrollAnchor() が返す DOM 要素を代わりに使う
+      let el = null;
+      if (target && target.nodeType === 1 && target.scrollIntoView) {
+        el = target;
+      } else if (step && typeof step.getScrollAnchor === 'function') {
+        const anchor = step.getScrollAnchor();
+        if (anchor && anchor.nodeType === 1 && anchor.scrollIntoView) el = anchor;
+      }
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      // 要素が非表示（display:none 等）の場合はスクロールしない
+      if (rect.width === 0 && rect.height === 0) return;
+
+      const vh = window.innerHeight;
+      const topPad    = 80;   // ヘッダー分の余裕
+      const bottomPad = 180;  // ツールチップ + 下部固定バー分の余裕
+      const fullyVisible =
+        rect.top >= topPad &&
+        rect.bottom <= vh - bottomPad;
+      if (fullyVisible) return;
+
+      let reduce = false;
+      try {
+        reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch (_) { /* noop */ }
+
+      try {
+        el.scrollIntoView({
+          behavior: reduce ? 'auto' : 'smooth',
+          block:   'center',
+          inline:  'nearest',
+        });
+      } catch (_) { /* noop */ }
+
+      // smooth スクロールの完了イベントが無いため、固定時間だけ待つ
+      if (!reduce) await this._sleep(400);
+    }
+
+    _sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
     }
 
     _goNext() {
