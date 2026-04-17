@@ -131,7 +131,6 @@
       this.currentStep = 0;
       this.spotlight = null;
       this.tooltip = null;
-      this.controls = null;
       this.completion = null;
       this._resizeHandler = null;
       this._escHandler = null;
@@ -152,7 +151,6 @@
 
       document.body.classList.add('tutorial-active');
       this._createTutorialUI();
-      this._createControls();
       this._attachGlobalHandlers();
       this._showStep(0);
     }
@@ -161,7 +159,6 @@
     _showStep(index) {
       if (index < 0 || index >= STEPS.length) return;
       this.currentStep = index;
-      this._updateStepIndicator();
       const step = STEPS[index];
 
       if (step.isCompletion) {
@@ -235,26 +232,6 @@
       document.body.appendChild(this.tooltip);
     }
 
-    _createControls() {
-      this.controls = document.createElement('div');
-      this.controls.className = 'tutorial-controls';
-      this.controls.innerHTML =
-        '<span class="step-indicator">1 / ' + STEPS.length + '</span>' +
-        '<button class="skip-btn" type="button">スキップ</button>';
-      this.controls.querySelector('.skip-btn').addEventListener('click', () => this.skip());
-      document.body.appendChild(this.controls);
-    }
-
-    _removeControls() {
-      if (this.controls) { this.controls.remove(); this.controls = null; }
-    }
-
-    _updateStepIndicator() {
-      if (!this.controls) return;
-      const ind = this.controls.querySelector('.step-indicator');
-      if (ind) ind.textContent = (this.currentStep + 1) + ' / ' + STEPS.length;
-    }
-
     // ── ハイライト ──
     _getRect(target) {
       if (!target) return null;
@@ -288,20 +265,22 @@
       if (this.spotlight) this.spotlight.style.display = 'none';
     }
 
-    // ── ツールチップ（前へ/次へボタン付き）──
+    // ── ツールチップ（× / 前へ / 番号 / 次へ を統合）──
     _showTooltip(target, step) {
       if (!this.tooltip) return;
       const cfg = step.tooltip;
       if (!cfg) { this._clearTooltip(); return; }
 
       const isFirst = this.currentStep === 0;
-      const isLastInteractive = this.currentStep === STEPS.length - 2; // 次で完了画面へ
-      const nextLabel = isLastInteractive ? '完了へ' : '次へ →';
+      const nextLabel = '次へ →';
+      const indicator = (this.currentStep + 1) + ' / ' + STEPS.length;
 
       this.tooltip.innerHTML =
+        '<button class="tutorial-tip-close" type="button" aria-label="閉じる">×</button>' +
         '<div class="tutorial-tooltip-text"></div>' +
         '<div class="tutorial-tooltip-actions">' +
           '<button class="tutorial-tip-prev" type="button"' + (isFirst ? ' disabled aria-disabled="true"' : '') + '>← 前へ</button>' +
+          '<span class="tutorial-tip-indicator">' + indicator + '</span>' +
           '<button class="tutorial-tip-next" type="button">' + nextLabel + '</button>' +
         '</div>';
       this.tooltip.querySelector('.tutorial-tooltip-text').textContent = cfg.text || '';
@@ -309,10 +288,12 @@
       this.tooltip.style.display = '';
       this.tooltip.style.visibility = 'hidden';
 
-      const prevBtn = this.tooltip.querySelector('.tutorial-tip-prev');
-      const nextBtn = this.tooltip.querySelector('.tutorial-tip-next');
+      const prevBtn  = this.tooltip.querySelector('.tutorial-tip-prev');
+      const nextBtn  = this.tooltip.querySelector('.tutorial-tip-next');
+      const closeBtn = this.tooltip.querySelector('.tutorial-tip-close');
       if (prevBtn && !isFirst) prevBtn.addEventListener('click', () => this._goPrev());
-      if (nextBtn) nextBtn.addEventListener('click', () => this._goNext());
+      if (nextBtn)             nextBtn.addEventListener('click', () => this._goNext());
+      if (closeBtn)            closeBtn.addEventListener('click', () => this.skip());
 
       // 位置計算（サイズ確定後）
       requestAnimationFrame(() => {
@@ -374,22 +355,27 @@
     // ── 完了メッセージ ──
     _showCompletion() {
       if (this.completion) this.completion.remove();
+      const indicator = STEPS.length + ' / ' + STEPS.length;
       this.completion = document.createElement('div');
       this.completion.className = 'tutorial-completion';
       this.completion.setAttribute('role', 'dialog');
       this.completion.setAttribute('aria-label', 'チュートリアル完了');
       this.completion.innerHTML =
+        '<button class="tutorial-tip-close" type="button" aria-label="閉じる">×</button>' +
         '<h3>✨ 使い方をマスターしました</h3>' +
         '<p>配合ができたら、ぜひXでシェアしてください</p>' +
         '<p class="hashtag-hint">#Qsoil配合 で投稿すると見つけやすくなります</p>' +
-        '<div class="tutorial-completion-actions">' +
+        '<div class="tutorial-tooltip-actions">' +
           '<button class="tutorial-tip-prev" type="button">← 前へ</button>' +
-          '<button class="close-btn" type="button">完了</button>' +
+          '<span class="tutorial-tip-indicator">' + indicator + '</span>' +
+          '<button class="tutorial-tip-next close-btn" type="button">完了</button>' +
         '</div>';
       this.completion.querySelector('.tutorial-tip-prev')
         .addEventListener('click', () => this._goPrev());
       this.completion.querySelector('.close-btn')
         .addEventListener('click', () => this._finalize());
+      this.completion.querySelector('.tutorial-tip-close')
+        .addEventListener('click', () => this.skip());
       document.body.appendChild(this.completion);
       try { localStorage.setItem(STORAGE_KEY_SEEN, '1'); } catch (_) {}
     }
@@ -408,7 +394,6 @@
       this.isRunning = false;
       this._clearSpotlight();
       this._clearTooltip();
-      this._removeControls();
       if (this.spotlight)  { this.spotlight.remove();  this.spotlight = null; }
       if (this.tooltip)    { this.tooltip.remove();    this.tooltip = null; }
       if (this.completion) { this.completion.remove(); this.completion = null; }
@@ -444,7 +429,6 @@
         // チュートリアル自身の UI 上の操作はスキップ判定しない
         if (t.closest && (
           t.closest('.tutorial-tooltip') ||
-          t.closest('.tutorial-controls') ||
           t.closest('.tutorial-completion')
         )) return;
         // 現在の対象要素への操作は許可
