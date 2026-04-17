@@ -1,12 +1,13 @@
 /**
- * tutorial.js — 触り方を見るチュートリアル
+ * tutorial.js — 触り方を見るチュートリアル（手動進行型）
  *
  * トリガー:
  *   - #show-tutorial-btn（デスクトップのガイドパネル内）
- *   - #tutorial-help-float（常設「?」ボタン: デスクトップ/モバイル両対応）
+ *   - #tutorial-help-float（常設「?」ボタン）
  *
- * 既存 UI の要素・関数に直接触れず、.click() で操作をプログラマティックに発火する。
- * 例外として、共有モーダルを閉じる処理のみ closeShareModal() を直接呼ぶ。
+ * 進行はユーザーが「次へ」「前へ」ボタンを押して制御する。
+ * 既存 UI の要素・関数に直接触れず、.click() で操作を発火する
+ * （例外として共有モーダルの closeShareModal() のみ関数直接呼び出し）。
  */
 (function () {
   'use strict';
@@ -18,7 +19,7 @@
     return window.innerWidth >= DESKTOP_BP;
   }
 
-  // 鉢エリアの仮想矩形（#canvas 全面ではなく、おおよその鉢領域を指す）
+  // 鉢エリアの仮想矩形（#canvas 全面ではなく鉢領域を指す）
   function potAreaRect() {
     if (isDesktop()) {
       return {
@@ -42,53 +43,42 @@
   }
 
   // ── ステップ定義 ──
+  // 各ステップ: getTarget, tooltip, 任意で onNext(target) / scrollIntoView / isCompletion
   const STEPS = [
     {
       id: 'preset',
       getTarget: () => document.querySelector('button[data-preset="balance"]'),
-      action: 'click',
       tooltip: { text: 'クイックスタートから始められます', position: 'bottom' },
-      durationMs: 3000,
+      onNext: (target) => { if (target) target.click(); },
     },
     {
       id: 'materials',
       getTarget: () =>
         document.querySelector('#obj-list [data-accordion="active"]') ||
         document.getElementById('obj-list'),
-      action: 'highlight',
       tooltip: { text: '資材の割合が自動で設定されます', position: 'right' },
-      durationMs: 2000,
     },
     {
       id: 'start',
       getTarget: () => document.getElementById('startBtn'),
-      action: 'click',
       tooltip: { text: 'ここを押すと充填開始', position: 'top' },
-      durationMs: 1500,
+      onNext: (target) => { if (target) target.click(); },
     },
     {
       id: 'filling',
       getTarget: potAreaRect,
-      action: 'wait',
-      tooltip: { text: '配合の様子を視覚的に確認', position: 'bottom' },
-      durationMs: 8000,
-      waitFor: () =>
-        (typeof isFilling === 'undefined' || !isFilling) &&
-        (typeof spawnInterval === 'undefined' || !spawnInterval),
+      tooltip: { text: '配合の様子を視覚的に確認。落ち着いたら次へ', position: 'bottom' },
     },
     {
       id: 'air',
       getTarget: () => document.getElementById('airBtn'),
-      action: 'click',
       tooltip: { text: '空気と土の分布も見られます', position: 'top' },
-      durationMs: 3000,
+      onNext: (target) => { if (target) target.click(); },
     },
     {
       id: 'airView',
       getTarget: potAreaRect,
-      action: 'wait',
       tooltip: { text: '通気性の理解に役立ちます', position: 'bottom' },
-      durationMs: 3000,
     },
     {
       id: 'analysis',
@@ -98,23 +88,19 @@
         }
         return document.getElementById('mobile-metrics-sticky') || document.getElementById('right-panel');
       },
-      action: 'highlight',
       tooltip: { text: '排水性・保水性・通気性が数値でわかります', position: 'left' },
-      durationMs: 4000,
       scrollIntoView: true,
     },
     {
       id: 'compare',
       getTarget: () => {
         const tabBtn = document.querySelector('.rp-tab-btn[data-rp-tab="compare"]');
-        // デスクトップ: 比較タブボタン / モバイル: 比較タブは無いので「比較元にする」ボタンにフォールバック
+        // デスクトップ: 比較タブボタン / モバイル: 比較タブが無いので「比較元にする」ボタンにフォールバック
         if (tabBtn && tabBtn.offsetParent !== null) return tabBtn;
         return document.getElementById('mms-compare-btn') ||
                document.getElementById('pc-compare-btn');
       },
-      action: 'highlight',
       tooltip: { text: '複数の配合を比較できます', position: 'bottom' },
-      durationMs: 3000,
       scrollIntoView: true,
     },
     {
@@ -123,25 +109,18 @@
         if (isDesktop()) return document.getElementById('pc-share-btn');
         return document.getElementById('mms-share-btn');
       },
-      action: 'click',
       tooltip: { text: '作った配合はSNSでシェアできます', position: 'top' },
-      durationMs: 4000,
+      onNext: (target) => { if (target) target.click(); },
       scrollIntoView: true,
     },
     {
       id: 'shareModal',
       getTarget: () => document.querySelector('.share-modal-box'),
-      action: 'wait',
       tooltip: { text: '画像付きでXに投稿できます', position: 'top' },
-      durationMs: 5000, // 画像生成のタイムアウトとしても使う
-      waitFor: () => {
-        if (typeof shareImageState === 'undefined') return true;
-        return !shareImageState.isGenerating && !!shareImageState.previewBlob;
-      },
     },
     {
       id: 'complete',
-      action: 'complete',
+      isCompletion: true,
     },
   ];
 
@@ -154,19 +133,17 @@
       this.tooltip = null;
       this.controls = null;
       this.completion = null;
-      this._abort = null;
       this._resizeHandler = null;
       this._escHandler = null;
       this._clickHandler = null;
     }
 
-    async start() {
+    start() {
       if (this.isRunning) return;
       this.isRunning = true;
       this.currentStep = 0;
-      this._abort = { aborted: false };
 
-      // 資材タブが非アクティブなら切替（市販の用土タブ→資材タブ）
+      // 資材タブが非アクティブなら切替
       const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
       if (activeTab && activeTab !== 'materials') {
         const matBtn = document.querySelector('.tab-btn[data-tab="materials"]');
@@ -177,72 +154,75 @@
       this._createTutorialUI();
       this._createControls();
       this._attachGlobalHandlers();
-
-      try {
-        for (let i = 0; i < STEPS.length; i++) {
-          if (this._abort.aborted) return;
-          this.currentStep = i;
-          this._updateStepIndicator();
-          await this._executeStep(STEPS[i]);
-        }
-      } catch (e) {
-        if (!this._abort.aborted) console.warn('[tutorial] step failed', e);
-      }
+      this._showStep(0);
     }
 
-    async _executeStep(step) {
-      if (step.action === 'complete') {
+    // ── ステップ表示 ──
+    _showStep(index) {
+      if (index < 0 || index >= STEPS.length) return;
+      this.currentStep = index;
+      this._updateStepIndicator();
+      const step = STEPS[index];
+
+      if (step.isCompletion) {
         this._clearSpotlight();
         this._clearTooltip();
-        this._removeControls();
-        // 共有モーダルを閉じる（既存コードを変更しないため関数直接呼び出し）
         try {
           if (typeof closeShareModal === 'function') closeShareModal();
         } catch (_) { /* noop */ }
         this._showCompletion();
-        try { localStorage.setItem(STORAGE_KEY_SEEN, '1'); } catch (_) {}
         return;
       }
+
+      // 完了画面が残っていれば閉じる（前へで戻った場合など）
+      if (this.completion) { this.completion.remove(); this.completion = null; }
 
       const target = step.getTarget ? step.getTarget() : null;
 
       if (step.scrollIntoView && target && !isDesktop() && target.scrollIntoView) {
         try { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
-        await this._sleep(300);
-        if (this._abort.aborted) return;
       }
 
       if (target) {
         this._positionSpotlight(target);
-        this._showTooltip(target, step.tooltip);
+        this._showTooltip(target, step);
       } else {
         this._clearSpotlight();
         this._clearTooltip();
       }
+    }
 
-      if (step.action === 'click' && target && target.click) {
-        // ハイライトを少し見せてから自動クリック
-        const preClickMs = Math.min(1200, Math.max(400, step.durationMs / 2));
-        await this._sleep(preClickMs);
-        if (this._abort.aborted) return;
-        try { target.click(); } catch (_) {}
-        const remaining = Math.max(0, step.durationMs - preClickMs);
-        await this._sleep(remaining);
-      } else if (step.action === 'wait' || step.action === 'highlight') {
-        const start = Date.now();
-        const hasWait = typeof step.waitFor === 'function';
-        while (Date.now() - start < step.durationMs) {
-          if (this._abort.aborted) return;
-          if (hasWait && step.waitFor()) break;
-          await this._sleep(120);
+    _goNext() {
+      const step = STEPS[this.currentStep];
+      if (!step) return;
+      if (typeof step.onNext === 'function') {
+        try {
+          const target = step.getTarget ? step.getTarget() : null;
+          step.onNext(target);
+        } catch (e) {
+          console.warn('[tutorial] onNext failed', e);
         }
-        // waitFor 成立で早期 break した場合は次ステップへ即進む
       }
+      if (this.currentStep < STEPS.length - 1) {
+        this._showStep(this.currentStep + 1);
+      }
+    }
+
+    _goPrev() {
+      if (this.currentStep <= 0) return;
+      const cur = STEPS[this.currentStep];
+      // 共有モーダル表示ステップから戻る場合はモーダルを閉じる（対象ボタンを再度見せるため）
+      if (cur && cur.id === 'shareModal') {
+        try {
+          if (typeof closeShareModal === 'function') closeShareModal();
+        } catch (_) { /* noop */ }
+      }
+      this._showStep(this.currentStep - 1);
     }
 
     // ── DOM 生成 ──
     _createTutorialUI() {
-      // オーバーレイ div は使わない: スポットライトの外側暗転 box-shadow で代替
+      // 全画面オーバーレイは廃止（スポットライトの外側暗転 box-shadow で代替）
       this.spotlight = document.createElement('div');
       this.spotlight.className = 'tutorial-spotlight';
       this.spotlight.style.display = 'none';
@@ -261,8 +241,6 @@
       this.controls.innerHTML =
         '<span class="step-indicator">1 / ' + STEPS.length + '</span>' +
         '<button class="skip-btn" type="button">スキップ</button>';
-      // バー上のクリックはオーバーレイに伝播させない
-      this.controls.addEventListener('click', (e) => e.stopPropagation());
       this.controls.querySelector('.skip-btn').addEventListener('click', () => this.skip());
       document.body.appendChild(this.controls);
     }
@@ -281,7 +259,7 @@
     _getRect(target) {
       if (!target) return null;
       if (target.getBoundingClientRect) return target.getBoundingClientRect();
-      return target; // 既に { top, left, width, height } 形式
+      return target; // { top, left, width, height }
     }
 
     _positionSpotlight(target) {
@@ -295,7 +273,7 @@
       this.spotlight.style.width  = (rect.width  + pad * 2) + 'px';
       this.spotlight.style.height = (rect.height + pad * 2) + 'px';
 
-      // 対象の border-radius に追従（ボタン等の丸みを保つ）
+      // 対象の border-radius に追従
       let br = '12px';
       if (target && target.nodeType === 1) {
         try {
@@ -310,14 +288,33 @@
       if (this.spotlight) this.spotlight.style.display = 'none';
     }
 
-    // ── ツールチップ ──
-    _showTooltip(target, cfg) {
-      if (!cfg || !this.tooltip) { this._clearTooltip(); return; }
-      this.tooltip.textContent = cfg.text || '';
+    // ── ツールチップ（前へ/次へボタン付き）──
+    _showTooltip(target, step) {
+      if (!this.tooltip) return;
+      const cfg = step.tooltip;
+      if (!cfg) { this._clearTooltip(); return; }
+
+      const isFirst = this.currentStep === 0;
+      const isLastInteractive = this.currentStep === STEPS.length - 2; // 次で完了画面へ
+      const nextLabel = isLastInteractive ? '完了へ' : '次へ →';
+
+      this.tooltip.innerHTML =
+        '<div class="tutorial-tooltip-text"></div>' +
+        '<div class="tutorial-tooltip-actions">' +
+          '<button class="tutorial-tip-prev" type="button"' + (isFirst ? ' disabled aria-disabled="true"' : '') + '>← 前へ</button>' +
+          '<button class="tutorial-tip-next" type="button">' + nextLabel + '</button>' +
+        '</div>';
+      this.tooltip.querySelector('.tutorial-tooltip-text').textContent = cfg.text || '';
       this.tooltip.setAttribute('data-position', cfg.position || 'bottom');
-      this.tooltip.style.display = 'block';
+      this.tooltip.style.display = '';
       this.tooltip.style.visibility = 'hidden';
 
+      const prevBtn = this.tooltip.querySelector('.tutorial-tip-prev');
+      const nextBtn = this.tooltip.querySelector('.tutorial-tip-next');
+      if (prevBtn && !isFirst) prevBtn.addEventListener('click', () => this._goPrev());
+      if (nextBtn) nextBtn.addEventListener('click', () => this._goNext());
+
+      // 位置計算（サイズ確定後）
       requestAnimationFrame(() => {
         if (!this.tooltip) return;
         const rect = this._getRect(target);
@@ -342,7 +339,6 @@
           p.top + tipH <= vh - 8 && p.left + tipW <= vw - 8;
 
         const primary = cfg.position || 'bottom';
-        // 優先順: 指定方向 → 反対方向 → 上下/左右の垂直代替
         const orderMap = {
           top:    ['top', 'bottom', 'right', 'left'],
           bottom: ['bottom', 'top', 'right', 'left'],
@@ -359,7 +355,6 @@
           if (fits(candidate)) { pos = candidate; chosenPos = p; found = true; break; }
         }
         if (!found) {
-          // どこにも収まらない → 主方向でクランプ
           pos.left = Math.max(8, Math.min(pos.left, vw - tipW - 8));
           pos.top  = Math.max(8, Math.min(pos.top,  vh - tipH - 8));
           chosenPos = primary;
@@ -378,6 +373,7 @@
 
     // ── 完了メッセージ ──
     _showCompletion() {
+      if (this.completion) this.completion.remove();
       this.completion = document.createElement('div');
       this.completion.className = 'tutorial-completion';
       this.completion.setAttribute('role', 'dialog');
@@ -386,16 +382,21 @@
         '<h3>✨ 使い方をマスターしました</h3>' +
         '<p>配合ができたら、ぜひXでシェアしてください</p>' +
         '<p class="hashtag-hint">#Qsoil配合 で投稿すると見つけやすくなります</p>' +
-        '<button class="close-btn" type="button">このまま続ける</button>';
-      this.completion.addEventListener('click', (e) => e.stopPropagation());
-      this.completion.querySelector('.close-btn').addEventListener('click', () => this._finalize());
+        '<div class="tutorial-completion-actions">' +
+          '<button class="tutorial-tip-prev" type="button">← 前へ</button>' +
+          '<button class="close-btn" type="button">完了</button>' +
+        '</div>';
+      this.completion.querySelector('.tutorial-tip-prev')
+        .addEventListener('click', () => this._goPrev());
+      this.completion.querySelector('.close-btn')
+        .addEventListener('click', () => this._finalize());
       document.body.appendChild(this.completion);
+      try { localStorage.setItem(STORAGE_KEY_SEEN, '1'); } catch (_) {}
     }
 
     // ── スキップ / 終了 ──
     skip() {
       if (!this.isRunning) return;
-      if (this._abort) this._abort.aborted = true;
       try {
         if (typeof closeShareModal === 'function') closeShareModal();
       } catch (_) { /* noop */ }
@@ -419,13 +420,13 @@
     _attachGlobalHandlers() {
       this._resizeHandler = () => {
         const step = STEPS[this.currentStep];
-        if (!step) return;
+        if (!step || step.isCompletion) return;
         const target = step.getTarget ? step.getTarget() : null;
         if (target && this.spotlight && this.spotlight.style.display !== 'none') {
           this._positionSpotlight(target);
         }
         if (target && step.tooltip && this.tooltip && this.tooltip.style.display !== 'none') {
-          this._showTooltip(target, step.tooltip);
+          this._showTooltip(target, step);
         }
       };
       window.addEventListener('resize', this._resizeHandler);
@@ -436,7 +437,7 @@
       };
       document.addEventListener('keydown', this._escHandler);
 
-      // 対象要素以外のクリックで即スキップ（capture phase で他のハンドラより先に止める）
+      // 対象要素以外への操作は即スキップ（capture phase で他ハンドラより先に止める）
       this._clickHandler = (e) => {
         if (!e.isTrusted) return; // 自動クリック（target.click()）は無視
         const t = e.target;
@@ -446,11 +447,10 @@
           t.closest('.tutorial-controls') ||
           t.closest('.tutorial-completion')
         )) return;
-        // 現在のステップ対象要素への操作は許可（ユーザー自身が触った）
+        // 現在の対象要素への操作は許可
         const step = STEPS[this.currentStep];
-        const cur = step && step.getTarget ? step.getTarget() : null;
+        const cur = step && !step.isCompletion && step.getTarget ? step.getTarget() : null;
         if (cur && cur.nodeType === 1 && cur.contains(t)) return;
-        // 上記以外 = 対象外要素への操作 → 即スキップ
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -470,15 +470,10 @@
       this._escHandler = null;
       this._clickHandler = null;
     }
-
-    _sleep(ms) {
-      return new Promise(r => setTimeout(r, ms));
-    }
   }
 
   // ── 初期化 ──
   const tutorial = new QsoilTutorial();
-  // デバッグ/他機能からの起動用に window に公開
   window.qsoilTutorial = tutorial;
 
   function bindTriggers() {

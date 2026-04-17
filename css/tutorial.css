@@ -189,8 +189,9 @@ html[data-theme="dark"] .tutorial-spotlight {
 .tutorial-tooltip {
   position: fixed;
   z-index: 9100;
-  max-width: 280px;
-  padding: 10px 14px;
+  width: 260px;
+  max-width: calc(100vw - 24px);
+  padding: 12px 14px 10px;
   background: #16A34A;
   color: #FFFFFF;
   font-family: sans-serif;
@@ -199,8 +200,62 @@ html[data-theme="dark"] .tutorial-spotlight {
   line-height: 1.55;
   border-radius: 10px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-  pointer-events: none;
+  pointer-events: auto;  /* 前へ/次へボタンを押せるようにする */
   animation: tutorial-tooltip-in 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tutorial-tooltip-text {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.tutorial-tooltip-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tutorial-tip-prev,
+.tutorial-tip-next {
+  font-family: sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+
+.tutorial-tip-prev {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+}
+.tutorial-tip-prev:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+.tutorial-tip-prev:disabled {
+  opacity: 0;           /* 最初のステップでは非表示扱い（レイアウトは維持） */
+  cursor: default;
+  pointer-events: none;
+}
+
+.tutorial-tip-next {
+  color: #16A34A;
+  background: #FFFFFF;
+  border: 1px solid #FFFFFF;
+}
+.tutorial-tip-next:hover {
+  background: #F0FDF4;
+}
+.tutorial-tip-next:active {
+  transform: scale(0.97);
 }
 
 .tutorial-tooltip::before {
@@ -249,6 +304,15 @@ html[data-theme="dark"] .tutorial-tooltip[data-position="top"]::before    { bord
 html[data-theme="dark"] .tutorial-tooltip[data-position="left"]::before   { border-left-color: var(--green); }
 html[data-theme="dark"] .tutorial-tooltip[data-position="right"]::before  { border-right-color: var(--green); }
 
+html[data-theme="dark"] .tutorial-tip-next {
+  background: #FFFFFF;
+  color: var(--green-dark);
+  border-color: #FFFFFF;
+}
+html[data-theme="dark"] .tutorial-tip-next:hover {
+  background: #E6F7EA;
+}
+
 @keyframes tutorial-tooltip-in {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -256,9 +320,10 @@ html[data-theme="dark"] .tutorial-tooltip[data-position="right"]::before  { bord
 
 @media (max-width: 767px) {
   .tutorial-tooltip {
+    width: 240px;
     max-width: calc(100vw - 24px);
     font-size: 13px;
-    padding: 9px 12px;
+    padding: 11px 12px 9px;
   }
 }
 
@@ -371,6 +436,25 @@ html[data-theme="dark"] .tutorial-controls .skip-btn:hover {
   margin: 0 0 16px;
 }
 
+.tutorial-completion-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tutorial-completion .tutorial-tip-prev {
+  color: var(--text-3, #6B7280);
+  background: var(--bg-subtle, #ECEEF2);
+  border: 1px solid var(--border, #D8DCE1);
+  font-size: 13px;
+  padding: 9px 16px;
+}
+.tutorial-completion .tutorial-tip-prev:hover {
+  background: var(--border, #D8DCE1);
+  color: var(--text-1, #111827);
+}
+
 .tutorial-completion .close-btn {
   padding: 10px 22px;
   background: #16A34A;
@@ -386,6 +470,16 @@ html[data-theme="dark"] .tutorial-controls .skip-btn:hover {
 }
 .tutorial-completion .close-btn:hover  { background: #15803D; }
 .tutorial-completion .close-btn:active { transform: scale(0.97); }
+
+html[data-theme="dark"] .tutorial-completion .tutorial-tip-prev {
+  color: var(--text-3);
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+html[data-theme="dark"] .tutorial-completion .tutorial-tip-prev:hover {
+  background: var(--bg-subtle);
+  color: var(--text-1);
+}
 
 @keyframes tutorial-completion-in {
   from { opacity: 0; transform: translate(-50%, -46%); }
