@@ -1,0 +1,410 @@
+/* ═══════════════════════════════════════════════════════════════
+   tutorial.css — 触り方を見るチュートリアル
+   ─ 既存の theme.css 変数（--bg-panel / --text-* / --border / --green etc.）を再利用
+   ─ ライト/ダークは html[data-theme="dark"] のみで差分定義
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ─────────────── トリガーボタン（ガイドパネル内） ─────────────── */
+#show-tutorial-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 9px 16px;
+  font-family: sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #16A34A;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(22,163,74,0.22);
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  touch-action: manipulation;
+  pointer-events: auto;
+  animation: tutorial-trigger-pulse 2.4s ease-in-out infinite;
+}
+
+#show-tutorial-btn:hover {
+  background: #15803D;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22,163,74,0.30);
+}
+
+#show-tutorial-btn:active { transform: scale(0.97); }
+
+#show-tutorial-btn .tutorial-btn-icon { font-size: 11px; }
+#show-tutorial-btn .tutorial-btn-duration {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+@keyframes tutorial-trigger-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(22,163,74,0.22), 0 0 0 0 rgba(22,163,74,0.35); }
+  50%      { box-shadow: 0 2px 8px rgba(22,163,74,0.22), 0 0 0 8px rgba(22,163,74,0); }
+}
+
+html[data-theme="dark"] #show-tutorial-btn {
+  background: var(--green);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(63,185,80,0.28);
+}
+html[data-theme="dark"] #show-tutorial-btn:hover {
+  background: var(--green-dark);
+}
+
+
+/* ─────────────── ヘルプフロートボタン（常設） ─────────────── */
+#tutorial-help-float {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border, #D8DCE1);
+  background: var(--bg-panel, #FFFFFF);
+  color: var(--text-3, #6B7280);
+  font-family: sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s, color 0.15s, transform 0.1s, border-color 0.15s;
+  touch-action: manipulation;
+}
+
+#tutorial-help-float:hover {
+  background: var(--bg-subtle, #ECEEF2);
+  color: var(--text-1, #111827);
+  border-color: var(--text-4, #9CA3AF);
+}
+
+#tutorial-help-float:active { transform: scale(0.95); }
+
+/* モバイル: 下部固定の center-actions バーと被らないよう上に退避 */
+@media (max-width: 767px) {
+  #tutorial-help-float {
+    right: 12px;
+    bottom: 135px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+html[data-theme="dark"] #tutorial-help-float {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  color: var(--text-3);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+}
+html[data-theme="dark"] #tutorial-help-float:hover {
+  background: var(--bg-subtle);
+  color: var(--text-1);
+}
+
+
+/* ─────────────── オーバーレイ ─────────────── */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.52);
+  z-index: 9000;
+  cursor: pointer;
+  animation: tutorial-fade-in 0.2s ease-out;
+}
+
+/* チュートリアル中は共有モーダルをオーバーレイより前面に出す */
+body.tutorial-active #share-modal:not([hidden]) {
+  z-index: 9060;
+}
+
+@media (max-width: 767px) {
+  .tutorial-overlay { background: rgba(0,0,0,0.40); }
+}
+
+html[data-theme="dark"] .tutorial-overlay {
+  background: rgba(0,0,0,0.70);
+}
+
+
+/* ─────────────── スポットライト（対象を囲むリング） ─────────────── */
+.tutorial-spotlight {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9050;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 3px rgba(22,163,74,0.95),
+    0 0 18px rgba(22,163,74,0.55);
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+  animation: tutorial-spotlight-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tutorial-spotlight-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(22,163,74,0.95), 0 0 18px rgba(22,163,74,0.55); }
+  50%      { box-shadow: 0 0 0 5px rgba(22,163,74,0.75), 0 0 28px rgba(22,163,74,0.35); }
+}
+
+html[data-theme="dark"] .tutorial-spotlight {
+  box-shadow:
+    0 0 0 3px rgba(63,185,80,0.95),
+    0 0 18px rgba(63,185,80,0.55);
+}
+html[data-theme="dark"] .tutorial-spotlight {
+  animation-name: tutorial-spotlight-pulse-dark;
+}
+@keyframes tutorial-spotlight-pulse-dark {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(63,185,80,0.95), 0 0 18px rgba(63,185,80,0.55); }
+  50%      { box-shadow: 0 0 0 5px rgba(63,185,80,0.75), 0 0 28px rgba(63,185,80,0.35); }
+}
+
+
+/* ─────────────── ツールチップ ─────────────── */
+.tutorial-tooltip {
+  position: fixed;
+  z-index: 9100;
+  max-width: 280px;
+  padding: 10px 14px;
+  background: #16A34A;
+  color: #FFFFFF;
+  font-family: sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.55;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  pointer-events: none;
+  animation: tutorial-tooltip-in 0.2s ease-out;
+}
+
+.tutorial-tooltip::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+}
+
+.tutorial-tooltip[data-position="bottom"]::before {
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom-color: #16A34A;
+}
+.tutorial-tooltip[data-position="top"]::before {
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top-color: #16A34A;
+}
+.tutorial-tooltip[data-position="left"]::before {
+  top: 50%;
+  right: -14px;
+  transform: translateY(-50%);
+  border-left-color: #16A34A;
+}
+.tutorial-tooltip[data-position="right"]::before {
+  top: 50%;
+  left: -14px;
+  transform: translateY(-50%);
+  border-right-color: #16A34A;
+}
+.tutorial-tooltip:not([data-position]),
+.tutorial-tooltip[data-position=""] { /* 矢印非表示（自由配置時） */ }
+.tutorial-tooltip:not([data-position])::before,
+.tutorial-tooltip[data-position=""]::before { display: none; }
+
+html[data-theme="dark"] .tutorial-tooltip {
+  background: var(--green);
+  color: #FFFFFF;
+}
+html[data-theme="dark"] .tutorial-tooltip[data-position="bottom"]::before { border-bottom-color: var(--green); }
+html[data-theme="dark"] .tutorial-tooltip[data-position="top"]::before    { border-top-color: var(--green); }
+html[data-theme="dark"] .tutorial-tooltip[data-position="left"]::before   { border-left-color: var(--green); }
+html[data-theme="dark"] .tutorial-tooltip[data-position="right"]::before  { border-right-color: var(--green); }
+
+@keyframes tutorial-tooltip-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 767px) {
+  .tutorial-tooltip {
+    max-width: calc(100vw - 24px);
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+}
+
+
+/* ─────────────── 制御バー（下部固定） ─────────────── */
+.tutorial-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 14px;
+  background: var(--bg-panel, #FFFFFF);
+  border: 1px solid var(--border, #D8DCE1);
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  z-index: 9200;
+  font-family: sans-serif;
+}
+
+.tutorial-controls .step-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3, #6B7280);
+  white-space: nowrap;
+}
+
+.tutorial-controls .skip-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2, #374151);
+  background: var(--bg-subtle, #ECEEF2);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  touch-action: manipulation;
+  font-family: sans-serif;
+}
+
+.tutorial-controls .skip-btn:hover {
+  background: var(--border, #D8DCE1);
+  color: var(--text-1, #111827);
+}
+
+/* モバイル: 中央バー/共有バーと被らないよう位置を調整 */
+@media (max-width: 767px) {
+  .tutorial-controls {
+    bottom: 140px;
+  }
+}
+
+html[data-theme="dark"] .tutorial-controls {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.55);
+}
+html[data-theme="dark"] .tutorial-controls .step-indicator { color: var(--text-3); }
+html[data-theme="dark"] .tutorial-controls .skip-btn {
+  background: var(--bg-card);
+  color: var(--text-2);
+}
+html[data-theme="dark"] .tutorial-controls .skip-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--text-1);
+}
+
+
+/* ─────────────── 完了メッセージ ─────────────── */
+.tutorial-completion {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100vw - 32px));
+  background: var(--bg-panel, #FFFFFF);
+  border: 1px solid var(--border, #D8DCE1);
+  border-radius: 16px;
+  padding: 22px 22px 20px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  z-index: 9300;
+  font-family: sans-serif;
+  animation: tutorial-completion-in 0.25s ease-out;
+}
+
+.tutorial-completion h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-1, #111827);
+  margin: 0 0 10px;
+}
+
+.tutorial-completion p {
+  font-size: 13px;
+  color: var(--text-2, #374151);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.tutorial-completion .hashtag-hint {
+  font-size: 12px;
+  color: var(--text-3, #6B7280);
+  background: var(--bg-subtle, #ECEEF2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0 0 16px;
+}
+
+.tutorial-completion .close-btn {
+  padding: 10px 22px;
+  background: #16A34A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s, transform 0.1s;
+}
+.tutorial-completion .close-btn:hover  { background: #15803D; }
+.tutorial-completion .close-btn:active { transform: scale(0.97); }
+
+@keyframes tutorial-completion-in {
+  from { opacity: 0; transform: translate(-50%, -46%); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+html[data-theme="dark"] .tutorial-completion {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.65);
+}
+html[data-theme="dark"] .tutorial-completion h3 { color: var(--text-1); }
+html[data-theme="dark"] .tutorial-completion p  { color: var(--text-2); }
+html[data-theme="dark"] .tutorial-completion .hashtag-hint {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+}
+html[data-theme="dark"] .tutorial-completion .close-btn        { background: var(--green); }
+html[data-theme="dark"] .tutorial-completion .close-btn:hover  { background: var(--green-dark); }
+
+
+/* ─────────────── 共通アニメーション ─────────────── */
+@keyframes tutorial-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ─────────────── アクセシビリティ: モーションリダクション ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  #show-tutorial-btn,
+  .tutorial-spotlight,
+  .tutorial-overlay,
+  .tutorial-tooltip,
+  .tutorial-completion {
+    animation: none !important;
+  }
+}
