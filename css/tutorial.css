@@ -57,59 +57,81 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
 }
 
 
-/* ─────────────── ヘルプフロートボタン（常設） ─────────────── */
+/* ─────────────── ヘルプフロートボタン（常設・ピル型）─────────────── */
+/*
+ * 既存トリガーボタン（#show-tutorial-btn）は「角丸矩形 + パルス」で
+ * ファーストビュー中央に置くプライマリ導線。
+ * こちらは画面隅で常時アクセスできるフローティング導線として
+ * ピル型で差別化する。
+ */
 #tutorial-help-float {
   position: fixed;
   right: 16px;
   bottom: 16px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid var(--border, #D8DCE1);
-  background: var(--bg-panel, #FFFFFF);
-  color: var(--text-3, #6B7280);
-  font-family: sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-  z-index: 250;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: background 0.15s, color 0.15s, transform 0.1s, border-color 0.15s;
+  gap: 8px;
+  padding: 10px 18px;
+  font-family: sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #16A34A;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(22,163,74,0.38);
+  z-index: 250;
   touch-action: manipulation;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
 #tutorial-help-float:hover {
-  background: var(--bg-subtle, #ECEEF2);
-  color: var(--text-1, #111827);
-  border-color: var(--text-4, #9CA3AF);
+  background: #15803D;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(22,163,74,0.48);
 }
 
-#tutorial-help-float:active { transform: scale(0.95); }
+#tutorial-help-float:active {
+  transform: scale(0.98);
+}
 
-/* モバイル: 下部固定の center-actions バーと被らないよう上に退避 */
+#tutorial-help-float:focus-visible {
+  outline: 2px solid #FFFFFF;
+  outline-offset: 2px;
+}
+
+#tutorial-help-float .tutorial-help-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+#tutorial-help-float .tutorial-help-label {
+  line-height: 1;
+}
+
+/* モバイル: タップ領域 44px 以上を確保、投入ボタンの上に配置 */
 @media (max-width: 767px) {
   #tutorial-help-float {
-    right: 12px;
-    bottom: 135px;
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
+    right: 16px;
+    bottom: 88px;          /* 投入前: 投入ボタン（center-actions）の直上 */
+    padding: 12px 20px;
+    min-height: 44px;
+    font-size: 14px;
+  }
+  #tutorial-help-float .tutorial-help-icon { font-size: 16px; }
+  /* 投入後は center-actions に ops/再投入が加わり背が高くなるので退避 */
+  #center-actions.has-poured ~ #tutorial-help-float {
+    bottom: 160px;
   }
 }
 
 html[data-theme="dark"] #tutorial-help-float {
-  background: var(--bg-panel);
-  border-color: var(--border);
-  color: var(--text-3);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+  background: var(--green);
+  box-shadow: 0 4px 12px rgba(63,185,80,0.38);
 }
 html[data-theme="dark"] #tutorial-help-float:hover {
-  background: var(--bg-subtle);
-  color: var(--text-1);
+  background: var(--green-dark);
+  box-shadow: 0 6px 16px rgba(63,185,80,0.48);
 }
 
 
