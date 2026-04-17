@@ -19,8 +19,25 @@
     return window.innerWidth >= DESKTOP_BP;
   }
 
-  // 鉢エリアの仮想矩形（#canvas 全面ではなく鉢領域を指す）
+  // 鉢エリアの仮想矩形
+  // canvas は body 直下で position:fixed・全画面サイズのため、
+  // 親要素をハイライトしても実際の鉢の位置にスポットライトが合わない。
+  // simulation.js の getCupDimensions() を借りて、実際に描画される
+  // 鉢の寸法からビューポート座標の矩形を算出する。
   function potAreaRect() {
+    try {
+      if (typeof getCupDimensions === 'function') {
+        const d = getCupDimensions();
+        const pad = 14;
+        return {
+          top:    d.topY - pad,
+          left:   d.cx - d.topInnerW / 2 - pad,
+          width:  d.topInnerW + pad * 2,
+          height: d.cupHeight + pad * 2,
+        };
+      }
+    } catch (_) { /* noop */ }
+    // フォールバック（getCupDimensions が無い／例外時）
     if (isDesktop()) {
       return {
         top:    window.innerHeight * 0.15,
@@ -29,16 +46,12 @@
         height: window.innerHeight * 0.60,
       };
     }
-    const spacer = document.getElementById('canvas-spacer');
-    if (spacer) {
-      const r = spacer.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) return r;
-    }
+    const W = window.innerWidth;
     return {
-      top:    window.innerHeight * 0.08,
-      left:   16,
-      width:  window.innerWidth - 32,
-      height: window.innerHeight * 0.40,
+      top:    64,
+      left:   W * 0.08,
+      width:  W * 0.84,
+      height: window.innerHeight * 0.42,
     };
   }
 
@@ -67,8 +80,8 @@
     {
       id: 'filling',
       getTarget: potAreaRect,
-      // 仮想矩形なのでスクロール時は鉢スペーサーに寄せる（モバイルで鉢が画面外のとき）
-      getScrollAnchor: () => document.getElementById('canvas-spacer') || document.getElementById('canvas'),
+      // モバイルは鉢(canvas:fixed) がパネルに隠れないよう文書トップへ戻す
+      scrollToTop: true,
       tooltip: { text: '配合の様子を視覚的に確認。落ち着いたら次へ', position: 'bottom' },
     },
     {
@@ -80,7 +93,7 @@
     {
       id: 'airView',
       getTarget: potAreaRect,
-      getScrollAnchor: () => document.getElementById('canvas-spacer') || document.getElementById('canvas'),
+      scrollToTop: true,
       tooltip: { text: '通気性の理解に役立ちます', position: 'bottom' },
     },
     {
@@ -196,6 +209,21 @@
       // 共有モーダル表示中はスクロール抑止
       if (step && step.id === 'shareModal') return;
 
+      const reduce = this._prefersReducedMotion();
+
+      // モバイル専用: 鉢 canvas を見せるため文書トップへ戻す
+      if (step && step.scrollToTop && !isDesktop()) {
+        if ((window.scrollY || 0) > 20) {
+          try {
+            window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+          } catch (_) {
+            window.scrollTo(0, 0);
+          }
+          if (!reduce) await this._sleep(400);
+        }
+        return;
+      }
+
       // 仮想矩形（鉢エリア）は DOM 要素ではないので、
       // step.getScrollAnchor() が返す DOM 要素を代わりに使う
       let el = null;
@@ -219,11 +247,6 @@
         rect.bottom <= vh - bottomPad;
       if (fullyVisible) return;
 
-      let reduce = false;
-      try {
-        reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      } catch (_) { /* noop */ }
-
       try {
         el.scrollIntoView({
           behavior: reduce ? 'auto' : 'smooth',
@@ -238,6 +261,11 @@
 
     _sleep(ms) {
       return new Promise(r => setTimeout(r, ms));
+    }
+
+    _prefersReducedMotion() {
+      try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+      catch (_) { return false; }
     }
 
     _goNext() {
