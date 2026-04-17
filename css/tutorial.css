@@ -57,12 +57,14 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
 }
 
 
-/* ─────────────── ヘルプフロートボタン（常設・ピル型）─────────────── */
+/* ─────────────── ヘルプフロートボタン（常設・ピル↔丸の動的切替）─────────────── */
 /*
- * 既存トリガーボタン（#show-tutorial-btn）は「角丸矩形 + パルス」で
- * ファーストビュー中央に置くプライマリ導線。
- * こちらは画面隅で常時アクセスできるフローティング導線として
- * ピル型で差別化する。
+ * 既存トリガーボタン（#show-tutorial-btn）はファーストビュー中央の
+ * 角丸矩形＋パルスで提示するプライマリ導線。
+ * こちらは画面隅で常時アクセスできる「フローティング導線」。
+ *
+ * 初期: ピル型 + 「💡 使い方を見る」ラベル（初回訪問から 5 秒）
+ * その後 / リピーター: 丸型アイコンのみ（56×56）
  */
 #tutorial-help-float {
   position: fixed;
@@ -70,68 +72,116 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
   bottom: 16px;
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 8px;
-  padding: 10px 18px;
+  height: 56px;
+  padding: 0 20px 0 14px;
   font-family: sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: #FFFFFF;
   background: #16A34A;
   border: none;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(22,163,74,0.38);
+  box-shadow: 0 4px 16px rgba(22,163,74,0.45);
   z-index: 250;
   touch-action: manipulation;
-  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+  transition:
+    width 0.3s ease,
+    padding 0.3s ease,
+    background 0.15s,
+    transform 0.15s,
+    box-shadow 0.2s;
+}
+
+#tutorial-help-float .tutorial-help-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+#tutorial-help-float .tutorial-help-label {
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 200px;
+  opacity: 1;
+  transition: max-width 0.3s ease, opacity 0.2s ease;
 }
 
 #tutorial-help-float:hover {
   background: #15803D;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(22,163,74,0.48);
+  box-shadow: 0 6px 20px rgba(22,163,74,0.55);
 }
-
-#tutorial-help-float:active {
-  transform: scale(0.98);
-}
-
+#tutorial-help-float:active { transform: scale(0.98); }
 #tutorial-help-float:focus-visible {
   outline: 2px solid #FFFFFF;
   outline-offset: 2px;
 }
 
-#tutorial-help-float .tutorial-help-icon {
-  font-size: 15px;
-  line-height: 1;
+/* 縮小状態: 56×56 の丸 */
+#tutorial-help-float.compact {
+  width: 56px;
+  padding: 0;
+  justify-content: center;
 }
-#tutorial-help-float .tutorial-help-label {
-  line-height: 1;
+#tutorial-help-float.compact .tutorial-help-label {
+  max-width: 0;
+  opacity: 0;
 }
 
-/* モバイル: タップ領域 44px 以上を確保、投入ボタンの上に配置 */
+/* 展開中（ラベル付き）だけ ゆるめのパルス */
+@keyframes tutorial-help-pulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(22,163,74,0.45); }
+  50%      { box-shadow: 0 4px 24px rgba(22,163,74,0.70); }
+}
+#tutorial-help-float:not(.compact) {
+  animation: tutorial-help-pulse 2s ease-in-out infinite;
+}
+
+/* デスクトップのみ: 丸状態にホバーするとラベルを再展開 */
+@media (hover: hover) {
+  #tutorial-help-float.compact:hover {
+    width: auto;
+    padding: 0 20px 0 14px;
+  }
+  #tutorial-help-float.compact:hover .tutorial-help-label {
+    max-width: 200px;
+    opacity: 1;
+  }
+}
+
+/* モバイル: 配置のみ調整（サイズは共通 56px） */
 @media (max-width: 767px) {
   #tutorial-help-float {
     right: 16px;
-    bottom: 88px;          /* 投入前: 投入ボタン（center-actions）の直上 */
-    padding: 12px 20px;
-    min-height: 44px;
-    font-size: 14px;
+    bottom: 80px;  /* 投入前: 投入ボタンの上 */
   }
-  #tutorial-help-float .tutorial-help-icon { font-size: 16px; }
-  /* 投入後は center-actions に ops/再投入が加わり背が高くなるので退避 */
+  /* 投入後は center-actions が高くなるため退避 */
   #center-actions.has-poured ~ #tutorial-help-float {
     bottom: 160px;
   }
 }
 
+/* チュートリアル実行中はヘルプボタンを隠す（重複誘導を避ける） */
+body.tutorial-active #tutorial-help-float { display: none; }
+
 html[data-theme="dark"] #tutorial-help-float {
   background: var(--green);
-  box-shadow: 0 4px 12px rgba(63,185,80,0.38);
+  box-shadow: 0 4px 16px rgba(63,185,80,0.45);
 }
 html[data-theme="dark"] #tutorial-help-float:hover {
   background: var(--green-dark);
-  box-shadow: 0 6px 16px rgba(63,185,80,0.48);
+  box-shadow: 0 6px 20px rgba(63,185,80,0.55);
+}
+@keyframes tutorial-help-pulse-dark {
+  0%, 100% { box-shadow: 0 4px 16px rgba(63,185,80,0.45); }
+  50%      { box-shadow: 0 4px 24px rgba(63,185,80,0.70); }
+}
+html[data-theme="dark"] #tutorial-help-float:not(.compact) {
+  animation-name: tutorial-help-pulse-dark;
 }
 
 
@@ -532,7 +582,12 @@ html[data-theme="dark"] .tutorial-completion .close-btn:hover  { background: var
   #show-tutorial-btn,
   .tutorial-spotlight,
   .tutorial-tooltip,
-  .tutorial-completion {
+  .tutorial-completion,
+  #tutorial-help-float {
     animation: none !important;
+  }
+  #tutorial-help-float,
+  #tutorial-help-float .tutorial-help-label {
+    transition: none !important;
   }
 }

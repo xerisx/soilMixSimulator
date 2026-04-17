@@ -12,7 +12,9 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY_SEEN = 'qsoil_tutorial_seen';
+  const STORAGE_KEY_SEEN       = 'qsoil_tutorial_seen';
+  const HELP_LABEL_SEEN_KEY    = 'qsoil_help_label_seen';
+  const HELP_LABEL_COLLAPSE_MS = 5000;
   const DESKTOP_BP = 768;
 
   function isDesktop() {
@@ -549,6 +551,18 @@
     if (helpBtn && !helpBtn._tutorialBound) {
       helpBtn._tutorialBound = true;
       helpBtn.addEventListener('click', () => tutorial.start());
+
+      // 初回訪問のみ 5 秒間ラベル付き → その後丸アイコンに縮小
+      let seen = false;
+      try { seen = !!localStorage.getItem(HELP_LABEL_SEEN_KEY); } catch (_) { seen = true; }
+      if (seen) {
+        helpBtn.classList.add('compact');
+      } else {
+        setTimeout(() => {
+          helpBtn.classList.add('compact');
+          try { localStorage.setItem(HELP_LABEL_SEEN_KEY, '1'); } catch (_) {}
+        }, HELP_LABEL_COLLAPSE_MS);
+      }
     }
   }
 
