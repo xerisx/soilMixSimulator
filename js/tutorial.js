@@ -150,7 +150,6 @@
     constructor() {
       this.isRunning = false;
       this.currentStep = 0;
-      this.overlay = null;
       this.spotlight = null;
       this.tooltip = null;
       this.controls = null;
@@ -158,6 +157,7 @@
       this._abort = null;
       this._resizeHandler = null;
       this._escHandler = null;
+      this._clickHandler = null;
     }
 
     async start() {
@@ -174,7 +174,7 @@
       }
 
       document.body.classList.add('tutorial-active');
-      this._createOverlay();
+      this._createTutorialUI();
       this._createControls();
       this._attachGlobalHandlers();
 
@@ -241,13 +241,8 @@
     }
 
     // ── DOM 生成 ──
-    _createOverlay() {
-      this.overlay = document.createElement('div');
-      this.overlay.className = 'tutorial-overlay';
-      this.overlay.setAttribute('aria-hidden', 'true');
-      this.overlay.addEventListener('click', () => this.skip());
-      document.body.appendChild(this.overlay);
-
+    _createTutorialUI() {
+      // オーバーレイ div は使わない: スポットライトの外側暗転 box-shadow で代替
       this.spotlight = document.createElement('div');
       this.spotlight.className = 'tutorial-spotlight';
       this.spotlight.style.display = 'none';
@@ -299,6 +294,16 @@
       this.spotlight.style.left   = (rect.left   - pad) + 'px';
       this.spotlight.style.width  = (rect.width  + pad * 2) + 'px';
       this.spotlight.style.height = (rect.height + pad * 2) + 'px';
+
+      // 対象の border-radius に追従（ボタン等の丸みを保つ）
+      let br = '12px';
+      if (target && target.nodeType === 1) {
+        try {
+          const cs = getComputedStyle(target);
+          if (cs.borderRadius && cs.borderRadius !== '0px') br = cs.borderRadius;
+        } catch (_) { /* noop */ }
+      }
+      this.spotlight.style.borderRadius = br;
     }
 
     _clearSpotlight() {
@@ -403,7 +408,6 @@
       this._clearSpotlight();
       this._clearTooltip();
       this._removeControls();
-      if (this.overlay)    { this.overlay.remove();    this.overlay = null; }
       if (this.spotlight)  { this.spotlight.remove();  this.spotlight = null; }
       if (this.tooltip)    { this.tooltip.remove();    this.tooltip = null; }
       if (this.completion) { this.completion.remove(); this.completion = null; }
@@ -425,18 +429,46 @@
         }
       };
       window.addEventListener('resize', this._resizeHandler);
+      window.addEventListener('scroll', this._resizeHandler, true);
 
       this._escHandler = (e) => {
         if (e.key === 'Escape') this.skip();
       };
       document.addEventListener('keydown', this._escHandler);
+
+      // 対象要素以外のクリックで即スキップ（capture phase で他のハンドラより先に止める）
+      this._clickHandler = (e) => {
+        if (!e.isTrusted) return; // 自動クリック（target.click()）は無視
+        const t = e.target;
+        // チュートリアル自身の UI 上の操作はスキップ判定しない
+        if (t.closest && (
+          t.closest('.tutorial-tooltip') ||
+          t.closest('.tutorial-controls') ||
+          t.closest('.tutorial-completion')
+        )) return;
+        // 現在のステップ対象要素への操作は許可（ユーザー自身が触った）
+        const step = STEPS[this.currentStep];
+        const cur = step && step.getTarget ? step.getTarget() : null;
+        if (cur && cur.nodeType === 1 && cur.contains(t)) return;
+        // 上記以外 = 対象外要素への操作 → 即スキップ
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        this.skip();
+      };
+      document.addEventListener('click', this._clickHandler, true);
     }
 
     _detachGlobalHandlers() {
-      if (this._resizeHandler) window.removeEventListener('resize', this._resizeHandler);
+      if (this._resizeHandler) {
+        window.removeEventListener('resize', this._resizeHandler);
+        window.removeEventListener('scroll', this._resizeHandler, true);
+      }
       if (this._escHandler)    document.removeEventListener('keydown', this._escHandler);
+      if (this._clickHandler)  document.removeEventListener('click', this._clickHandler, true);
       this._resizeHandler = null;
       this._escHandler = null;
+      this._clickHandler = null;
     }
 
     _sleep(ms) {

@@ -113,59 +113,75 @@ html[data-theme="dark"] #tutorial-help-float:hover {
 }
 
 
-/* ─────────────── オーバーレイ ─────────────── */
-.tutorial-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.52);
-  z-index: 9000;
-  cursor: pointer;
-  animation: tutorial-fade-in 0.2s ease-out;
-}
-
-/* チュートリアル中は共有モーダルをオーバーレイより前面に出す */
+/* チュートリアル中は共有モーダルをスポットライトより前面に出す */
 body.tutorial-active #share-modal:not([hidden]) {
   z-index: 9060;
 }
 
-@media (max-width: 767px) {
-  .tutorial-overlay { background: rgba(0,0,0,0.40); }
-}
 
-html[data-theme="dark"] .tutorial-overlay {
-  background: rgba(0,0,0,0.70);
-}
-
-
-/* ─────────────── スポットライト（対象を囲むリング） ─────────────── */
+/* ─────────────── スポットライト（対象を囲むリング + 外側暗転） ─────────────── */
+/*
+ * 全画面オーバーレイを廃止し、スポットライト div の box-shadow だけで
+ * 「対象の外側だけを暗転」する方式。
+ *
+ * box-shadow は自身の box の外側にのみ描画されるため、
+ * spread 9999px の黒影を重ねると、スポットライト矩形の外側だけが暗くなり、
+ * 対象要素（スポットライトの下）はそのまま視認できる。
+ *
+ * pointer-events: none なので対象要素への操作（自動クリック）はすり抜ける。
+ * 対象外クリックでのスキップは JS 側の document capture listener で扱う。
+ */
 .tutorial-spotlight {
+  --tutorial-dim: rgba(0, 0, 0, 0.55);
   position: fixed;
   pointer-events: none;
   z-index: 9050;
   border-radius: 12px;
+  background: transparent;
   box-shadow:
     0 0 0 3px rgba(22,163,74,0.95),
-    0 0 18px rgba(22,163,74,0.55);
-  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+    0 0 18px rgba(22,163,74,0.55),
+    0 0 0 9999px var(--tutorial-dim);
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease, border-radius 0.2s ease;
   animation: tutorial-spotlight-pulse 1.6s ease-in-out infinite;
 }
 
 @keyframes tutorial-spotlight-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(22,163,74,0.95), 0 0 18px rgba(22,163,74,0.55); }
-  50%      { box-shadow: 0 0 0 5px rgba(22,163,74,0.75), 0 0 28px rgba(22,163,74,0.35); }
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(22,163,74,0.95),
+      0 0 18px rgba(22,163,74,0.55),
+      0 0 0 9999px var(--tutorial-dim);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px rgba(22,163,74,0.75),
+      0 0 28px rgba(22,163,74,0.35),
+      0 0 0 9999px var(--tutorial-dim);
+  }
+}
+
+@media (max-width: 767px) {
+  .tutorial-spotlight { --tutorial-dim: rgba(0, 0, 0, 0.42); }
 }
 
 html[data-theme="dark"] .tutorial-spotlight {
-  box-shadow:
-    0 0 0 3px rgba(63,185,80,0.95),
-    0 0 18px rgba(63,185,80,0.55);
-}
-html[data-theme="dark"] .tutorial-spotlight {
+  --tutorial-dim: rgba(0, 0, 0, 0.70);
   animation-name: tutorial-spotlight-pulse-dark;
 }
 @keyframes tutorial-spotlight-pulse-dark {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(63,185,80,0.95), 0 0 18px rgba(63,185,80,0.55); }
-  50%      { box-shadow: 0 0 0 5px rgba(63,185,80,0.75), 0 0 28px rgba(63,185,80,0.35); }
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(63,185,80,0.95),
+      0 0 18px rgba(63,185,80,0.55),
+      0 0 0 9999px var(--tutorial-dim);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px rgba(63,185,80,0.75),
+      0 0 28px rgba(63,185,80,0.35),
+      0 0 0 9999px var(--tutorial-dim);
+  }
 }
 
 
@@ -391,18 +407,10 @@ html[data-theme="dark"] .tutorial-completion .close-btn        { background: var
 html[data-theme="dark"] .tutorial-completion .close-btn:hover  { background: var(--green-dark); }
 
 
-/* ─────────────── 共通アニメーション ─────────────── */
-@keyframes tutorial-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-
 /* ─────────────── アクセシビリティ: モーションリダクション ─────────────── */
 @media (prefers-reduced-motion: reduce) {
   #show-tutorial-btn,
   .tutorial-spotlight,
-  .tutorial-overlay,
   .tutorial-tooltip,
   .tutorial-completion {
     animation: none !important;
