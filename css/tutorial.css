@@ -63,8 +63,9 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
  * 角丸矩形＋パルスで提示するプライマリ導線。
  * こちらは画面隅で常時アクセスできる「フローティング導線」。
  *
- * 初期: ピル型 + 「💡 使い方を見る」ラベル（初回訪問から 5 秒）
+ * 初期: ピル型 + 「? 使い方を見る」ラベル（初回訪問から 5 秒）
  * その後 / リピーター: 丸型アイコンのみ（56×56）
+ * モバイルでは下スクロール中は下方向に退避（.scroll-hidden）
  */
 #tutorial-help-float {
   position: fixed;
@@ -85,15 +86,25 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
   border-radius: 999px;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(22,163,74,0.45);
-  z-index: 250;
+  z-index: 90;   /* 分析パネル(z:100) より下、モーダル(z:250) より下 */
   touch-action: manipulation;
   overflow: hidden;
+  transform: translateY(0);
+  opacity: 1;
   transition:
     width 0.3s ease,
     padding 0.3s ease,
     background 0.15s,
-    transform 0.15s,
+    transform 0.3s ease,
+    opacity 0.3s ease,
     box-shadow 0.2s;
+}
+
+/* スクロールで下に退避 */
+#tutorial-help-float.scroll-hidden {
+  transform: translateY(100px);
+  opacity: 0;
+  pointer-events: none;
 }
 
 #tutorial-help-float .tutorial-help-icon {
@@ -157,11 +168,11 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
 @media (max-width: 767px) {
   #tutorial-help-float {
     right: 16px;
-    bottom: 80px;  /* 投入前: 投入ボタンの上 */
+    bottom: calc(72px + env(safe-area-inset-bottom));  /* 投入前: 投入ボタンの上 */
   }
   /* 投入後は center-actions が高くなるため退避 */
   #center-actions.has-poured ~ #tutorial-help-float {
-    bottom: 160px;
+    bottom: calc(160px + env(safe-area-inset-bottom));
   }
 }
 

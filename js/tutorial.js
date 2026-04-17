@@ -563,6 +563,23 @@
           try { localStorage.setItem(HELP_LABEL_SEEN_KEY, '1'); } catch (_) {}
         }, HELP_LABEL_COLLAPSE_MS);
       }
+
+      // モバイル: 下スクロール中は隠し、上スクロール or 停止後に再表示
+      let lastScrollY = window.scrollY || 0;
+      let scrollTimer = null;
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY || 0;
+        if (y > lastScrollY && y > 100) {
+          helpBtn.classList.add('scroll-hidden');
+        } else {
+          helpBtn.classList.remove('scroll-hidden');
+        }
+        lastScrollY = y;
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+          helpBtn.classList.remove('scroll-hidden');
+        }, 1500);
+      }, { passive: true });
     }
   }
 
