@@ -437,6 +437,9 @@
     }
 
     // ── 完了メッセージ ──
+    // 完了画面では「前へ」を出さない。前に戻る必然性が低く、かつ
+    // 共有モーダルの再オープン処理が必要になってバグの温床になりやすい。
+    // 終了手段は × / 完了ボタン / Esc の 3 通り。
     _showCompletion() {
       if (this.completion) this.completion.remove();
       const indicator = STEPS.length + ' / ' + STEPS.length;
@@ -449,13 +452,10 @@
         '<h3>✨ 使い方をマスターしました</h3>' +
         '<p>配合ができたら、ぜひXでシェアしてください</p>' +
         '<p class="hashtag-hint">#Qsoil配合 で投稿すると見つけやすくなります</p>' +
-        '<div class="tutorial-tooltip-actions">' +
-          '<button class="tutorial-tip-prev" type="button">← 前へ</button>' +
+        '<div class="tutorial-completion-actions">' +
           '<span class="tutorial-tip-indicator">' + indicator + '</span>' +
           '<button class="tutorial-tip-next close-btn" type="button">完了</button>' +
         '</div>';
-      this.completion.querySelector('.tutorial-tip-prev')
-        .addEventListener('click', () => this._goPrev());
       this.completion.querySelector('.close-btn')
         .addEventListener('click', () => this._finalize());
       this.completion.querySelector('.tutorial-tip-close')

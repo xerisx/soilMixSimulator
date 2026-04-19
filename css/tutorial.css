@@ -583,16 +583,13 @@ html[data-theme="dark"] .tutorial-tip-next:hover {
   margin: 0 0 16px;
 }
 
-.tutorial-completion .tutorial-tip-prev {
-  color: var(--text-3, #6B7280);
-  background: var(--bg-subtle, #ECEEF2);
-  border: 1px solid var(--border, #D8DCE1);
-  font-size: 13px;
-  padding: 9px 16px;
-}
-.tutorial-completion .tutorial-tip-prev:hover {
-  background: var(--border, #D8DCE1);
-  color: var(--text-1, #111827);
+/* 完了画面のアクション行: 「11 / 11」と「完了」を両端に配置
+   前へボタンは完了画面では非表示にしているため 2 要素のみ */
+.tutorial-completion-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .tutorial-completion .close-btn {
@@ -616,15 +613,6 @@ html[data-theme="dark"] .tutorial-tip-next:hover {
   color: var(--text-3, #6B7280);
 }
 
-html[data-theme="dark"] .tutorial-completion .tutorial-tip-prev {
-  color: var(--text-3);
-  background: var(--bg-card);
-  border-color: var(--border);
-}
-html[data-theme="dark"] .tutorial-completion .tutorial-tip-prev:hover {
-  background: var(--bg-subtle);
-  color: var(--text-1);
-}
 html[data-theme="dark"] .tutorial-completion .tutorial-tip-indicator {
   color: var(--text-3);
 }
