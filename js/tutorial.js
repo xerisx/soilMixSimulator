@@ -608,6 +608,23 @@
           helpBtn.classList.remove('scroll-hidden');
         }, 1500);
       }, { passive: true });
+
+      // デスクトップでのホバー展開: 幅変化でマウスが外れて :hover が
+      // チラつくのを避けるため、mouseleave に短い遅延を入れて安定化する。
+      // touch 端末では mouseenter/leave の発火が不安定だが、発火しても
+      // クリック直後に body.tutorial-active で display:none になるため影響なし。
+      let hoverTimer = null;
+      helpBtn.addEventListener('mouseenter', () => {
+        if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+        helpBtn.classList.add('hover-expanded');
+      });
+      helpBtn.addEventListener('mouseleave', () => {
+        if (hoverTimer) clearTimeout(hoverTimer);
+        hoverTimer = setTimeout(() => {
+          helpBtn.classList.remove('hover-expanded');
+          hoverTimer = null;
+        }, 150);
+      });
     }
   }
 

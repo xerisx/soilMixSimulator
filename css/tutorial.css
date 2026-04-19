@@ -200,14 +200,18 @@ html[data-theme="dark"] #show-tutorial-btn.tutorial-btn-seen:hover {
   animation: tutorial-help-pulse 2s ease-in-out infinite;
 }
 
-/* デスクトップのみ: 丸状態にホバーするとラベルを再展開 */
+/* デスクトップのみ: 丸状態にホバーするとラベルを再展開。
+ * CSS :hover を直接使うと、展開で幅が変わった際にマウスが要素外に
+ * はみ出して hover が外れ、展開↔縮小のチラつきが起きる。
+ * そのため JS (bindTriggers) から .hover-expanded クラスを付け、
+ * mouseleave に 150ms の遅延を入れて安定化している。 */
 @media (hover: hover) {
-  #tutorial-help-float.compact:hover {
+  #tutorial-help-float.compact.hover-expanded {
     width: auto;
     padding: 0 20px 0 14px;
     gap: 8px;  /* 展開時と同じギャップに戻す */
   }
-  #tutorial-help-float.compact:hover .tutorial-help-label {
+  #tutorial-help-float.compact.hover-expanded .tutorial-help-label {
     max-width: 200px;
     opacity: 1;
   }
