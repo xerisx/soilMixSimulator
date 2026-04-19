@@ -63,7 +63,7 @@
     {
       id: 'preset',
       getTarget: () => document.querySelector('button[data-preset="balance"]'),
-      tooltip: { text: 'クイックスタートから始められます', position: 'bottom' },
+      tooltip: { text: 'スライダーの初期値を決めてくれます', position: 'bottom' },
       onNext: (target) => { if (target) target.click(); },
     },
     {
@@ -71,12 +71,12 @@
       getTarget: () =>
         document.querySelector('#obj-list [data-accordion="active"]') ||
         document.getElementById('obj-list'),
-      tooltip: { text: '資材の割合が自動で設定されます', position: 'right' },
+      tooltip: { text: '選んだ資材の割合が入ります', position: 'right' },
     },
     {
       id: 'start',
       getTarget: () => document.getElementById('startBtn'),
-      tooltip: { text: 'ここを押すと充填開始', position: 'top' },
+      tooltip: { text: '押すと充填が始まります', position: 'top' },
       onNext: (target) => { if (target) target.click(); },
     },
     {
@@ -96,7 +96,7 @@
       id: 'airView',
       getTarget: potAreaRect,
       scrollToTop: true,
-      tooltip: { text: '通気性の理解に役立ちます', position: 'bottom' },
+      tooltip: { text: '空気が多いほど通気性が高くなります', position: 'bottom' },
     },
     {
       id: 'analysis',
@@ -106,7 +106,7 @@
         }
         return document.getElementById('mobile-metrics-sticky') || document.getElementById('right-panel');
       },
-      tooltip: { text: '排水性・保水性・通気性が数値でわかります', position: 'left' },
+      tooltip: { text: '配合の特性が数値でわかります', position: 'left' },
     },
     {
       id: 'compare',
@@ -117,7 +117,7 @@
         return document.getElementById('mms-compare-btn') ||
                document.getElementById('pc-compare-btn');
       },
-      tooltip: { text: '複数の配合を比較できます', position: 'bottom' },
+      tooltip: { text: '配合を並べて比べられます', position: 'bottom' },
     },
     {
       id: 'share',
@@ -125,13 +125,13 @@
         if (isDesktop()) return document.getElementById('pc-share-btn');
         return document.getElementById('mms-share-btn');
       },
-      tooltip: { text: '作った配合はSNSでシェアできます', position: 'top' },
+      tooltip: { text: '作った配合はSNSで共有できます', position: 'top' },
       onNext: (target) => { if (target) target.click(); },
     },
     {
       id: 'shareModal',
       getTarget: () => document.querySelector('.share-modal-box'),
-      tooltip: { text: '画像付きでXに投稿できます', position: 'top' },
+      tooltip: { text: 'デザインを選んで画像付きで投稿', position: 'top' },
     },
     {
       id: 'complete',
@@ -451,7 +451,7 @@
         '<button class="tutorial-tip-close" type="button" aria-label="閉じる">×</button>' +
         '<h3>✨ 使い方をマスターしました</h3>' +
         '<p>配合ができたら、ぜひXでシェアしてください</p>' +
-        '<p class="hashtag-hint">#Qsoil配合 で投稿すると見つけやすくなります</p>' +
+        '<p class="hashtag-hint">#qsoil で投稿すると見つけやすくなります</p>' +
         '<div class="tutorial-completion-actions">' +
           '<button class="tutorial-tip-next close-btn" type="button">完了</button>' +
         '</div>';
