@@ -94,6 +94,7 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
   transition:
     width 0.3s ease,
     padding 0.3s ease,
+    gap 0.3s ease,
     background 0.15s,
     transform 0.3s ease,
     opacity 0.3s ease,
@@ -108,6 +109,9 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
 }
 
 #tutorial-help-float .tutorial-help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 22px;
   line-height: 1;
   flex-shrink: 0;
@@ -118,6 +122,8 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
   overflow: hidden;
   max-width: 200px;
   opacity: 1;
+  margin: 0;
+  padding: 0;
   transition: max-width 0.3s ease, opacity 0.2s ease;
 }
 
@@ -136,11 +142,15 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
 #tutorial-help-float.compact {
   width: 56px;
   padding: 0;
+  gap: 0;                /* ラベル分のスペースを完全に消す */
   justify-content: center;
+  align-items: center;
 }
 #tutorial-help-float.compact .tutorial-help-label {
   max-width: 0;
   opacity: 0;
+  margin: 0;
+  padding: 0;
 }
 
 /* 展開中（ラベル付き）だけ ゆるめのパルス */
@@ -157,6 +167,7 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
   #tutorial-help-float.compact:hover {
     width: auto;
     padding: 0 20px 0 14px;
+    gap: 8px;  /* 展開時と同じギャップに戻す */
   }
   #tutorial-help-float.compact:hover .tutorial-help-label {
     max-width: 200px;
