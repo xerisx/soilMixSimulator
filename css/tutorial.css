@@ -92,7 +92,13 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
   border: none;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(22,163,74,0.45);
+  /* 影は CSS 変数にして pulse keyframe と共通化。
+     モバイルで縮小した際に影だけ強く残って浮かないよう、メディア
+     クエリで上書きしやすいようにしている。 */
+  --help-shadow:        0 4px 16px rgba(22,163,74,0.45);
+  --help-shadow-strong: 0 4px 24px rgba(22,163,74,0.70);
+  --help-shadow-hover:  0 6px 20px rgba(22,163,74,0.55);
+  box-shadow: var(--help-shadow);
   z-index: 90;   /* 分析パネル(z:100) より下、モーダル(z:250) より下 */
   touch-action: manipulation;
   overflow: hidden;
@@ -137,7 +143,7 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
 #tutorial-help-float:hover {
   background: #15803D;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(22,163,74,0.55);
+  box-shadow: var(--help-shadow-hover);
 }
 #tutorial-help-float:active { transform: scale(0.98); }
 #tutorial-help-float:focus-visible {
@@ -160,10 +166,11 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
   padding: 0;
 }
 
-/* 展開中（ラベル付き）だけ ゆるめのパルス */
+/* 展開中（ラベル付き）だけ ゆるめのパルス
+   影の値は CSS 変数経由でモバイル/ダークで差し替わる */
 @keyframes tutorial-help-pulse {
-  0%, 100% { box-shadow: 0 4px 16px rgba(22,163,74,0.45); }
-  50%      { box-shadow: 0 4px 24px rgba(22,163,74,0.70); }
+  0%, 100% { box-shadow: var(--help-shadow); }
+  50%      { box-shadow: var(--help-shadow-strong); }
 }
 #tutorial-help-float:not(.compact) {
   animation: tutorial-help-pulse 2s ease-in-out infinite;
@@ -184,13 +191,25 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
 
 /* モバイル: #center-actions の上端に張り付ける absolute 配置
    →「投入して開始」だけの状態と「空気層 + 再投入」の2段状態の
-     どちらでもボタン群の直上 12px に配置される */
+     どちらでもボタン群の直上 12px に配置される
+   サイズも 56→48 に縮小（存在感を抑えつつタップ領域は 44px 以上確保）*/
 @media (max-width: 767px) {
   #tutorial-help-float {
     position: absolute;
     right: 16px;
     bottom: 100%;
     margin-bottom: 12px;
+    height: 48px;
+    /* 影はサイズダウンに合わせて控えめに */
+    --help-shadow:        0 3px 12px rgba(22,163,74,0.40);
+    --help-shadow-strong: 0 3px 18px rgba(22,163,74,0.55);
+    --help-shadow-hover:  0 4px 14px rgba(22,163,74,0.45);
+  }
+  #tutorial-help-float.compact {
+    width: 48px;
+  }
+  #tutorial-help-float .tutorial-help-icon {
+    font-size: 20px;
   }
 }
 
@@ -199,18 +218,20 @@ body.tutorial-active #tutorial-help-float { display: none; }
 
 html[data-theme="dark"] #tutorial-help-float {
   background: var(--green);
-  box-shadow: 0 4px 16px rgba(63,185,80,0.45);
+  --help-shadow:        0 4px 16px rgba(63,185,80,0.45);
+  --help-shadow-strong: 0 4px 24px rgba(63,185,80,0.70);
+  --help-shadow-hover:  0 6px 20px rgba(63,185,80,0.55);
 }
 html[data-theme="dark"] #tutorial-help-float:hover {
   background: var(--green-dark);
-  box-shadow: 0 6px 20px rgba(63,185,80,0.55);
 }
-@keyframes tutorial-help-pulse-dark {
-  0%, 100% { box-shadow: 0 4px 16px rgba(63,185,80,0.45); }
-  50%      { box-shadow: 0 4px 24px rgba(63,185,80,0.70); }
-}
-html[data-theme="dark"] #tutorial-help-float:not(.compact) {
-  animation-name: tutorial-help-pulse-dark;
+/* モバイル × ダーク: 控えめの影に差し替え */
+@media (max-width: 767px) {
+  html[data-theme="dark"] #tutorial-help-float {
+    --help-shadow:        0 3px 12px rgba(63,185,80,0.40);
+    --help-shadow-strong: 0 3px 18px rgba(63,185,80,0.55);
+    --help-shadow-hover:  0 4px 14px rgba(63,185,80,0.45);
+  }
 }
 
 
