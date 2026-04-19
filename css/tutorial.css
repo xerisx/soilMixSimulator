@@ -66,6 +66,13 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
  * 初期: ピル型 + 「? 使い方を見る」ラベル（初回訪問から 5 秒）
  * その後 / リピーター: 丸型アイコンのみ（56×56）
  * モバイルでは下スクロール中は下方向に退避（.scroll-hidden）
+ *
+ * DOM 上は #center-actions の子。
+ * デスクトップ: position: fixed で viewport 右下に固定。
+ *   親 #center-actions の stacking context（z:150-200）に乗るので
+ *   右ペイン（z:100）より前面に描画される。
+ * モバイル: position: absolute で親 #center-actions の上端に張り付け、
+ *   投入前/後でボタンエリアの高さが変わっても一定距離を保つ。
  */
 #tutorial-help-float {
   position: fixed;
@@ -175,15 +182,15 @@ html[data-theme="dark"] #show-tutorial-btn:hover {
   }
 }
 
-/* モバイル: 配置のみ調整（サイズは共通 56px） */
+/* モバイル: #center-actions の上端に張り付ける absolute 配置
+   →「投入して開始」だけの状態と「空気層 + 再投入」の2段状態の
+     どちらでもボタン群の直上 12px に配置される */
 @media (max-width: 767px) {
   #tutorial-help-float {
+    position: absolute;
     right: 16px;
-    bottom: calc(72px + env(safe-area-inset-bottom));  /* 投入前: 投入ボタンの上 */
-  }
-  /* 投入後は center-actions が高くなるため退避 */
-  #center-actions.has-poured ~ #tutorial-help-float {
-    bottom: calc(160px + env(safe-area-inset-bottom));
+    bottom: 100%;
+    margin-bottom: 12px;
   }
 }
 

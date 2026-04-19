@@ -223,6 +223,11 @@
     <div class="act-group-reset">
       <button id="reinvestBtn" class="act-btn act-reset">再投入</button>
     </div>
+    <!-- チュートリアル常設ヘルプボタン（モバイルは center-actions の上に absolute 配置） -->
+    <button id="tutorial-help-float" type="button" aria-label="使い方を見る" title="使い方を見る">
+      <span class="tutorial-help-icon" aria-hidden="true">?</span>
+      <span class="tutorial-help-label">使い方を見る</span>
+    </button>
   </div>
 
   <!-- キャンバス初期ガイド（初回のみ表示） -->
@@ -241,12 +246,6 @@
       </button>
     </div>
   </div>
-
-  <!-- チュートリアル常設ヘルプボタン -->
-  <button id="tutorial-help-float" type="button" aria-label="使い方を見る" title="使い方を見る">
-    <span class="tutorial-help-icon" aria-hidden="true">?</span>
-    <span class="tutorial-help-label">使い方を見る</span>
-  </button>
 
   <!-- 右パネル: グラフ -->
   <div id="right-panel">
