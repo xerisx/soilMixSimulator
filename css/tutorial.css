@@ -602,13 +602,14 @@ html[data-theme="dark"] .tutorial-tip-next:hover {
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;          /* 投入ボタンと同じ太さ */
   font-family: sans-serif;
   cursor: pointer;
   touch-action: manipulation;
+  opacity: 1;
   transition: background 0.15s, transform 0.1s;
 }
-.tutorial-completion .close-btn:hover  { background: #15803D; }
+.tutorial-completion .close-btn:hover  { background: #15803D; color: #FFFFFF; }
 .tutorial-completion .close-btn:active { transform: scale(0.97); }
 
 .tutorial-completion .tutorial-tip-indicator {
@@ -651,8 +652,21 @@ html[data-theme="dark"] .tutorial-completion .hashtag-hint {
   background: var(--bg-subtle);
   color: var(--text-3);
 }
-html[data-theme="dark"] .tutorial-completion .close-btn        { background: var(--green); }
-html[data-theme="dark"] .tutorial-completion .close-btn:hover  { background: var(--green-dark); }
+/* close-btn はツールチップの .tutorial-tip-next も兼ねるため
+   ダークモードの .tutorial-tip-next 用ルール（背景白 + 緑文字）が
+   specificity 勝負で漏れて、緑背景 + 緑文字で読めなくなっていた。
+   投入ボタン / ヘルプボタンと同じ鮮やかな緑 + 純白で明示的に統一する */
+html[data-theme="dark"] .tutorial-completion .close-btn {
+  background: var(--green);
+  color: #FFFFFF;
+  border-color: var(--green);
+  font-weight: 700;
+  opacity: 1;
+}
+html[data-theme="dark"] .tutorial-completion .close-btn:hover {
+  background: var(--green-dark);
+  color: #FFFFFF;
+}
 
 
 /* ─────────────── アクセシビリティ: モーションリダクション ─────────────── */
