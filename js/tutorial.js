@@ -164,6 +164,9 @@
         if (matBtn) matBtn.click();
       }
 
+      // チュートリアル起動タイミングで「一度は触れた」判定にする
+      markHelpSeen();
+
       document.body.classList.add('tutorial-active');
       this._createTutorialUI();
       this._attachGlobalHandlers();
@@ -541,6 +544,20 @@
   const tutorial = new QsoilTutorial();
   window.qsoilTutorial = tutorial;
 
+  // 「一度は触れた」状態のUIを適用する（localStorage は触らない）
+  function applySeenStateUI() {
+    const helpBtn = document.getElementById('tutorial-help-float');
+    if (helpBtn) helpBtn.classList.add('compact');
+    const centerBtn = document.getElementById('show-tutorial-btn');
+    if (centerBtn) centerBtn.classList.add('tutorial-btn-seen');
+  }
+
+  // localStorage にフラグ保存 + UI 反映（5 秒経過時・チュートリアル起動時）
+  function markHelpSeen() {
+    try { localStorage.setItem(HELP_LABEL_SEEN_KEY, '1'); } catch (_) {}
+    applySeenStateUI();
+  }
+
   function bindTriggers() {
     const triggerBtn = document.getElementById('show-tutorial-btn');
     if (triggerBtn && !triggerBtn._tutorialBound) {
@@ -553,15 +570,13 @@
       helpBtn.addEventListener('click', () => tutorial.start());
 
       // 初回訪問のみ 5 秒間ラベル付き → その後丸アイコンに縮小
+      // 中央の「▶ 触り方を見る」ボタンも連動して輪郭線スタイルに切替
       let seen = false;
       try { seen = !!localStorage.getItem(HELP_LABEL_SEEN_KEY); } catch (_) { seen = true; }
       if (seen) {
-        helpBtn.classList.add('compact');
+        applySeenStateUI();
       } else {
-        setTimeout(() => {
-          helpBtn.classList.add('compact');
-          try { localStorage.setItem(HELP_LABEL_SEEN_KEY, '1'); } catch (_) {}
-        }, HELP_LABEL_COLLAPSE_MS);
+        setTimeout(markHelpSeen, HELP_LABEL_COLLAPSE_MS);
       }
 
       // モバイル: 下スクロール中は隠し、上スクロール or 停止後に再表示

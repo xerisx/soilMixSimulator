@@ -21,7 +21,12 @@
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(22,163,74,0.22);
-  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.1s,
+    box-shadow 0.3s ease;
   touch-action: manipulation;
   pointer-events: auto;
   animation: tutorial-trigger-pulse 2.4s ease-in-out infinite;
@@ -47,6 +52,21 @@
   50%      { box-shadow: 0 2px 8px rgba(22,163,74,0.22), 0 0 0 8px rgba(22,163,74,0); }
 }
 
+/* リピーター時（右下ボタンが compact 化するのと連動）: 輪郭線スタイルで控えめに
+   ボーダーの代わりに inset box-shadow を使うことでレイアウト寸法を維持 */
+#show-tutorial-btn.tutorial-btn-seen {
+  background: transparent;
+  color: #16A34A;
+  box-shadow: inset 0 0 0 1.5px #16A34A;
+  animation: none;
+}
+#show-tutorial-btn.tutorial-btn-seen:hover {
+  background: rgba(22,163,74,0.08);
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1.5px #16A34A;
+}
+#show-tutorial-btn.tutorial-btn-seen:active { transform: scale(0.97); }
+
 html[data-theme="dark"] #show-tutorial-btn {
   background: var(--green);
   color: #FFFFFF;
@@ -54,6 +74,15 @@ html[data-theme="dark"] #show-tutorial-btn {
 }
 html[data-theme="dark"] #show-tutorial-btn:hover {
   background: var(--green-dark);
+}
+html[data-theme="dark"] #show-tutorial-btn.tutorial-btn-seen {
+  background: transparent;
+  color: var(--green);
+  box-shadow: inset 0 0 0 1.5px var(--green);
+}
+html[data-theme="dark"] #show-tutorial-btn.tutorial-btn-seen:hover {
+  background: rgba(63,185,80,0.12);
+  box-shadow: inset 0 0 0 1.5px var(--green);
 }
 
 
