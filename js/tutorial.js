@@ -1,5 +1,5 @@
 /**
- * tutorial.js — 触り方を見るチュートリアル（手動進行型）
+ * tutorial.js — 使い方を見るチュートリアル（手動進行型）
  *
  * トリガー:
  *   - #show-tutorial-btn（デスクトップのガイドパネル内）
@@ -570,7 +570,7 @@
       helpBtn.addEventListener('click', () => tutorial.start());
 
       // 初回訪問のみ 5 秒間ラベル付き → その後丸アイコンに縮小
-      // 中央の「▶ 触り方を見る」ボタンも連動して輪郭線スタイルに切替
+      // 中央の「▶ 使い方を見る」ボタンも連動して輪郭線スタイルに切替
       let seen = false;
       try { seen = !!localStorage.getItem(HELP_LABEL_SEEN_KEY); } catch (_) { seen = true; }
       if (seen) {
