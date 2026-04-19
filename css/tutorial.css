@@ -41,11 +41,6 @@
 #show-tutorial-btn:active { transform: scale(0.97); }
 
 #show-tutorial-btn .tutorial-btn-icon { font-size: 11px; }
-#show-tutorial-btn .tutorial-btn-duration {
-  font-size: 11px;
-  font-weight: 500;
-  opacity: 0.85;
-}
 
 @keyframes tutorial-trigger-pulse {
   0%, 100% { box-shadow: 0 2px 8px rgba(22,163,74,0.22), 0 0 0 0 rgba(22,163,74,0.35); }
