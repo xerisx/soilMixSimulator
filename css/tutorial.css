@@ -1,0 +1,666 @@
+/* ═══════════════════════════════════════════════════════════════
+   tutorial.css — 使い方を見るチュートリアル
+   ─ 既存の theme.css 変数（--bg-panel / --text-* / --border / --green etc.）を再利用
+   ─ ライト/ダークは html[data-theme="dark"] のみで差分定義
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ─────────────── トリガーボタン（ガイドパネル内） ─────────────── */
+#show-tutorial-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 9px 16px;
+  font-family: sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #16A34A;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(22,163,74,0.22);
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.1s,
+    box-shadow 0.3s ease;
+  touch-action: manipulation;
+  pointer-events: auto;
+  animation: tutorial-trigger-pulse 2.4s ease-in-out infinite;
+}
+
+#show-tutorial-btn:hover {
+  background: #15803D;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22,163,74,0.30);
+}
+
+#show-tutorial-btn:active { transform: scale(0.97); }
+
+#show-tutorial-btn .tutorial-btn-icon { font-size: 11px; }
+
+@keyframes tutorial-trigger-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(22,163,74,0.22), 0 0 0 0 rgba(22,163,74,0.35); }
+  50%      { box-shadow: 0 2px 8px rgba(22,163,74,0.22), 0 0 0 8px rgba(22,163,74,0); }
+}
+
+/* リピーター時（右下ボタンが compact 化するのと連動）: 輪郭線スタイルで控えめに
+   ボーダーの代わりに inset box-shadow を使うことでレイアウト寸法を維持 */
+#show-tutorial-btn.tutorial-btn-seen {
+  background: transparent;
+  color: #16A34A;
+  box-shadow: inset 0 0 0 1.5px #16A34A;
+  animation: none;
+}
+#show-tutorial-btn.tutorial-btn-seen:hover {
+  background: rgba(22,163,74,0.08);
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1.5px #16A34A;
+}
+#show-tutorial-btn.tutorial-btn-seen:active { transform: scale(0.97); }
+
+html[data-theme="dark"] #show-tutorial-btn {
+  background: var(--green);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(63,185,80,0.28);
+}
+html[data-theme="dark"] #show-tutorial-btn:hover {
+  background: var(--green-dark);
+}
+html[data-theme="dark"] #show-tutorial-btn.tutorial-btn-seen {
+  background: transparent;
+  color: var(--green);
+  box-shadow: inset 0 0 0 1.5px var(--green);
+}
+html[data-theme="dark"] #show-tutorial-btn.tutorial-btn-seen:hover {
+  background: rgba(63,185,80,0.12);
+  box-shadow: inset 0 0 0 1.5px var(--green);
+}
+
+
+/* ─────────────── ヘルプフロートボタン（常設・ピル↔丸の動的切替）─────────────── */
+/*
+ * 既存トリガーボタン（#show-tutorial-btn）はファーストビュー中央の
+ * 角丸矩形＋パルスで提示するプライマリ導線。
+ * こちらは画面隅で常時アクセスできる「フローティング導線」。
+ *
+ * 初期: ピル型 + 「? 使い方を見る」ラベル（初回訪問から 5 秒）
+ * その後 / リピーター: 丸型アイコンのみ（56×56）
+ * モバイルでは下スクロール中は下方向に退避（.scroll-hidden）
+ *
+ * DOM 上は #center-actions の子。
+ * デスクトップ: position: fixed で viewport 右下に固定。
+ *   親 #center-actions の stacking context（z:150-200）に乗るので
+ *   右ペイン（z:100）より前面に描画される。
+ * モバイル: position: absolute で親 #center-actions の上端に張り付け、
+ *   投入前/後でボタンエリアの高さが変わっても一定距離を保つ。
+ */
+#tutorial-help-float {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  height: 56px;
+  padding: 0 20px 0 14px;
+  font-family: sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #16A34A;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  /* 影は CSS 変数にして pulse keyframe と共通化。
+     モバイルで縮小した際に影だけ強く残って浮かないよう、メディア
+     クエリで上書きしやすいようにしている。 */
+  --help-shadow:        0 4px 16px rgba(22,163,74,0.45);
+  --help-shadow-strong: 0 4px 24px rgba(22,163,74,0.70);
+  --help-shadow-hover:  0 6px 20px rgba(22,163,74,0.55);
+  box-shadow: var(--help-shadow);
+  z-index: 90;   /* 分析パネル(z:100) より下、モーダル(z:250) より下 */
+  touch-action: manipulation;
+  overflow: hidden;
+  transform: translateY(0);
+  opacity: 1;
+  transition:
+    width 0.3s ease,
+    padding 0.3s ease,
+    gap 0.3s ease,
+    background 0.15s,
+    transform 0.3s ease,
+    opacity 0.3s ease,
+    box-shadow 0.2s;
+}
+
+/* スクロールで下に退避 */
+#tutorial-help-float.scroll-hidden {
+  transform: translateY(100px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#tutorial-help-float .tutorial-help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+#tutorial-help-float .tutorial-help-label {
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 200px;
+  opacity: 1;
+  margin: 0;
+  padding: 0;
+  transition: max-width 0.3s ease, opacity 0.2s ease;
+}
+
+#tutorial-help-float:hover {
+  background: #15803D;
+  transform: translateY(-2px);
+  box-shadow: var(--help-shadow-hover);
+}
+#tutorial-help-float:active { transform: scale(0.98); }
+#tutorial-help-float:focus-visible {
+  outline: 2px solid #FFFFFF;
+  outline-offset: 2px;
+}
+
+/* 縮小状態: 56×56 の丸 */
+#tutorial-help-float.compact {
+  width: 56px;
+  padding: 0;
+  gap: 0;                /* ラベル分のスペースを完全に消す */
+  justify-content: center;
+  align-items: center;
+}
+#tutorial-help-float.compact .tutorial-help-label {
+  max-width: 0;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* 展開中（ラベル付き）だけ ゆるめのパルス
+   影の値は CSS 変数経由でモバイル/ダークで差し替わる */
+@keyframes tutorial-help-pulse {
+  0%, 100% { box-shadow: var(--help-shadow); }
+  50%      { box-shadow: var(--help-shadow-strong); }
+}
+#tutorial-help-float:not(.compact) {
+  animation: tutorial-help-pulse 2s ease-in-out infinite;
+}
+
+/* デスクトップのみ: 丸状態にホバーするとラベルを再展開。
+ * CSS :hover を直接使うと、展開で幅が変わった際にマウスが要素外に
+ * はみ出して hover が外れ、展開↔縮小のチラつきが起きる。
+ * そのため JS (bindTriggers) から .hover-expanded クラスを付け、
+ * mouseleave に 150ms の遅延を入れて安定化している。 */
+@media (hover: hover) {
+  #tutorial-help-float.compact.hover-expanded {
+    width: auto;
+    padding: 0 20px 0 14px;
+    gap: 8px;  /* 展開時と同じギャップに戻す */
+  }
+  #tutorial-help-float.compact.hover-expanded .tutorial-help-label {
+    max-width: 200px;
+    opacity: 1;
+  }
+}
+
+/* モバイル: #center-actions の上端に張り付ける absolute 配置
+   →「投入して開始」だけの状態と「空気層 + 再投入」の2段状態の
+     どちらでもボタン群の直上 12px に配置される
+   サイズも 56→48 に縮小（存在感を抑えつつタップ領域は 44px 以上確保）*/
+@media (max-width: 767px) {
+  #tutorial-help-float {
+    position: absolute;
+    right: 16px;
+    bottom: 100%;
+    margin-bottom: 12px;
+    height: 48px;
+    /* 影はサイズダウンに合わせて控えめに */
+    --help-shadow:        0 3px 12px rgba(22,163,74,0.40);
+    --help-shadow-strong: 0 3px 18px rgba(22,163,74,0.55);
+    --help-shadow-hover:  0 4px 14px rgba(22,163,74,0.45);
+  }
+  #tutorial-help-float.compact {
+    width: 48px;
+  }
+  #tutorial-help-float .tutorial-help-icon {
+    font-size: 20px;
+  }
+}
+
+/* チュートリアル実行中はヘルプボタンを隠す（重複誘導を避ける） */
+body.tutorial-active #tutorial-help-float { display: none; }
+
+html[data-theme="dark"] #tutorial-help-float {
+  background: var(--green);
+  --help-shadow:        0 4px 16px rgba(63,185,80,0.45);
+  --help-shadow-strong: 0 4px 24px rgba(63,185,80,0.70);
+  --help-shadow-hover:  0 6px 20px rgba(63,185,80,0.55);
+}
+html[data-theme="dark"] #tutorial-help-float:hover {
+  background: var(--green-dark);
+}
+/* モバイル × ダーク: 控えめの影に差し替え */
+@media (max-width: 767px) {
+  html[data-theme="dark"] #tutorial-help-float {
+    --help-shadow:        0 3px 12px rgba(63,185,80,0.40);
+    --help-shadow-strong: 0 3px 18px rgba(63,185,80,0.55);
+    --help-shadow-hover:  0 4px 14px rgba(63,185,80,0.45);
+  }
+}
+
+
+/* チュートリアル中は共有モーダルをスポットライトより前面に出す */
+body.tutorial-active #share-modal:not([hidden]) {
+  z-index: 9060;
+}
+
+
+/* ─────────────── スポットライト（対象を囲むリング + 外側暗転） ─────────────── */
+/*
+ * 全画面オーバーレイを廃止し、スポットライト div の box-shadow だけで
+ * 「対象の外側だけを暗転」する方式。
+ *
+ * box-shadow は自身の box の外側にのみ描画されるため、
+ * spread 9999px の黒影を重ねると、スポットライト矩形の外側だけが暗くなり、
+ * 対象要素（スポットライトの下）はそのまま視認できる。
+ *
+ * pointer-events: none なので対象要素への操作（自動クリック）はすり抜ける。
+ * 対象外クリックでのスキップは JS 側の document capture listener で扱う。
+ */
+.tutorial-spotlight {
+  --tutorial-dim: rgba(0, 0, 0, 0.55);
+  position: fixed;
+  pointer-events: none;
+  z-index: 9050;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow:
+    0 0 0 3px rgba(22,163,74,0.95),
+    0 0 18px rgba(22,163,74,0.55),
+    0 0 0 9999px var(--tutorial-dim);
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease, border-radius 0.2s ease;
+  animation: tutorial-spotlight-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tutorial-spotlight-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(22,163,74,0.95),
+      0 0 18px rgba(22,163,74,0.55),
+      0 0 0 9999px var(--tutorial-dim);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px rgba(22,163,74,0.75),
+      0 0 28px rgba(22,163,74,0.35),
+      0 0 0 9999px var(--tutorial-dim);
+  }
+}
+
+@media (max-width: 767px) {
+  .tutorial-spotlight { --tutorial-dim: rgba(0, 0, 0, 0.42); }
+}
+
+html[data-theme="dark"] .tutorial-spotlight {
+  --tutorial-dim: rgba(0, 0, 0, 0.70);
+  animation-name: tutorial-spotlight-pulse-dark;
+}
+@keyframes tutorial-spotlight-pulse-dark {
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(63,185,80,0.95),
+      0 0 18px rgba(63,185,80,0.55),
+      0 0 0 9999px var(--tutorial-dim);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px rgba(63,185,80,0.75),
+      0 0 28px rgba(63,185,80,0.35),
+      0 0 0 9999px var(--tutorial-dim);
+  }
+}
+
+
+/* ─────────────── ツールチップ（× / 前へ / 番号 / 次へ を統合）─────────────── */
+.tutorial-tooltip {
+  position: fixed;
+  z-index: 9100;
+  min-width: 280px;
+  max-width: 380px;
+  width: max-content;
+  padding: 14px 16px 12px; /* 左右対称。× ボタンはテキスト側だけでよける */
+  background: #16A34A;
+  color: #FFFFFF;
+  font-family: sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.55;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  pointer-events: auto;  /* 前へ/次へ/× を押せるようにする */
+  animation: tutorial-tooltip-in 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* テキストだけ × ボタン分の余白を確保（アクション行はフル幅） */
+.tutorial-tooltip-text {
+  white-space: normal;
+  word-break: break-word;
+  padding-right: 24px;
+}
+
+/* 3列グリッド: 前へ(左) / 番号(中央) / 次へ(右) */
+.tutorial-tooltip-actions {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.tutorial-tip-indicator {
+  font-family: sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  justify-self: center;
+}
+
+.tutorial-tip-prev,
+.tutorial-tip-next {
+  font-family: sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s, color 0.15s, opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+  min-width: 88px;    /* 左右対称の見た目 */
+  text-align: center;
+}
+.tutorial-tip-prev { justify-self: start; }
+.tutorial-tip-next { justify-self: end; }
+
+.tutorial-tip-prev {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+}
+.tutorial-tip-prev:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+.tutorial-tip-prev:active:not(:disabled) { transform: scale(0.97); }
+.tutorial-tip-prev:disabled {
+  opacity: 0;           /* Step 1 では非表示扱い（レイアウトは維持） */
+  cursor: default;
+  pointer-events: none;
+}
+
+.tutorial-tip-next {
+  color: #16A34A;
+  background: #FFFFFF;
+  border: 1px solid #FFFFFF;
+}
+.tutorial-tip-next:hover { background: #F0FDF4; }
+.tutorial-tip-next:active { transform: scale(0.97); }
+
+.tutorial-tip-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255,255,255,0.9);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s, color 0.15s;
+}
+.tutorial-tip-close:hover {
+  background: rgba(255,255,255,0.18);
+  color: #FFFFFF;
+}
+
+.tutorial-tooltip::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+}
+
+.tutorial-tooltip[data-position="bottom"]::before {
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom-color: #16A34A;
+}
+.tutorial-tooltip[data-position="top"]::before {
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top-color: #16A34A;
+}
+.tutorial-tooltip[data-position="left"]::before {
+  top: 50%;
+  right: -14px;
+  transform: translateY(-50%);
+  border-left-color: #16A34A;
+}
+.tutorial-tooltip[data-position="right"]::before {
+  top: 50%;
+  left: -14px;
+  transform: translateY(-50%);
+  border-right-color: #16A34A;
+}
+.tutorial-tooltip:not([data-position]),
+.tutorial-tooltip[data-position=""] { /* 矢印非表示（自由配置時） */ }
+.tutorial-tooltip:not([data-position])::before,
+.tutorial-tooltip[data-position=""]::before { display: none; }
+
+html[data-theme="dark"] .tutorial-tooltip {
+  background: var(--green);
+  color: #FFFFFF;
+}
+html[data-theme="dark"] .tutorial-tooltip[data-position="bottom"]::before { border-bottom-color: var(--green); }
+html[data-theme="dark"] .tutorial-tooltip[data-position="top"]::before    { border-top-color: var(--green); }
+html[data-theme="dark"] .tutorial-tooltip[data-position="left"]::before   { border-left-color: var(--green); }
+html[data-theme="dark"] .tutorial-tooltip[data-position="right"]::before  { border-right-color: var(--green); }
+
+html[data-theme="dark"] .tutorial-tip-next {
+  background: #FFFFFF;
+  color: var(--green-dark);
+  border-color: #FFFFFF;
+}
+html[data-theme="dark"] .tutorial-tip-next:hover {
+  background: #E6F7EA;
+}
+
+@keyframes tutorial-tooltip-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 767px) {
+  .tutorial-tooltip {
+    min-width: 280px;
+    max-width: calc(100vw - 24px);
+    font-size: 13px;
+    padding: 13px 14px 10px; /* モバイルも左右対称 */
+  }
+  .tutorial-tip-prev,
+  .tutorial-tip-next { min-width: 80px; }
+}
+
+
+/* ─────────────── 完了メッセージ ─────────────── */
+.tutorial-completion {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100vw - 32px));
+  background: var(--bg-panel, #FFFFFF);
+  border: 1px solid var(--border, #D8DCE1);
+  border-radius: 16px;
+  padding: 22px 22px 20px;
+  padding-right: 22px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  z-index: 9300;
+  font-family: sans-serif;
+  animation: tutorial-completion-in 0.25s ease-out;
+}
+
+.tutorial-completion .tutorial-tip-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-3, #6B7280);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s, color 0.15s;
+}
+.tutorial-completion .tutorial-tip-close:hover {
+  background: var(--bg-subtle, #ECEEF2);
+  color: var(--text-1, #111827);
+}
+
+.tutorial-completion h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-1, #111827);
+  margin: 0 0 10px;
+}
+
+.tutorial-completion p {
+  font-size: 13px;
+  color: var(--text-2, #374151);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.tutorial-completion .hashtag-hint {
+  font-size: 12px;
+  color: var(--text-3, #6B7280);
+  background: var(--bg-subtle, #ECEEF2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0 0 16px;
+}
+
+/* 完了画面のアクション行: 完了ボタンのみを中央配置
+   前へ / ステップ番号 は完了画面では非表示にしているため単独 */
+.tutorial-completion-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tutorial-completion .close-btn {
+  padding: 10px 22px;
+  background: #16A34A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;          /* 投入ボタンと同じ太さ */
+  font-family: sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+  opacity: 1;
+  transition: background 0.15s, transform 0.1s;
+}
+.tutorial-completion .close-btn:hover  { background: #15803D; color: #FFFFFF; }
+.tutorial-completion .close-btn:active { transform: scale(0.97); }
+
+html[data-theme="dark"] .tutorial-completion .tutorial-tip-close {
+  color: var(--text-3);
+}
+html[data-theme="dark"] .tutorial-completion .tutorial-tip-close:hover {
+  background: var(--bg-subtle);
+  color: var(--text-1);
+}
+
+@keyframes tutorial-completion-in {
+  from { opacity: 0; transform: translate(-50%, -46%); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+html[data-theme="dark"] .tutorial-completion {
+  background: var(--bg-panel);
+  border-color: var(--border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.65);
+}
+html[data-theme="dark"] .tutorial-completion h3 { color: var(--text-1); }
+html[data-theme="dark"] .tutorial-completion p  { color: var(--text-2); }
+html[data-theme="dark"] .tutorial-completion .hashtag-hint {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+}
+/* close-btn はツールチップの .tutorial-tip-next も兼ねるため
+   ダークモードの .tutorial-tip-next 用ルール（背景白 + 緑文字）が
+   specificity 勝負で漏れて、緑背景 + 緑文字で読めなくなっていた。
+   投入ボタン / ヘルプボタンと同じ鮮やかな緑 + 純白で明示的に統一する */
+html[data-theme="dark"] .tutorial-completion .close-btn {
+  background: var(--green);
+  color: #FFFFFF;
+  border-color: var(--green);
+  font-weight: 700;
+  opacity: 1;
+}
+html[data-theme="dark"] .tutorial-completion .close-btn:hover {
+  background: var(--green-dark);
+  color: #FFFFFF;
+}
+
+
+/* ─────────────── アクセシビリティ: モーションリダクション ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  #show-tutorial-btn,
+  .tutorial-spotlight,
+  .tutorial-tooltip,
+  .tutorial-completion,
+  #tutorial-help-float {
+    animation: none !important;
+  }
+  #tutorial-help-float,
+  #tutorial-help-float .tutorial-help-label {
+    transition: none !important;
+  }
+}
