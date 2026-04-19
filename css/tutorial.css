@@ -583,12 +583,12 @@ html[data-theme="dark"] .tutorial-tip-next:hover {
   margin: 0 0 16px;
 }
 
-/* 完了画面のアクション行: 「11 / 11」と「完了」を両端に配置
-   前へボタンは完了画面では非表示にしているため 2 要素のみ */
+/* 完了画面のアクション行: 完了ボタンのみを中央配置
+   前へ / ステップ番号 は完了画面では非表示にしているため単独 */
 .tutorial-completion-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -609,13 +609,6 @@ html[data-theme="dark"] .tutorial-tip-next:hover {
 .tutorial-completion .close-btn:hover  { background: #15803D; color: #FFFFFF; }
 .tutorial-completion .close-btn:active { transform: scale(0.97); }
 
-.tutorial-completion .tutorial-tip-indicator {
-  color: var(--text-3, #6B7280);
-}
-
-html[data-theme="dark"] .tutorial-completion .tutorial-tip-indicator {
-  color: var(--text-3);
-}
 html[data-theme="dark"] .tutorial-completion .tutorial-tip-close {
   color: var(--text-3);
 }

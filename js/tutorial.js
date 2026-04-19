@@ -437,12 +437,12 @@
     }
 
     // ── 完了メッセージ ──
-    // 完了画面では「前へ」を出さない。前に戻る必然性が低く、かつ
-    // 共有モーダルの再オープン処理が必要になってバグの温床になりやすい。
+    // 完了画面では「前へ」とステップ番号を出さない。
+    // - 前へ: 共有モーダルの再オープン実装が複雑でバグ源になりやすい
+    // - 番号: 完了後に「残り何ステップ」は不要、かつ配置の違和感源
     // 終了手段は × / 完了ボタン / Esc の 3 通り。
     _showCompletion() {
       if (this.completion) this.completion.remove();
-      const indicator = STEPS.length + ' / ' + STEPS.length;
       this.completion = document.createElement('div');
       this.completion.className = 'tutorial-completion';
       this.completion.setAttribute('role', 'dialog');
@@ -453,7 +453,6 @@
         '<p>配合ができたら、ぜひXでシェアしてください</p>' +
         '<p class="hashtag-hint">#Qsoil配合 で投稿すると見つけやすくなります</p>' +
         '<div class="tutorial-completion-actions">' +
-          '<span class="tutorial-tip-indicator">' + indicator + '</span>' +
           '<button class="tutorial-tip-next close-btn" type="button">完了</button>' +
         '</div>';
       this.completion.querySelector('.close-btn')
