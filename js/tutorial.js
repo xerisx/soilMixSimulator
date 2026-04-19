@@ -545,6 +545,7 @@
   window.qsoilTutorial = tutorial;
 
   // 「一度は触れた」状態のUIを適用する（localStorage は触らない）
+  // リロードで seen フラグを検出した時や、チュートリアル起動時に使う
   function applySeenStateUI() {
     const helpBtn = document.getElementById('tutorial-help-float');
     if (helpBtn) helpBtn.classList.add('compact');
@@ -552,7 +553,16 @@
     if (centerBtn) centerBtn.classList.add('tutorial-btn-seen');
   }
 
-  // localStorage にフラグ保存 + UI 反映（5 秒経過時・チュートリアル起動時）
+  // 5 秒タイマー経過時: 右下ボタンだけ丸に縮小する（中央は緑塗り維持）
+  // 中央ボタンはガイドパネル内にあり投入ボタンと共に消えるため常駐しない。
+  // 初回訪問中のオンボーディングとしてアピールを継続するためこの挙動にしている。
+  function collapseHelpFloatOnly() {
+    try { localStorage.setItem(HELP_LABEL_SEEN_KEY, '1'); } catch (_) {}
+    const helpBtn = document.getElementById('tutorial-help-float');
+    if (helpBtn) helpBtn.classList.add('compact');
+  }
+
+  // チュートリアル起動時: 中央・右下 両方を控えめ状態へ + フラグ保存
   function markHelpSeen() {
     try { localStorage.setItem(HELP_LABEL_SEEN_KEY, '1'); } catch (_) {}
     applySeenStateUI();
@@ -569,14 +579,17 @@
       helpBtn._tutorialBound = true;
       helpBtn.addEventListener('click', () => tutorial.start());
 
-      // 初回訪問のみ 5 秒間ラベル付き → その後丸アイコンに縮小
-      // 中央の「▶ 使い方を見る」ボタンも連動して輪郭線スタイルに切替
+      // 初回訪問のみ 5 秒間ラベル付き → その後右下だけ丸アイコンに縮小
+      // 中央ボタンは常駐しない（ガイドパネルと共に消える）ため、
+      // 初回訪問中はずっと緑塗りを維持してアピールする。
+      // 中央ボタンの「輪郭線」切替は tutorial.start() か、
+      // リロード後に seen フラグを検出した時にのみ行う。
       let seen = false;
       try { seen = !!localStorage.getItem(HELP_LABEL_SEEN_KEY); } catch (_) { seen = true; }
       if (seen) {
         applySeenStateUI();
       } else {
-        setTimeout(markHelpSeen, HELP_LABEL_COLLAPSE_MS);
+        setTimeout(collapseHelpFloatOnly, HELP_LABEL_COLLAPSE_MS);
       }
 
       // モバイル: 下スクロール中は隠し、上スクロール or 停止後に再表示
