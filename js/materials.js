@@ -56,9 +56,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 3,  max: 6  },
-      M: { min: 6,  max: 12 },
-      L: { min: 12, max: 18 },
+      S: { min: 3,  max: 4  },
+      M: { min: 6,  max: 9  },
+      L: { min: 13, max: 17 },
     },
     physics: {
       friction:    0.62,
@@ -114,9 +114,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 3,  max: 6  },
-      M: { min: 6,  max: 12 },
-      L: { min: 12, max: 20 },
+      S: { min: 4,  max: 5  },
+      M: { min: 8,  max: 11 },
+      L: { min: 15, max: 20 },
     },
     physics: {
       friction:    0.50,
@@ -170,9 +170,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 3,  max: 5  },
-      M: { min: 5,  max: 10 },
-      L: { min: 10, max: 20 },
+      S: { min: 6,  max: 9  },
+      M: { min: 12, max: 17 },
+      L: { min: 25, max: 35 },
     },
     physics: {
       friction:    0.72,
@@ -225,9 +225,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 3,  max: 6  },
-      M: { min: 6,  max: 12 },
-      L: { min: 12, max: 20 },
+      S: { min: 4,  max: 5  },
+      M: { min: 7,  max: 10 },
+      L: { min: 14, max: 18 },
     },
     physics: {
       friction:    0.52,
@@ -285,9 +285,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 1,  max: 3  },
-      M: { min: 3,  max: 7  },
-      L: { min: 7,  max: 15 },
+      S: { min: 2,  max: 3  },
+      M: { min: 4,  max: 5  },
+      L: { min: 7,  max: 9  },
     },
     physics: {
       friction:    0.38,
@@ -342,9 +342,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 1,  max: 3  },
-      M: { min: 3,  max: 5  },
-      L: { min: 5,  max: 10 },
+      S: { min: 2,  max: 3  },
+      M: { min: 4,  max: 5  },
+      L: { min: 7,  max: 9  },
     },
     physics: {
       friction:    0.68,
@@ -403,9 +403,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 3,  max: 6  },
-      M: { min: 6,  max: 12 },
-      L: { min: 12, max: 20 },
+      S: { min: 3,  max: 4  },
+      M: { min: 6,  max: 9  },
+      L: { min: 13, max: 17 },
     },
     physics: {
       friction:    0.58,
@@ -459,9 +459,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 2,  max: 6  },
-      M: { min: 6,  max: 15 },
-      L: { min: 15, max: 30 },
+      S: { min: 7,  max: 12 },
+      M: { min: 18, max: 26 },
+      L: { min: 35, max: 45 },
     },
     physics: {
       friction:    0.78,
@@ -570,9 +570,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 1,  max: 2  },
-      M: { min: 2,  max: 4  },
-      L: { min: 4,  max: 8  },
+      S: { min: 2,  max: 3  },
+      M: { min: 3,  max: 4  },
+      L: { min: 6,  max: 7  },
     },
     physics: {
       friction:    0.60,
@@ -684,9 +684,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 5,   max: 20  },
-      M: { min: 20,  max: 50  },
-      L: { min: 50,  max: 150 },
+      S: { min: 12, max: 17 },
+      M: { min: 25, max: 35 },
+      L: { min: 50, max: 70 },
     },
     physics: {
       friction:    0.85,
@@ -740,9 +740,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 2,  max: 5  },
-      M: { min: 5,  max: 12 },
-      L: { min: 12, max: 25 },
+      S: { min: 4,  max: 5  },
+      M: { min: 7,  max: 10 },
+      L: { min: 15, max: 22 },
     },
     physics: {
       friction:    0.58,
