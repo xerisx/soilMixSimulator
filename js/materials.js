@@ -156,9 +156,9 @@ const MATERIALS = [
       ],
     ],
     sizes: {
-      S: { min: 4,  max: 5  },
-      M: { min: 8,  max: 11 },
-      L: { min: 15, max: 20 },
+      S: { min: 6,  max: 9  },
+      M: { min: 12, max: 18 },
+      L: { min: 22, max: 28 },
     },
     physics: {
       friction:    0.50,
