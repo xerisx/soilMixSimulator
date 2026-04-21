@@ -2,19 +2,19 @@
 // 追加・編集する場合はこのファイルを変更してください
 
 const COMMERCIAL_SOILS = [
-  {
-    id: 'q_soil',
-    name: 'Q-soil',
-    description: 'アロイド向けに調整した、通気性が高く根が蒸れにくい配合',
-    category: '観葉植物',
-    materials: [
-      { id: 'coco_chip', weight: 3.5, size: 'M' },
-      { id: 'bark_chip', weight: 3, size: 'M' },
-      { id: 'hyuga',     weight: 2.5, size: 'L' },
-      { id: 'zeolite',   weight: 0.7, size: 'M' },
-      { id: 'charcoal',  weight: 0.5, size: 'M' },
-    ],
-  },
+  // {
+  //   id: 'q_soil',
+  //   name: 'Q-soil',
+  //   description: 'アロイド向けに調整した、通気性が高く根が蒸れにくい配合',
+  //   category: '観葉植物',
+  //   materials: [
+  //     { id: 'coco_chip', weight: 3.5, size: 'M' },
+  //     { id: 'bark_chip', weight: 3, size: 'M' },
+  //     { id: 'hyuga',     weight: 2.5, size: 'L' },
+  //     { id: 'zeolite',   weight: 0.7, size: 'M' },
+  //     { id: 'charcoal',  weight: 0.5, size: 'M' },
+  //   ],
+  // },
   {
     id: 'neko_chip_m',
     name: 'ねこチップ（M）',
@@ -72,15 +72,15 @@ const COMMERCIAL_SOILS = [
       { id: 'perlite',   weight: 1, size: 'S' },
     ],
   },
-  {
-    id: 'staghorn_fern',
-    name: 'ビカクシダ・着生植物の土',
-    description: '水苔主体の着生向け配合（鉢用に調整）',
-    category: '着生植物',
-    materials: [
-      { id: 'sphagnum',  weight: 4, size: 'L' },
-      { id: 'coco_chip', weight: 2, size: 'L' },
-      { id: 'charcoal',  weight: 1, size: 'S' },
-    ],
-  },
+  // {
+  //   id: 'staghorn_fern',
+  //   name: 'ビカクシダ・着生植物の土',
+  //   description: '水苔主体の着生向け配合（鉢用に調整）',
+  //   category: '着生植物',
+  //   materials: [
+  //     { id: 'sphagnum',  weight: 4, size: 'L' },
+  //     { id: 'coco_chip', weight: 2, size: 'L' },
+  //     { id: 'charcoal',  weight: 1, size: 'S' },
+  //   ],
+  // },
 ];
