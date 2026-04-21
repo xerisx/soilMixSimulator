@@ -249,6 +249,10 @@ html[data-theme="dark"] #center-actions {
   box-shadow: 0 -2px 12px rgba(0,0,0,0.30);
 }
 
+html[data-theme="dark"] #center-actions .act-group-reset {
+  border-top-color: var(--border-2);
+}
+
 /* ── アプリヘッダー (PC) ── */
 html[data-theme="dark"] #app-header {
   border-color: var(--border);
@@ -290,6 +294,7 @@ html[data-theme="dark"] #disclaimer-wrap   { border-color: var(--border-2); }
 html[data-theme="dark"] #feedback-link a         { color: var(--text-3); }
 html[data-theme="dark"] #feedback-link a:hover   { color: var(--text-1); }
 html[data-theme="dark"] .feedback-caption        { color: var(--text-3); }
+html[data-theme="dark"] .feedback-sub            { color: var(--text-4); }
 html[data-theme="dark"] #feedback-link a.feedback-btn        { background: var(--green); color: #FFFFFF; box-shadow: 0 0 10px rgba(63,185,80,0.22); }
 html[data-theme="dark"] #feedback-link a.feedback-btn:hover  { background: var(--green-dark); color: #FFFFFF; box-shadow: 0 2px 12px rgba(63,185,80,0.32); }
 html[data-theme="dark"] #guide-link a            { color: var(--blue); }
@@ -406,6 +411,10 @@ html[data-theme="dark"] .commercial-item.selected {
 
 html[data-theme="dark"] .commercial-name    { color: var(--text-1); }
 html[data-theme="dark"] .commercial-desc    { color: var(--text-4); }
+html[data-theme="dark"] .commercial-category {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+}
 
 html[data-theme="dark"] #base-label {
   color: var(--purple);
@@ -586,10 +595,24 @@ html[data-theme="dark"] .inf-dot      { color: var(--border); }
 html[data-theme="dark"] .inf-mat      { color: var(--text-1); }
 
 /* ─────────────── 配合割合 ─────────────── */
+html[data-theme="dark"] #mix-ratio-panel { border-bottom-color: var(--border-2); }
 html[data-theme="dark"] #mix-ratio-bar { background: var(--bg-subtle); }
 
 html[data-theme="dark"] .mratio-item   { color: var(--text-2); }
 html[data-theme="dark"] .mratio-pct    { color: var(--text-3); }
+html[data-theme="dark"] .mratio-vol    { color: var(--text-4); }
+html[data-theme="dark"] .mratio-note   { color: var(--text-4); }
+
+/* ─────────────── 鉢容量情報 ─────────────── */
+html[data-theme="dark"] .pot-volume-info {
+  color: var(--text-3);
+  border-top-color: var(--border-2);
+}
+
+html[data-theme="dark"] #mobile-pot-info {
+  background: var(--bg-subtle);
+  color: var(--text-3);
+}
 
 /* ─────────────── 配合サマリーチップ ─────────────── */
 html[data-theme="dark"] .mix-chip {
@@ -603,6 +626,8 @@ html[data-theme="dark"] .mix-chip-more {
   background: var(--bg-subtle);
   border-color: var(--border);
 }
+
+html[data-theme="dark"] .mix-chip-vol { color: var(--text-4); }
 
 /* ─────────────── ツールチップ ─────────────── */
 html[data-theme="dark"] .tip-icon {
@@ -724,6 +749,7 @@ html[data-theme="dark"] .share-url-copy-btn:hover {
   background: var(--border);
   color: var(--text-2);
 }
+html[data-theme="dark"] .share-url-copy-btn:active { background: var(--bg-subtle); }
 html[data-theme="dark"] .share-url-copy-btn.copied {
   background: var(--green-bg);
   color: var(--green);
