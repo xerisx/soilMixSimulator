@@ -285,10 +285,13 @@ html[data-theme="dark"] .mcmp-causes-title { color: var(--text-4); }
 /* ─────────────── 区切り線 ─────────────── */
 html[data-theme="dark"] .rp-header         { border-color: var(--border); }
 html[data-theme="dark"] #guide-link-panel  { border-color: var(--border-2); color: var(--text-4); }
-html[data-theme="dark"] #feedback-link     { border-color: var(--border-2); color: var(--text-4); }
+html[data-theme="dark"] #feedback-link     { color: var(--text-4); }
 html[data-theme="dark"] #disclaimer-wrap   { border-color: var(--border-2); }
 html[data-theme="dark"] #feedback-link a         { color: var(--text-3); }
 html[data-theme="dark"] #feedback-link a:hover   { color: var(--text-1); }
+html[data-theme="dark"] .feedback-caption        { color: var(--text-3); }
+html[data-theme="dark"] #feedback-link a.feedback-btn        { background: var(--green); color: #FFFFFF; box-shadow: 0 0 10px rgba(63,185,80,0.22); }
+html[data-theme="dark"] #feedback-link a.feedback-btn:hover  { background: var(--green-dark); color: #FFFFFF; box-shadow: 0 2px 12px rgba(63,185,80,0.32); }
 html[data-theme="dark"] #guide-link a            { color: var(--blue); }
 html[data-theme="dark"] #guide-link              { color: var(--text-4); }
 html[data-theme="dark"] #guide-link-panel:hover  { color: var(--blue); }
@@ -664,7 +667,6 @@ html[data-theme="dark"] #pot-hint { color: var(--text-4); }
 
 /* ─────────────── 免責文言 ─────────────── */
 html[data-theme="dark"] #disclaimer-summary       { color: var(--border); }
-html[data-theme="dark"] #disclaimer-summary:hover { color: var(--text-4); }
 html[data-theme="dark"] #disclaimer               { color: var(--text-4); }
 
 /* ─────────────── 共有モーダル ─────────────── */

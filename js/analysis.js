@@ -249,6 +249,9 @@ function updateGraphs() {
     const btn = document.getElementById(id);
     if (btn) btn.disabled = !hasAny;
   });
+
+  // フィードバックフォーム URL に現在の配合を反映
+  updateFeedbackLinks();
 }
 
 // ── 配合割合（パネル内） ──

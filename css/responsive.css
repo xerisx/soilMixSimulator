@@ -217,7 +217,7 @@
   /* フッター導線: 詰める */
   #disclaimer-wrap  { padding-top: 6px; }
   #guide-link       { padding-bottom: 4px; font-size: 11px; }
-  #feedback-link    { padding-top: 8px; font-size: 11px; margin-top: 0; }
+  #feedback-link    { padding-top: 8px; font-size: 11px; }
 
   /* 貢献資材カード: 密度を上げる */
   #influence-block   { padding: 8px 11px; gap: 4px; }
@@ -274,9 +274,7 @@
 
   /* ページ下端余白: 投入後は ops + reinvestBtn 分だけバー高さが増えるため大きめに確保 */
   /* モバイル: パネル背景を一段下げ、カード(#FFFFFF)が浮き上がって見えるように */
-  #panel { padding-bottom: 110px; background: #F8FAFC; }
-  /* margin-top:auto はデスクトップ専用（モバイルでは不要な空白になる） */
-  #feedback-link { margin-top: 0; }
+  #panel { padding-bottom: 150px; background: #F8FAFC; }
   /* sticky バーで代替するため、モバイルの分析パネル内バーブロックは非表示 */
   #right-panel.rp-mobile .bars-block { display: none; }
   /* モバイル: 各グラフバーを sticky バーと同じ 7px に統一 */

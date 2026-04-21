@@ -408,3 +408,28 @@ function initShareRestore() {
     history.replaceState(null, '', location.pathname + location.search);
   }
 }
+
+// ── フィードバックフォーム (Tally) 導線 ──
+// 現在の配合を ?config=赤玉土40_日向土27_... として付与する。
+// 0重量や端数で 0% になる資材は除外し、比率降順で連結。
+const FEEDBACK_FORM_URL = 'https://tally.so/r/rjrbxN';
+
+function buildFeedbackURL() {
+  const used  = objectTypes.filter(t => t.weight > 0);
+  const total = used.reduce((s, t) => s + t.weight, 0);
+  if (!used.length || total <= 0) return FEEDBACK_FORM_URL;
+
+  const parts = used
+    .map(t => ({ name: t.name, pct: Math.round(t.weight / total * 100) }))
+    .filter(p => p.pct > 0)
+    .sort((a, b) => b.pct - a.pct)
+    .map(p => `${p.name}${p.pct}`);
+
+  if (!parts.length) return FEEDBACK_FORM_URL;
+  return `${FEEDBACK_FORM_URL}?config=${encodeURIComponent(parts.join('_'))}`;
+}
+
+function updateFeedbackLinks() {
+  const url = buildFeedbackURL();
+  document.querySelectorAll('.feedback-form-url').forEach(a => { a.href = url; });
+}

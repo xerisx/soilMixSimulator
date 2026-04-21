@@ -830,9 +830,9 @@
 .gran-coarse { background: #7C3AED; }
 .gran-fine   { background: #C4B5FD; }
 
-/* ── 免責文言（折りたたみ） ── */
+/* ── 免責文言 ── */
 #disclaimer-wrap {
-  border-top: 1px solid #F3F4F6;
+  border-top: 1px solid #EAECF0;
   padding-top: 10px;
   font-family: sans-serif;
 }
@@ -841,18 +841,12 @@
   font-size: 11px;
   font-weight: 600;
   color: #C4C9D4;
-  cursor: pointer;
-  user-select: none;
-  list-style: none;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding-bottom: 4px;
+  margin: 0 0 4px;
 }
-#disclaimer-summary::-webkit-details-marker { display: none; }
 #disclaimer-summary::before { content: 'ⓘ'; }
-#disclaimer-summary:hover { color: #9CA3AF; }
-#disclaimer-wrap[open] #disclaimer-summary { margin-bottom: 4px; }
 
 #disclaimer {
   font-size: 11px;
