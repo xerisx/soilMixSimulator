@@ -37,7 +37,6 @@
     var next = current === 'dark' ? 'light' : 'dark';
     applyTheme(next);
     localStorage.setItem('theme', next);
-    // Matter.js キャンバス背景を更新
     if (typeof updateCanvasTheme === 'function') {
       updateCanvasTheme(next === 'dark');
     }

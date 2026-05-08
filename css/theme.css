@@ -106,47 +106,54 @@ html[data-theme="dark"] {
   justify-content: space-between;
 }
 
+/* ── ピル型テーマトグル ── */
 .theme-toggle {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: 1.5px solid #D1D5DB;
-  border-radius: 8px;
-  background: #FFFFFF;
-  color: #6B7280;
+  background: #E5E7EB;
+  border: none;
+  border-radius: 9999px;
+  padding: 3px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
   touch-action: manipulation;
-  padding: 0;
+  gap: 0;
 }
 
-.theme-toggle:hover {
-  background: #F3F4F6;
-  border-color: #9CA3AF;
+.theme-pill-opt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  transition: background 0.22s, color 0.22s, box-shadow 0.22s;
+}
+
+/* ライトモード: 太陽 = アクティブ（白チップ）、月 = 非アクティブ */
+.theme-opt-light {
+  background: #FFFFFF;
   color: #374151;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.14);
 }
-
-/* アイコン表示切り替え: ライト → 月を表示、ダーク → 太陽を表示 */
-.theme-icon-moon { display: block; }
-.theme-icon-sun  { display: none;  }
-
-html[data-theme="dark"] .theme-icon-moon { display: none;  }
-html[data-theme="dark"] .theme-icon-sun  { display: block; }
-
-/* ダーク時のトグルボタン: 周囲に馴染む完全フラットスタイル */
-html[data-theme="dark"] .theme-toggle {
+.theme-opt-dark {
   background: transparent;
-  border-color: transparent;
-  color: var(--text-4);
+  color: #9CA3AF;
 }
 
-html[data-theme="dark"] .theme-toggle:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: transparent;
-  color: var(--text-3);
+/* ダークモード: 月 = アクティブ（パネル色チップ）、太陽 = 非アクティブ */
+html[data-theme="dark"] .theme-toggle {
+  background: var(--bg-subtle);
+}
+html[data-theme="dark"] .theme-opt-light {
+  background: transparent;
+  color: var(--text-4);
+  box-shadow: none;
+}
+html[data-theme="dark"] .theme-opt-dark {
+  background: var(--bg-panel);
+  color: var(--text-1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.40);
 }
 
 /* モバイルヘッダー内のブランドグループ */
