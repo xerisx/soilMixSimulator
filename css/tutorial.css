@@ -582,6 +582,14 @@ html[data-theme="dark"] .tutorial-tip-next:hover {
   padding: 8px 12px;
   margin: 0 0 16px;
 }
+.tutorial-completion .hashtag-hint a {
+  color: #1D9BF0;
+  text-decoration: none;
+  font-weight: 600;
+}
+.tutorial-completion .hashtag-hint a:hover {
+  text-decoration: underline;
+}
 
 /* 完了画面のアクション行: 完了ボタンのみを中央配置
    前へ / ステップ番号 は完了画面では非表示にしているため単独 */

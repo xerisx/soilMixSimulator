@@ -63,7 +63,7 @@
     {
       id: 'preset',
       getTarget: () => document.querySelector('button[data-preset="balance"]'),
-      tooltip: { text: 'スライダーの初期値を決めてくれます', position: 'bottom' },
+      tooltip: { text: '近いものを選んで始めてみてください。あとで調整できます', position: 'bottom' },
       onNext: (target) => { if (target) target.click(); },
     },
     {
@@ -71,12 +71,12 @@
       getTarget: () =>
         document.querySelector('#obj-list [data-accordion="active"]') ||
         document.getElementById('obj-list'),
-      tooltip: { text: '選んだ資材の割合が入ります', position: 'right' },
+      tooltip: { text: 'サイズや配合量を調整できます', position: 'right' },
     },
     {
       id: 'start',
       getTarget: () => document.getElementById('startBtn'),
-      tooltip: { text: '押すと充填が始まります', position: 'top' },
+      tooltip: { text: '配合が決まったら鉢に投入してみましょう', position: 'top' },
       onNext: (target) => { if (target) target.click(); },
     },
     {
@@ -84,19 +84,19 @@
       getTarget: potAreaRect,
       // モバイルは鉢(canvas:fixed) がパネルに隠れないよう文書トップへ戻す
       scrollToTop: true,
-      tooltip: { text: '配合の様子を視覚的に確認。落ち着いたら次へ', position: 'bottom' },
+      tooltip: { text: 'どんな土になるか、ここで確認できます', position: 'bottom' },
     },
     {
       id: 'air',
       getTarget: () => document.getElementById('airBtn'),
-      tooltip: { text: '空気と土の分布も見られます', position: 'top' },
+      tooltip: { text: '押すと空気層を可視化できます', position: 'top' },
       onNext: (target) => { if (target) target.click(); },
     },
     {
       id: 'airView',
       getTarget: potAreaRect,
       scrollToTop: true,
-      tooltip: { text: '空気が多いほど通気性が高くなります', position: 'bottom' },
+      tooltip: { text: '青い部分が空気層。多いほど通気性が上がります', position: 'bottom' },
     },
     {
       id: 'analysis',
@@ -106,7 +106,7 @@
         }
         return document.getElementById('mobile-metrics-sticky') || document.getElementById('right-panel');
       },
-      tooltip: { text: '配合の特性が数値でわかります', position: 'left' },
+      tooltip: { text: 'どんな性質の土になるか、ここで確認できます', position: 'left' },
     },
     {
       id: 'compare',
@@ -117,7 +117,7 @@
         return document.getElementById('mms-compare-btn') ||
                document.getElementById('pc-compare-btn');
       },
-      tooltip: { text: '配合を並べて比べられます', position: 'bottom' },
+      tooltip: { text: '今の配合と別の配合を、並べて比較できます', position: 'bottom' },
     },
     {
       id: 'share',
@@ -125,13 +125,13 @@
         if (isDesktop()) return document.getElementById('pc-share-btn');
         return document.getElementById('mms-share-btn');
       },
-      tooltip: { text: '作った配合はSNSで共有できます', position: 'top' },
+      tooltip: { text: '作った配合は、SNSで共有もできます', position: 'top' },
       onNext: (target) => { if (target) target.click(); },
     },
     {
       id: 'shareModal',
       getTarget: () => document.querySelector('.share-modal-box'),
-      tooltip: { text: 'デザインを選んで画像付きで投稿', position: 'top' },
+      tooltip: { text: '好きなデザインを選んで、画像付きで投稿できます', position: 'top' },
     },
     {
       id: 'complete',
@@ -449,9 +449,9 @@
       this.completion.setAttribute('aria-label', 'チュートリアル完了');
       this.completion.innerHTML =
         '<button class="tutorial-tip-close" type="button" aria-label="閉じる">×</button>' +
-        '<h3>✨ 使い方をマスターしました</h3>' +
-        '<p>配合ができたら、ぜひXでシェアしてください</p>' +
-        '<p class="hashtag-hint">#qsoil で投稿すると見つけやすくなります</p>' +
+        '<h3>✨ 準備完了！</h3>' +
+        '<p>いい配合は、ぜひXで共有してみてください！</p>' +
+        '<p class="hashtag-hint"><a href="https://x.com/search?q=%23qsoil" target="_blank" rel="noopener">#qsoil</a> で他の投稿も探してみてね(´ ・ω・｀)b</p>' +
         '<div class="tutorial-completion-actions">' +
           '<button class="tutorial-tip-next close-btn" type="button">完了</button>' +
         '</div>';
