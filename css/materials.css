@@ -150,6 +150,26 @@
   display: inline-block;
 }
 
+.mat-header-action {
+  margin-left: auto;
+  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6B7280;
+  background: transparent;
+  padding: 2px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 120ms, color 120ms;
+}
+.mat-header-action:hover { background: #E5E7EB; color: #111827; }
+.mat-header-action:active { background: #D8DCE1; }
+.mat-header-action-icon { font-size: 12px; line-height: 1; }
+
 .mat-accordion-header.open .mat-accordion-arrow {
   transform: rotate(180deg);
 }

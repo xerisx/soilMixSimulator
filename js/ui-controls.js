@@ -1,3 +1,62 @@
+// ── Cookie ヘルパー ──
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()[\]\\\/+^]/g, '\\$&') + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function setCookie(name, value, days = 365) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+// ── 確認ダイアログ（戻り値: Promise<boolean>） ──
+function showConfirmDialog({ title = '確認', message = '', confirmText = 'OK', cancelText = 'キャンセル', skipKey = null } = {}) {
+  if (skipKey && getCookie(`qsoil_skip_${skipKey}`) === '1') {
+    return Promise.resolve(true);
+  }
+  const modal       = document.getElementById('confirm-modal');
+  const titleEl     = document.getElementById('confirm-modal-title');
+  const msgEl       = document.getElementById('confirm-modal-message');
+  const skipCheck   = document.getElementById('confirm-modal-skip-check');
+  const cancelBtn   = document.getElementById('confirm-modal-cancel');
+  const confirmBtn  = document.getElementById('confirm-modal-confirm');
+  const skipLabel   = modal.querySelector('.confirm-modal-skip');
+  if (!modal || !titleEl || !msgEl || !skipCheck || !cancelBtn || !confirmBtn) {
+    return Promise.resolve(window.confirm(message));
+  }
+  titleEl.textContent  = title;
+  msgEl.textContent    = message;
+  cancelBtn.textContent = cancelText;
+  confirmBtn.textContent = confirmText;
+  skipCheck.checked    = false;
+  skipLabel.style.display = skipKey ? '' : 'none';
+  modal.hidden = false;
+
+  return new Promise((resolve) => {
+    const cleanup = () => {
+      modal.hidden = true;
+      cancelBtn.removeEventListener('click', onCancel);
+      confirmBtn.removeEventListener('click', onConfirm);
+      modal.removeEventListener('click', onBackdrop);
+      document.removeEventListener('keydown', onKey);
+    };
+    const onCancel = () => { cleanup(); resolve(false); };
+    const onConfirm = () => {
+      if (skipKey && skipCheck.checked) setCookie(`qsoil_skip_${skipKey}`, '1');
+      cleanup(); resolve(true);
+    };
+    const onBackdrop = (e) => { if (e.target === modal) onCancel(); };
+    const onKey = (e) => {
+      if (e.key === 'Escape') onCancel();
+      else if (e.key === 'Enter') onConfirm();
+    };
+    cancelBtn.addEventListener('click', onCancel);
+    confirmBtn.addEventListener('click', onConfirm);
+    modal.addEventListener('click', onBackdrop);
+    document.addEventListener('keydown', onKey);
+    setTimeout(() => confirmBtn.focus(), 0);
+  });
+}
+
 // ── 状態チェック ──
 function isAllZero() {
   return objectTypes.every(t => t.weight === 0);
@@ -316,20 +375,22 @@ function updateAccordionHeaders(list) {
   if (inactiveHeader) inactiveHeader.textContent = `その他の資材（${inactiveBody.querySelectorAll('.obj-card').length}件）`;
 }
 
-function createMatAccordion(label, open, key) {
+function createMatAccordion(label, open, key, headerActionHtml) {
   const el = document.createElement('div');
   el.className = 'mat-accordion';
 
   const header = document.createElement('button');
   header.className = 'mat-accordion-header' + (open ? ' open' : '');
-  header.innerHTML = `<span>${label}</span><span class="mat-accordion-arrow">▾</span>`;
+  const actionHtml = headerActionHtml || '';
+  header.innerHTML = `<span>${label}</span>${actionHtml}<span class="mat-accordion-arrow">▾</span>`;
 
   const body = document.createElement('div');
   body.className = 'mat-accordion-body';
   if (key) body.dataset.accordion = key;
   if (!open) body.hidden = true;
 
-  header.addEventListener('click', () => {
+  header.addEventListener('click', (e) => {
+    if (e.target.closest('.mat-header-action')) return;
     const nowOpen = body.hidden;
     body.hidden = !nowOpen;
     header.classList.toggle('open', nowOpen);
@@ -337,7 +398,7 @@ function createMatAccordion(label, open, key) {
 
   el.appendChild(header);
   el.appendChild(body);
-  return { el, body };
+  return { el, body, header };
 }
 
 function renderObjList() {
@@ -362,8 +423,26 @@ function renderObjList() {
   );
 
   // アコーディオン1: 使用中 / お気に入り
-  const activeSection = createMatAccordion(`使用中 / お気に入り（${activeAll.length}件）`, prevActiveOpen, 'active');
+  const resetActionHtml = `<span class="mat-header-action" role="button" tabindex="0" aria-label="配合をリセット">配合をリセット<span class="mat-header-action-icon" aria-hidden="true">↺</span></span>`;
+  const activeSection = createMatAccordion(`使用中 / お気に入り（${activeAll.length}件）`, prevActiveOpen, 'active', resetActionHtml);
   activeAll.forEach(type => appendObjCard(activeSection.body, type));
+  const resetBtn = activeSection.header.querySelector('.mat-header-action');
+  if (resetBtn) {
+    const triggerReset = (e) => {
+      e.stopPropagation();
+      showConfirmDialog({
+        title: '配合をリセット',
+        message: '現在の配合をすべて消去します。よろしいですか？',
+        confirmText: 'リセット',
+        cancelText: 'キャンセル',
+        skipKey: 'resetMix',
+      }).then((ok) => { if (ok) clearAllWeights(); });
+    };
+    resetBtn.addEventListener('click', triggerReset);
+    resetBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); triggerReset(e); }
+    });
+  }
   list.appendChild(activeSection.el);
 
   // アコーディオン2: その他の資材

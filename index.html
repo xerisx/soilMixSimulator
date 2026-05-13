@@ -105,6 +105,22 @@
     </div>
   </div>
 
+  <!-- 確認ダイアログ -->
+  <div id="confirm-modal" hidden role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+    <div class="confirm-modal-box">
+      <div class="confirm-modal-title" id="confirm-modal-title">確認</div>
+      <div class="confirm-modal-message" id="confirm-modal-message"></div>
+      <label class="confirm-modal-skip">
+        <input type="checkbox" id="confirm-modal-skip-check">
+        <span>以降は確認しない</span>
+      </label>
+      <div class="confirm-modal-actions">
+        <button class="confirm-modal-cancel" id="confirm-modal-cancel" type="button">キャンセル</button>
+        <button class="confirm-modal-confirm" id="confirm-modal-confirm" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
   <!-- モバイル: sticky ブランドヘッダー（スクロールでパネルに隠れる） -->
   <div id="mobile-header">
     <div class="mobile-header-brand">

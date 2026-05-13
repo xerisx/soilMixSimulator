@@ -404,6 +404,10 @@ html[data-theme="dark"] .mat-accordion-header {
 
 html[data-theme="dark"] .mat-accordion-arrow { color: var(--text-4); }
 
+html[data-theme="dark"] .mat-header-action { color: var(--text-3); }
+html[data-theme="dark"] .mat-header-action:hover { background: var(--bg-card); color: var(--text-1); }
+html[data-theme="dark"] .mat-header-action:active { background: var(--border); }
+
 /* ─────────────── 市販の用土 ─────────────── */
 html[data-theme="dark"] .commercial-item {
   background: var(--bg-panel);
@@ -1052,3 +1056,19 @@ html[data-theme="dark"] .mat-adv-toggle:hover { color: var(--text-2); }
 
 /* ── カード内お気に入りボタン ── */
 html[data-theme="dark"] .mat-card .fav-btn.active { background: var(--orange-bg); }
+
+/* ─────────────── 確認ダイアログ ─────────────── */
+html[data-theme="dark"] #confirm-modal { background: var(--modal-overlay); }
+html[data-theme="dark"] .confirm-modal-box {
+  background: var(--bg-panel);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.50);
+}
+html[data-theme="dark"] .confirm-modal-title { color: var(--text-1); }
+html[data-theme="dark"] .confirm-modal-message { color: var(--text-2); }
+html[data-theme="dark"] .confirm-modal-skip { color: var(--text-4); }
+html[data-theme="dark"] .confirm-modal-skip input[type="checkbox"] { accent-color: var(--text-2); }
+html[data-theme="dark"] .confirm-modal-cancel { color: var(--text-3); }
+html[data-theme="dark"] .confirm-modal-cancel:hover { background: var(--bg-subtle); color: var(--text-1); }
+html[data-theme="dark"] .confirm-modal-confirm { background: #6B7280; color: #FFFFFF; }
+html[data-theme="dark"] .confirm-modal-confirm:hover { background: #7C8A95; }
+html[data-theme="dark"] .confirm-modal-confirm:active { background: #4B5563; }
